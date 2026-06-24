@@ -1,0 +1,598 @@
+{
+  "generatedAt": "2026-06-23T20:30:00Z",
+  "method": "playwright_authenticated_session",
+  "stats": {
+    "downloaded": 73,
+    "failed": 0,
+    "skipped": 1,
+    "duplicates": 0,
+    "placeholders": 0,
+    "captcha_blocked": 0
+  },
+  "items": [
+    {
+      "title": "Браслет из лунного камня «Очарование»",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_9737916",
+      "images": [
+        "/uploads/vk/products/braslet-iz-lunnogo-kamna-ocarovanie/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Диагностика негатива",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_9780487",
+      "images": [
+        "/uploads/vk/services/diagnostika-negativa/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Алтарное покрывало",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_11728010",
+      "images": [
+        "/uploads/vk/products/altarnoe-pokryvalo/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Алтарная подставка \"Архангел Михаил\"",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_12690306",
+      "images": [
+        "/uploads/vk/products/altarnaa-podstavka-arhangel-mihail/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Алтарная подставка «Чакровая гармония»",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_12564608",
+      "images": [
+        "/uploads/vk/products/altarnaa-podstavka-cakrovaa-garmonia/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Трансформационная игра \"Денежный магнит\"",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_9745558",
+      "images": [
+        "/uploads/vk/services/transformazionnaa-igra-denejnyy-magnit/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Алтарная подставка \"Архангел Гавриил\"",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_12690357",
+      "images": [
+        "/uploads/vk/products/altarnaa-podstavka-arhangel-gavriil/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Коробок для спичек",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_11993088",
+      "images": [
+        "/uploads/vk/products/korobok-dla-spicek/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Алтарная подставка \"Архангел Рафаил\"",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_12690325",
+      "images": [
+        "/uploads/vk/products/altarnaa-podstavka-arhangel-rafail/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Алтарная подставка «Анубис»",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_12564603",
+      "images": [
+        "/uploads/vk/products/altarnaa-podstavka-anubis/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Алтарная подставка \"Архангел Гавриил\"",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_12690345",
+      "images": [
+        "/uploads/vk/products/altarnaa-podstavka-arhangel-gavriil-2/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Коробок для спичек",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_11993150",
+      "images": [
+        "/uploads/vk/products/korobok-dla-spicek-2/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Алтарная подставка \"Архангел Гавриил\"",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_12690342",
+      "images": [
+        "/uploads/vk/products/altarnaa-podstavka-arhangel-gavriil-3/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Алтарная подставка «Анубис\"",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_12564600",
+      "images": [
+        "/uploads/vk/products/altarnaa-podstavka-anubis-2/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Коробок для спичек",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_11993302",
+      "images": [
+        "/uploads/vk/products/korobok-dla-spicek-3/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Алтарная подставка «Анубис»",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_12564598",
+      "images": [
+        "/uploads/vk/products/altarnaa-podstavka-anubis-3/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Коробок для спичек",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_11993344",
+      "images": [
+        "/uploads/vk/products/korobok-dla-spicek-4/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Алтарная подставка «Анубис»",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_12564597",
+      "images": [
+        "/uploads/vk/products/altarnaa-podstavka-anubis-4/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Коробок для спичек",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_11993371",
+      "images": [
+        "/uploads/vk/products/korobok-dla-spicek-5/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Алтарная подставка «Анубис»",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_12564596",
+      "images": [
+        "/uploads/vk/products/altarnaa-podstavka-anubis-5/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Подставка для Алтаря. Инь&Янь",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_11993558",
+      "images": [
+        "/uploads/vk/products/podstavka-dla-altara-in-an/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Алтарная подставка «Процветание»",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_12564199",
+      "images": [
+        "/uploads/vk/products/altarnaa-podstavka-prozvetanie/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Табличка «Дом Ведьмы»",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_12000755",
+      "images": [
+        "/uploads/vk/products/tablicka-dom-ved-my/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Часы «Сила Волка»",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_12001991",
+      "images": [
+        "/uploads/vk/products/casy-sila-volka/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Алтарная подставка \"Денежная Лошадь\"",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_12564191",
+      "images": [
+        "/uploads/vk/products/altarnaa-podstavka-deneznaya-loshad/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Бокал «Дракон»",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_12017663",
+      "images": [
+        "/uploads/vk/products/bokal-drakon/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Алтарная подставка \"Мать Земля\"",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_12564164",
+      "images": [
+        "/uploads/vk/products/altarnaa-podstavka-mat-zemla/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Алтарное покрывало \"Родовое Древо\"",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_12551040",
+      "images": [
+        "/uploads/vk/products/altarnoe-pokryvalo-rodovoe-drevo/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Бокал «Сердце»",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_12017791",
+      "images": [
+        "/uploads/vk/products/bokal-serdze/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Алтарное покрывало \"Всевидящее Око\"",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_12550978",
+      "images": [
+        "/uploads/vk/products/altarnoe-pokryvalo-vsevidasee-oko/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Алтарное покрывало \"Женская Сила\"",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_12550933",
+      "images": [
+        "/uploads/vk/products/altarnoe-pokryvalo-jenskaa-sila/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Алтарное покрывало \"Мать Земля\"",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_12550624",
+      "images": [
+        "/uploads/vk/products/altarnoe-pokryvalo-mat-zemla/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Алтарное покрывало \"Бесконечность\"",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_12550596",
+      "images": [
+        "/uploads/vk/products/altarnoe-pokryvalo-beskonecnost/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Вольт",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_12017825",
+      "images": [
+        "/uploads/vk/products/vol-t/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Алтарное покрывало «Пентаграмма»",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_12017989",
+      "images": [
+        "/uploads/vk/products/altarnoe-pokryvalo-pentagramma/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Подставка для Алтаря «Чакровая»",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_12018228",
+      "images": [
+        "/uploads/vk/products/podstavka-dla-altara-cakrovaa/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Алтарная подставка «Чёрный Ворон»",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_12018376",
+      "images": [
+        "/uploads/vk/products/altarnaa-podstavka-cernyy-voron/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Алтарная подставка «Чёрный Ворон»",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_12018398",
+      "images": [
+        "/uploads/vk/products/altarnaa-podstavka-cernyy-voron-2/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Алтарное покрывало \"Сила Ведьмы\"",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_12550452",
+      "images": [
+        "/uploads/vk/products/altarnoe-pokryvalo-sila-ved-my/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Алтарное покрывало \"Пентаграмма\"",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_12550425",
+      "images": [
+        "/uploads/vk/products/altarnoe-pokryvalo-pentagramma-2/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Подставка для Алтаря «Бастет»",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_12018576",
+      "images": [
+        "/uploads/vk/products/podstavka-dla-altara-bastet/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Алтарное покрывало \"Пентаграмма\"",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_12550405",
+      "images": [
+        "/uploads/vk/products/altarnoe-pokryvalo-pentagramma-3/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Подставка для Алтаря «Бастет»",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_12018580",
+      "images": [
+        "/uploads/vk/products/podstavka-dla-altara-bastet-2/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Сумка-шоппер \"Древо\"",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_12535200",
+      "images": [
+        "/uploads/vk/products/sumka-sopper-drevo/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Алтарная подставка «Древо»",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_12019030",
+      "images": [
+        "/uploads/vk/products/altarnaa-podstavka-drevo/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Сумка-шоппер \"Ведьма\"",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_12535118",
+      "images": [
+        "/uploads/vk/products/sumka-sopper-ved-ma/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Шпилька для волос «Меч»",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_12019531",
+      "images": [
+        "/uploads/vk/products/spil-ka-dla-volos-mec/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Алтарное покрывало",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_12534946",
+      "images": [
+        "/uploads/vk/products/altarnoe-pokryvalo-pentagramma-4/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Шпилька для волос «Звезда»",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_12019534",
+      "images": [
+        "/uploads/vk/products/spil-ka-dla-volos-zvezda/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Алтарное покрывало",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_12534923",
+      "images": [
+        "/uploads/vk/products/altarnoe-pokryvalo-3/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Шпилька для волос «Сияние»",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_12019780",
+      "images": [
+        "/uploads/vk/products/spil-ka-dla-volos-sianie/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Алтарное покрывало",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_12534906",
+      "images": [
+        "/uploads/vk/products/altarnoe-pokryvalo-4/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Шпилька для волос «Луна»",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_12019786",
+      "images": [
+        "/uploads/vk/products/spil-ka-dla-volos-luna/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Алтарное покрывало",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_12534893",
+      "images": [
+        "/uploads/vk/products/altarnoe-pokryvalo-5/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Браслет",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_12019794",
+      "images": [
+        "/uploads/vk/products/braslet/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Алтарное покрывало",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_12534883",
+      "images": [
+        "/uploads/vk/products/altarnoe-pokryvalo-6/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Браслет",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_12019835",
+      "images": [
+        "/uploads/vk/products/braslet-2/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Алтарное покрывало",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_12534830",
+      "images": [
+        "/uploads/vk/products/altarnoe-pokryvalo-7/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Подставка для Алтаря «Санта Муэрте»",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_12019851",
+      "images": [
+        "/uploads/vk/products/podstavka-dla-altara-santa-muerte/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Серьги «Слеза вампира»",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_12246321",
+      "images": [
+        "/uploads/vk/products/ser-gi-sleza-vampira/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Подставка для Алтаря «Санта Муэрте»",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_12019880",
+      "images": [
+        "/uploads/vk/products/podstavka-dla-altara-santa-muerte-2/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Серьги «Сила Ведьмы»",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_12224406",
+      "images": [
+        "/uploads/vk/products/ser-gi-sila-ved-my/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Браслет из «Кошачьего глаза»",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_12050933",
+      "images": [
+        "/uploads/vk/products/braslet-iz-kosac-ego-glaza/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Придверный коврик «Благословение и защита дома»",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_12073982",
+      "images": [
+        "/uploads/vk/products/pridvernyy-kovrik-blagoslovenie-i-zasita-doma/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Подставка для Алтаря «Сила и защита Дракона»",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_12066326",
+      "images": [
+        "/uploads/vk/products/podstavka-dla-altara-sila-i-zasita-drakona/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Браслет из флюорита",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_12071510",
+      "images": [
+        "/uploads/vk/products/braslet-iz-fluorita/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Подставка для Алтаря «Око Дракона»",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_12066335",
+      "images": [
+        "/uploads/vk/products/podstavka-dla-altara-oko-drakona/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Браслет из агата «Вены Дракона»",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_12071497",
+      "images": [
+        "/uploads/vk/products/braslet-iz-agata-veny-drakona/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Подставка для Алтаря «Око Дракона»",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_12066345",
+      "images": [
+        "/uploads/vk/products/podstavka-dla-altara-oko-drakona-2/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Браслет «Бычий глаз» с агатом",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_12071461",
+      "images": [
+        "/uploads/vk/products/braslet-byciy-glaz-s-agatom/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Браслет из аметиста",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_12071413",
+      "images": [
+        "/uploads/vk/products/braslet-iz-ametista/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Браслет из гематита",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_12066369",
+      "images": [
+        "/uploads/vk/products/braslet-iz-gematita/cover.jpg"
+      ],
+      "failed": []
+    },
+    {
+      "title": "Браслет из глазкового агата",
+      "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_12066379",
+      "images": [
+        "/uploads/vk/products/braslet-iz-glazkovogo-agata/cover.jpg"
+      ],
+      "failed": []
+    }
+  ]
+}

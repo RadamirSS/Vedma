@@ -1,0 +1,11 @@
+.next
+node_modules
+pnpm-lock.yaml
+out
+
+# VK import session artifacts (never commit)
+.vk-browser-profile/
+playwright/.auth/
+**/vk_session/
+**/*cookies*
+imports/vk/raw/.browser-state/

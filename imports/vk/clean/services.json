@@ -1,0 +1,46 @@
+[
+  {
+    "id": "vk-s-2",
+    "type": "service",
+    "title": "Диагностика негатива",
+    "slug": "diagnostika-negativa",
+    "priceLabel": "3,500 ₽",
+    "priceFrom": 3500,
+    "priceTo": 3500,
+    "currency": "RUB",
+    "category": "Магия Жизни Self-knowledge and stress management",
+    "shortDescription": "Когда в Жизни начинает все рушится и нет понимания происходящей ситуации.",
+    "fullDescription": "Когда в Жизни начинает все рушится и нет понимания происходящей ситуации. Когда ничего не получается, даже не смотря на все старания. Необходимо понять причину всех неприятностей! Найти точку отсчета и корень всех бед. Во всем разобраться может помочь только диагностика. Проводится по фотографии, в режиме переписки.",
+    "images": [
+      "/uploads/vk/services/diagnostika-negativa/cover.jpg"
+    ],
+    "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_9780487",
+    "sourcePlatform": "vk",
+    "status": "published",
+    "needsReview": false,
+    "reviewReasons": [],
+    "sourceSection": "services"
+  },
+  {
+    "id": "vk-s-6",
+    "type": "service",
+    "title": "Трансформационная игра \"Денежный магнит\"",
+    "slug": "transformatsionnaya-igra-denezhnyy-magnit",
+    "priceLabel": "9,555 ₽",
+    "priceFrom": 9555,
+    "priceTo": 9555,
+    "currency": "RUB",
+    "category": "Магия Жизни Money and success",
+    "shortDescription": "Глубокая проработка и анализ денежного ресурса.",
+    "fullDescription": "Глубокая проработка и анализ денежного ресурса. Разбор родовых программ. Трансовая практика трансформации вас в \"денежный магнит\".По времени вся работа занимает около двух часов!",
+    "images": [
+      "/uploads/vk/services/transformazionnaa-igra-denejnyy-magnit/cover.jpg"
+    ],
+    "sourceUrl": "https://vk.com/market-226854094?w=product-226854094_9745558",
+    "sourcePlatform": "vk",
+    "status": "published",
+    "needsReview": false,
+    "reviewReasons": [],
+    "sourceSection": "services"
+  }
+]
