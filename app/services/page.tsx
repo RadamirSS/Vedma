@@ -4,7 +4,7 @@ import { CatalogCard } from "@/components/catalog-card";
 import { LeadCta } from "@/components/lead-cta";
 import { SectionHeading } from "@/components/section-heading";
 import { ServiceDirectionsGrid } from "@/components/service-directions-grid";
-import { services } from "@/lib/mock-data";
+import { getPublishedServices } from "@/lib/catalog/repository";
 
 export const metadata: Metadata = {
   title: "Услуги",
@@ -12,7 +12,8 @@ export const metadata: Metadata = {
     "Таро, диагностика, защита, отношения, деньги, родовые практики, трансформация и консультации Бажены. Запись онлайн."
 };
 
-export default function ServicesPage() {
+export default async function ServicesPage() {
+  const services = await getPublishedServices();
   return (
     <>
       <section className="section">

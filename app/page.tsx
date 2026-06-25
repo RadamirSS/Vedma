@@ -6,13 +6,8 @@ import { HomeHero } from "@/components/home-hero";
 import { SectionHeading } from "@/components/section-heading";
 import { VisualGallery } from "@/components/visual-gallery";
 import { pickFeaturedItems, pickFeaturedProducts } from "@/lib/catalog-helpers";
-import {
-  benefits,
-  processSteps,
-  products,
-  reviews,
-  services
-} from "@/lib/mock-data";
+import { getPublishedProducts, getPublishedServices } from "@/lib/catalog/repository";
+import { benefits, processSteps, reviews } from "@/lib/mock-data";
 
 export const metadata = {
   title: "Бажена — Магия Жизни",
@@ -20,7 +15,12 @@ export const metadata = {
     "Таро, диагностика, трансформационные практики и магические товары. Личный бренд Бажены — Магия Жизни."
 };
 
-export default function HomePage() {
+export default async function HomePage() {
+  const [products, services] = await Promise.all([
+    getPublishedProducts(),
+    getPublishedServices()
+  ]);
+
   return (
     <>
       <HomeHero />

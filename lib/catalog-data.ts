@@ -1,5 +1,5 @@
 // Auto-generated from imports/vk/clean/catalog_clean.json — do not edit manually.
-import type { CatalogItem } from "@/lib/catalog-types";
+import type { CatalogItem } from "./catalog-types";
 
 export const services: CatalogItem[] = [
   {
