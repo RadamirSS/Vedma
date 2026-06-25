@@ -1,0 +1,210 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  MANAGER
+  CUSTOMER
+}
+
+enum PublicationStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum AvailabilityStatus {
+  IN_STOCK
+  ON_REQUEST
+  OUT_OF_STOCK
+  UNKNOWN
+}
+
+enum OrderStatus {
+  DRAFT
+  NEW
+  CONFIRMED
+  FULFILLED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  AUTHORIZED
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum PaymentProvider {
+  MANUAL
+  STRIPE
+  PAYPAL
+  OTHER
+}
+
+enum RequestStatus {
+  NEW
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum Currency {
+  RUB
+  USD
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String?
+  name         String?
+  role         Role     @default(ADMIN)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Product {
+  id                 String             @id @default(cuid())
+  sourceId           String?
+  sourcePlatform     String?
+  sourceUrl          String?
+  title              String
+  slug               String             @unique
+  shortDescription   String?
+  fullDescription    String?
+  priceRub           Int?
+  priceUsd           Int?
+  priceLabel         String?
+  currency           Currency           @default(RUB)
+  category           String?
+  normalizedCategory String?
+  purpose            String?
+  availabilityStatus AvailabilityStatus @default(UNKNOWN)
+  publicationStatus  PublicationStatus  @default(DRAFT)
+  quantity           Int?
+  image              String?
+  gallery            Json?
+  tags               Json?
+  seoTitle           String?
+  seoDescription     String?
+  needsReview        Boolean            @default(false)
+  media              Media[]
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+}
+
+model Service {
+  id                 String            @id @default(cuid())
+  sourceId           String?
+  sourcePlatform     String?
+  sourceUrl          String?
+  title              String
+  slug               String            @unique
+  shortDescription   String?
+  fullDescription    String?
+  priceRub           Int?
+  priceUsd           Int?
+  priceLabel         String?
+  currency           Currency          @default(RUB)
+  category           String?
+  normalizedCategory String?
+  format             String?
+  duration           String?
+  executionTime      String?
+  image              String?
+  gallery            Json?
+  tags               Json?
+  seoTitle           String?
+  seoDescription     String?
+  needsReview        Boolean           @default(false)
+  publicationStatus  PublicationStatus @default(DRAFT)
+  media              Media[]
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+}
+
+model Media {
+  id             String   @id @default(cuid())
+  path           String   @unique
+  filename       String
+  mimeType       String?
+  size           Int?
+  alt            String?
+  sourcePlatform String?
+  sourceUrl      String?
+  productId      String?
+  serviceId      String?
+  product        Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  service        Service? @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model Order {
+  id               String        @id @default(cuid())
+  orderNumber      String        @unique
+  status           OrderStatus   @default(DRAFT)
+  paymentStatus    PaymentStatus @default(PENDING)
+  totalAmountRub   Int?
+  totalAmountUsd   Int?
+  customerName     String?
+  customerEmail    String?
+  customerPhone    String?
+  customerTelegram String?
+  payments         Payment[]
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+}
+
+model Request {
+  id            String        @id @default(cuid())
+  requestNumber String        @unique
+  source        String?
+  status        RequestStatus @default(NEW)
+  clientName    String?
+  phone         String?
+  telegram      String?
+  email         String?
+  comment       String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model Payment {
+  id        String          @id @default(cuid())
+  provider  PaymentProvider @default(MANUAL)
+  status    PaymentStatus   @default(PENDING)
+  amountRub Int?
+  amountUsd Int?
+  orderId   String?
+  order     Order?          @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+}
+
+model Review {
+  id                String            @id @default(cuid())
+  authorName        String?
+  title             String?
+  text              String
+  image             String?
+  publicationStatus PublicationStatus @default(DRAFT)
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+}
+
+model SiteSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

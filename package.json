@@ -6,10 +6,19 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "start:public": "next start -H 0.0.0.0 -p 3000",
+    "tunnel": "bash scripts/tunnel.sh",
     "lint": "eslint .",
-    "screenshots": "bash scripts/capture-screenshots.sh"
+    "screenshots": "bash scripts/capture-screenshots.sh",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev --name package_1_init",
+    "db:seed": "prisma db seed",
+    "db:studio": "prisma studio",
+    "db:import:catalog": "tsx scripts/import-catalog-to-db.ts",
+    "db:verify:catalog": "tsx scripts/verify-catalog-db.ts"
   },
   "dependencies": {
+    "@prisma/client": "^6.11.0",
     "next": "15.3.4",
     "react": "19.0.0",
     "react-dom": "19.0.0"
@@ -21,6 +30,11 @@
     "@types/react-dom": "19.1.6",
     "eslint": "9.29.0",
     "eslint-config-next": "15.3.4",
+    "prisma": "^6.11.0",
+    "tsx": "^4.20.3",
     "typescript": "5.8.3"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
   }
 }

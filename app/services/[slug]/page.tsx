@@ -5,10 +5,14 @@ import { notFound } from "next/navigation";
 import { CatalogCard } from "@/components/catalog-card";
 import { CatalogVisual } from "@/components/catalog-visual";
 import { LegalNotice } from "@/components/legal-notice";
-import { services, getServiceBySlug } from "@/lib/mock-data";
+import {
+  getPublishedServices,
+  getServiceBySlug
+} from "@/lib/catalog/repository";
 import { formatPrice } from "@/lib/utils";
 
-export function generateStaticParams() {
+export async function generateStaticParams() {
+  const services = await getPublishedServices();
   return services.map((item) => ({ slug: item.slug }));
 }
 
@@ -18,7 +22,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const item = getServiceBySlug(slug);
+  const item = await getServiceBySlug(slug);
   if (!item) {
     return { title: "Услуга" };
   }
@@ -34,7 +38,10 @@ export default async function ServiceDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const item = getServiceBySlug(slug);
+  const [item, services] = await Promise.all([
+    getServiceBySlug(slug),
+    getPublishedServices()
+  ]);
   if (!item) notFound();
 
   return (

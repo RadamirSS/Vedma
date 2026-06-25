@@ -1,7 +1,7 @@
 import { CatalogBrowser } from "@/components/catalog-browser";
 import { SectionHeading } from "@/components/section-heading";
+import { getPublishedProducts } from "@/lib/catalog/repository";
 import { getCategoryCounts } from "@/lib/product-categories";
-import { products } from "@/lib/mock-data";
 
 export const metadata = {
   title: "Магазин",
@@ -9,7 +9,8 @@ export const metadata = {
     "Магические товары Бажены: браслеты, камни, алтарные товары, декор, обереги и подарки для личной практики."
 };
 
-export default function ProductsPage() {
+export default async function ProductsPage() {
+  const products = await getPublishedProducts();
   const categoryCounts = getCategoryCounts(products);
 
   return (

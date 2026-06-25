@@ -5,11 +5,15 @@ import { notFound } from "next/navigation";
 import { CatalogCard } from "@/components/catalog-card";
 import { CatalogVisual } from "@/components/catalog-visual";
 import { LegalNotice } from "@/components/legal-notice";
-import { getProductBySlug, products } from "@/lib/mock-data";
+import {
+  getProductBySlug,
+  getPublishedProducts
+} from "@/lib/catalog/repository";
 import { getProductDisplayCategory } from "@/lib/product-categories";
 import { formatPrice } from "@/lib/utils";
 
-export function generateStaticParams() {
+export async function generateStaticParams() {
+  const products = await getPublishedProducts();
   return products.map((item) => ({ slug: item.slug }));
 }
 
@@ -19,7 +23,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const item = getProductBySlug(slug);
+  const item = await getProductBySlug(slug);
   if (!item) {
     return { title: "Товар" };
   }
@@ -35,7 +39,10 @@ export default async function ProductDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const item = getProductBySlug(slug);
+  const [item, products] = await Promise.all([
+    getProductBySlug(slug),
+    getPublishedProducts()
+  ]);
   if (!item) notFound();
 
   return (
