@@ -1,8 +1,12 @@
 # Package 1 Import Report
 
-DB import has not been executed in this workspace yet.
-
-- Expected products: 71
-- Expected services: 2
-- Source of truth: `lib/catalog-data.ts`
-- This file will be overwritten by `pnpm db:import:catalog` when PostgreSQL is available.
+- Date: 2026-06-25T12:25:54.170Z
+- Source catalog products: 71
+- Source catalog services: 2
+- Imported products in DB: 71
+- Imported services in DB: 2
+- Media records in DB: 73
+- Duplicate products: 0
+- Duplicate services: 0
+- Image paths preserved: yes
+- Source of truth: lib/catalog-data.ts

@@ -27,6 +27,15 @@
 - The local workspace currently needs a reachable PostgreSQL database to execute import and verification against Prisma models.
 - Client-side cart helpers still rely on static in-browser item resolution, so Package 1 preserves source IDs in DB-backed catalog payloads for compatibility.
 
+## Database Smoke Test Result
+
+- Verified against a real local PostgreSQL instance on `localhost:5432`
+- Prisma migration applied successfully and created `prisma/migrations/20260625122538_package_1_init/migration.sql`
+- Catalog import succeeded with `71` products, `2` services, and `73` media rows
+- Catalog verification passed with `0` errors and `0` warnings
+- Production build passed with `DATABASE_URL` set and without static fallback
+- Repo-wide lint still has two pre-existing unrelated VK script failures; Package 1 / 1.1 files are lint-clean
+
 ## Next Package
 
 - Production Admin Panel

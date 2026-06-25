@@ -1,7 +1,10 @@
 # Package 1 Verification Report
 
-DB verification has not been executed in this workspace yet.
+- Date: 2026-06-25T12:25:55.053Z
+- Products checked: 71
+- Services checked: 2
+- Media checked: 73
+- Errors: 0
+- Warnings: 0
 
-- Expected products: 71
-- Expected services: 2
-- This file will be overwritten by `pnpm db:verify:catalog` when PostgreSQL is available.
+- OK: critical verification checks passed.

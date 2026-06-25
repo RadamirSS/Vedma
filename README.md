@@ -16,6 +16,12 @@ Create a local `.env` from `.env.example` and set:
 3. Create or update the local PostgreSQL schema with `pnpm db:migrate`.
 4. Seed the placeholder admin user with `pnpm db:seed`.
 
+For local Docker-based Postgres setup, use `docker-compose.local.yml` with:
+
+- database: `bazhena`
+- user: `bazhena`
+- port: `5432`
+
 ## Catalog Migration
 
 - Import the preserved static catalog into PostgreSQL with `pnpm db:import:catalog`
@@ -35,6 +41,7 @@ The migration source of truth for Package 1 stays in `lib/catalog-data.ts`. Do n
 - Import report: `docs/migration/package-1-import-report.md`
 - Verification report: `docs/migration/package-1-verification-report.md`
 - Package summary: `docs/migration/package-1-summary.md`
+- DB smoke test: `docs/migration/package-1-db-smoke-test.md`
 
 ## Rollback
 

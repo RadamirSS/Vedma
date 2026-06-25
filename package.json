@@ -11,7 +11,7 @@
     "lint": "eslint .",
     "screenshots": "bash scripts/capture-screenshots.sh",
     "db:generate": "prisma generate",
-    "db:migrate": "prisma migrate dev",
+    "db:migrate": "prisma migrate dev --name package_1_init",
     "db:seed": "prisma db seed",
     "db:studio": "prisma studio",
     "db:import:catalog": "tsx scripts/import-catalog-to-db.ts",
