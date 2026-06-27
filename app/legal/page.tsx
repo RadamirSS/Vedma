@@ -1,14 +1,21 @@
 import { SectionHeading } from "@/components/section-heading";
-import { legalCards } from "@/lib/mock-data";
+import { getSiteSettings } from "@/lib/admin/settings";
 
-export default function LegalPage() {
+export default async function LegalPage() {
+  const settings = await getSiteSettings();
+  const legalCards = [
+    { title: settings.legalPages.privacyTitle, text: settings.legalPages.privacyText },
+    { title: settings.legalPages.offerTitle, text: settings.legalPages.offerText },
+    { title: settings.legalPages.disclaimerTitle, text: settings.legalPages.disclaimerText }
+  ];
+
   return (
     <section className="section">
       <div className="container">
         <SectionHeading
           eyebrow="Юридические блоки"
           title="18+ · политика · оферта · дисклеймер"
-          text="Это не юридически финальные тексты, а визуальные блоки для согласования структуры и подачи."
+          text="Юридические блоки редактируются в админ-панели и публикуются без изменения структуры страницы."
         />
         <div className="legal-grid">
           {legalCards.map((card) => (

@@ -8,6 +8,7 @@ import { VisualGallery } from "@/components/visual-gallery";
 import { pickFeaturedItems, pickFeaturedProducts } from "@/lib/catalog-helpers";
 import { getPublishedProducts, getPublishedServices } from "@/lib/catalog/repository";
 import { benefits, processSteps, reviews } from "@/lib/mock-data";
+import { getPublishedReviews } from "@/lib/reviews";
 
 export const metadata = {
   title: "Бажена — Магия Жизни",
@@ -16,9 +17,10 @@ export const metadata = {
 };
 
 export default async function HomePage() {
-  const [products, services] = await Promise.all([
+  const [products, services, publishedReviews] = await Promise.all([
     getPublishedProducts(),
-    getPublishedServices()
+    getPublishedServices(),
+    getPublishedReviews()
   ]);
 
   return (
@@ -89,7 +91,7 @@ export default async function HomePage() {
             text="Реальные истории людей, которые обратились за поддержкой и разбором ситуации."
           />
           <div className="reviews">
-            {reviews.map((review) => (
+            {(publishedReviews.length > 0 ? publishedReviews : reviews).map((review) => (
               <article key={review.id} className="review-card">
                 <span className="service">{review.service}</span>
                 <p>«{review.quote}»</p>

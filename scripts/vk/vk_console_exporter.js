@@ -79,12 +79,6 @@
     return links;
   }
 
-  function detectSectionFromUrl(url) {
-    if (/market|product-\d|w=product/i.test(url)) return "products";
-    if (/uslugi|service/i.test(url)) return "services";
-    return "unknown";
-  }
-
   function extractCardsFromPage(section) {
     const cards = new Map();
     const selectors = [

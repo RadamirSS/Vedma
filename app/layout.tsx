@@ -2,25 +2,32 @@ import type { Metadata } from "next";
 
 import { CartProvider } from "@/components/cart-context";
 import { SiteShell } from "@/components/site-shell";
+import { getSiteSettings } from "@/lib/admin/settings";
 
 import "./globals.css";
 
-export const metadata: Metadata = {
-  metadataBase: new URL("https://bazhena.ru"),
-  title: {
-    default: "Бажена — Магия Жизни",
-    template: "%s | Бажена — Магия Жизни"
-  },
-  description:
-    "Таро, диагностика, трансформационные практики и магические товары. Личный бренд Бажены — проводника в мире тонких практик."
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSiteSettings();
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  return {
+    metadataBase: new URL("https://bazhena.ru"),
+    title: {
+      default: settings.seo.defaultTitle,
+      template: settings.seo.titleTemplate
+    },
+    description: settings.seo.defaultDescription,
+    keywords: settings.seo.keywords
+  };
+}
+
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const settings = await getSiteSettings();
+
   return (
     <html lang="ru">
       <body>
         <CartProvider>
-          <SiteShell>{children}</SiteShell>
+          <SiteShell settings={settings}>{children}</SiteShell>
         </CartProvider>
       </body>
     </html>

@@ -1,7 +1,9 @@
 import { SectionHeading } from "@/components/section-heading";
-import { reviews } from "@/lib/mock-data";
+import { getPublishedReviews } from "@/lib/reviews";
 
-export default function ReviewsPage() {
+export default async function ReviewsPage() {
+  const reviews = await getPublishedReviews();
+
   return (
     <section className="section">
       <div className="container">
