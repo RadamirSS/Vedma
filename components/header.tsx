@@ -5,6 +5,7 @@ import type { Route } from "next";
 import { useState } from "react";
 
 import { useCart } from "@/components/cart-context";
+import type { SiteSettingsShape } from "@/lib/admin/settings";
 
 const navLinks = [
   { href: "/services", label: "Услуги" },
@@ -15,7 +16,7 @@ const navLinks = [
   { href: "/legal", label: "18+ и правила" }
 ] satisfies Array<{ href: Route; label: string }>;
 
-export function Header() {
+export function Header({ settings }: { settings: SiteSettingsShape }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { count, openCart } = useCart();
 
@@ -41,7 +42,7 @@ export function Header() {
         <div className="nav-actions">
           <a
             className="btn btn-ghost btn-small"
-            href="https://t.me/Bazhena13witch"
+            href={settings.socialLinks.telegram}
             target="_blank"
             rel="noreferrer"
           >

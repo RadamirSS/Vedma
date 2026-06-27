@@ -1,12 +1,8 @@
-import { createHash } from "node:crypto";
-
 import { PrismaClient, Role } from "@prisma/client";
 
-const prisma = new PrismaClient();
+import { hashPassword } from "../lib/auth/password";
 
-function hashPassword(password: string) {
-  return createHash("sha256").update(password).digest("hex");
-}
+const prisma = new PrismaClient();
 
 async function main() {
   const email = process.env.ADMIN_EMAIL?.trim();
@@ -21,11 +17,13 @@ async function main() {
     where: { email },
     update: {
       role: Role.ADMIN,
+      isActive: true,
       passwordHash: password ? hashPassword(password) : null
     },
     create: {
       email,
       role: Role.ADMIN,
+      isActive: true,
       passwordHash: password ? hashPassword(password) : null
     }
   });

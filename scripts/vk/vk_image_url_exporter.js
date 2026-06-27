@@ -37,7 +37,6 @@
     doc.querySelectorAll('img[src*="userapi"], img[src*="mycdn"], img[src*="impg"]').forEach((img) => {
       const src = img.currentSrc || img.src;
       const w = img.naturalWidth || 0;
-      const h = img.naturalHeight || 0;
       if (src && !isPlaceholder(src) && (w === 0 || w >= 120)) urls.add(bestUrl(src));
     });
     return [...urls];

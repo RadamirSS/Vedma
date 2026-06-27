@@ -1,40 +1,38 @@
 import Link from "next/link";
 
+import { getSiteSettings } from "@/lib/admin/settings";
 import { PORTRAIT_IMAGE } from "@/lib/site-images";
 
-export function HomeHero() {
+export async function HomeHero() {
+  const settings = await getSiteSettings();
+  const [titleTop, ...titleRest] = settings.homepage.title.split("—");
+
   return (
     <section className="hero section">
       <div className="container hero-grid">
         <div className="hero-copy">
-          <span className="eyebrow">Таро · ритуальные практики · амулеты · 18+</span>
+          <span className="eyebrow">{settings.homepage.eyebrow}</span>
           <h1>
-            Бажена —
+            {titleTop?.trim() ?? settings.homepage.title}
             <br />
-            <span className="gold">Магия Жизни</span>
+            <span className="gold">{titleRest.join("—").trim() || settings.homepage.title}</span>
           </h1>
-          <p className="lead">
-            Таро, ритуальные практики, трансформационные игры, свечи, амулеты и глубокая работа с
-            жизненными ситуациями.
-          </p>
-          <p className="text">
-            Помогаю разобраться в отношениях, деньгах, защите, родовых сценариях и личном пути через
-            Таро, психологические практики, шаманские и трансовые техники.
-          </p>
+          <p className="lead">{settings.homepage.lead}</p>
+          <p className="text">{settings.homepage.description}</p>
           <div className="hero-actions">
             <Link className="btn btn-primary" href="/services">
-              Выбрать услугу
+              {settings.homepage.primaryLabel}
             </Link>
             <Link className="btn btn-ghost" href="/products">
-              Перейти в магазин
+              {settings.homepage.secondaryLabel}
             </Link>
             <a
               className="btn btn-wine"
-              href="https://t.me/Bazhena13witch"
+              href={settings.socialLinks.telegram}
               target="_blank"
               rel="noreferrer"
             >
-              Записаться в Telegram
+              {settings.homepage.telegramLabel}
             </a>
           </div>
           <div className="trust">

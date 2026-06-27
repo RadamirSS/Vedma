@@ -1,6 +1,10 @@
+"use client";
+
 import Link from "next/link";
 
-export function Footer() {
+import type { SiteSettingsShape } from "@/lib/admin/settings";
+
+export function Footer({ settings }: { settings: SiteSettingsShape }) {
   return (
     <footer>
       <div className="container footer-grid">
@@ -12,10 +16,7 @@ export function Footer() {
               <span className="brand-sub">Магия жизни</span>
             </span>
           </Link>
-          <p className="footer-lead">
-            Таро, диагностика, трансформационные практики и магические товары. Личный бренд Бажены —
-            Магия Жизни.
-          </p>
+          <p className="footer-lead">{settings.footer.description}</p>
           <span className="age">18+</span>
         </div>
         <div>
@@ -30,7 +31,7 @@ export function Footer() {
         <div>
           <h4>Контакты</h4>
           <div className="footer-links">
-            <a href="https://t.me/Bazhena13witch" target="_blank" rel="noreferrer">
+            <a href={settings.socialLinks.telegram} target="_blank" rel="noreferrer">
               Telegram
             </a>
             <Link href="/contacts">Контакты</Link>
@@ -39,14 +40,11 @@ export function Footer() {
         </div>
         <div>
           <h4>Дисклеймер</h4>
-          <p>
-            Услуги и товары на сайте относятся к эзотерическим, консультационным и
-            трансформационным практикам. Они не заменяют профессиональную помощь. 18+.
-          </p>
+          <p>{settings.footer.disclaimer}</p>
         </div>
       </div>
       <div className="container footer-bottom">
-        <p>© Бажена / Магия Жизни</p>
+        <p>{settings.footer.copyright}</p>
         <p>Политика конфиденциальности · Публичная оферта · Дисклеймер</p>
       </div>
     </footer>

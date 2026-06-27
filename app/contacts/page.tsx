@@ -1,9 +1,19 @@
 import Link from "next/link";
 
 import { SectionHeading } from "@/components/section-heading";
-import { contacts } from "@/lib/mock-data";
+import { getSiteSettings } from "@/lib/admin/settings";
 
-export default function ContactsPage() {
+export default async function ContactsPage() {
+  const settings = await getSiteSettings();
+  const contacts = [
+    { label: "Telegram", value: settings.contacts.telegram },
+    { label: "VK", value: settings.contacts.vk },
+    { label: "Телефон", value: settings.contacts.phone },
+    { label: "Email", value: settings.contacts.email },
+    { label: "График ответа", value: settings.contacts.responseHours },
+    { label: "Формат работы", value: settings.contacts.workFormat }
+  ];
+
   return (
     <section className="section">
       <div className="container">
