@@ -563,16 +563,24 @@ export async function saveMediaUploadAction(formData: FormData) {
     redirect(`/admin/media?error=${encodeNotice("Выберите файл для загрузки.")}`);
   }
 
-  const stored = await storeUploadedFile(file);
-  await prisma.media.create({
-    data: {
-      path: stored.publicPath,
-      filename: stored.filename,
-      mimeType: stored.mimeType,
-      size: stored.size,
-      alt
-    }
-  });
+  try {
+    const stored = await storeUploadedFile(file);
+    await prisma.media.create({
+      data: {
+        path: stored.publicPath,
+        filename: stored.filename,
+        mimeType: stored.mimeType,
+        size: stored.size,
+        alt
+      }
+    });
+  } catch (error) {
+    redirect(
+      `/admin/media?error=${encodeNotice(
+        error instanceof Error ? error.message : "Не удалось загрузить изображение."
+      )}`
+    );
+  }
 
   revalidatePath("/admin/media");
   redirect(`/admin/media?success=${encodeNotice("Изображение загружено.")}`);
@@ -597,11 +605,19 @@ export async function updateMediaAction(formData: FormData) {
   let nextSize = media.size;
 
   if (replacement instanceof File && replacement.size > 0) {
-    const replaced = await replaceStoredFile(media.path, replacement);
-    nextPath = replaced.path;
-    nextFilename = replaced.filename;
-    nextMimeType = replaced.mimeType;
-    nextSize = replaced.size;
+    try {
+      const replaced = await replaceStoredFile(media.path, replacement);
+      nextPath = replaced.path;
+      nextFilename = replaced.filename;
+      nextMimeType = replaced.mimeType;
+      nextSize = replaced.size;
+    } catch (error) {
+      redirect(
+        `/admin/media/${id}?error=${encodeNotice(
+          error instanceof Error ? error.message : "Не удалось заменить файл."
+        )}`
+      );
+    }
   }
 
   await prisma.media.update({
@@ -627,7 +643,15 @@ export async function deleteMediaAction(formData: FormData) {
     redirect(`/admin/media?error=${encodeNotice("Не выбран медиафайл.")}`);
   }
 
-  await deleteMediaFileIfUnlinked(id);
+  try {
+    await deleteMediaFileIfUnlinked(id);
+  } catch (error) {
+    redirect(
+      `/admin/media/${id}?error=${encodeNotice(
+        error instanceof Error ? error.message : "Не удалось удалить файл."
+      )}`
+    );
+  }
   revalidatePath("/admin/media");
   redirect(`/admin/media?success=${encodeNotice("Файл удален.")}`);
 }
@@ -648,6 +672,25 @@ export async function saveUserDeactivateAction(formData: FormData) {
 
   revalidatePath("/admin/users");
   redirect(`/admin/users?success=${encodeNotice("Пользователь деактивирован.")}`);
+}
+
+export async function deleteUserAction(formData: FormData) {
+  const session = await requireAdmin("/admin/users");
+  const id = toNullableString(formData.get("id"));
+
+  if (!id) {
+    redirect(`/admin/users?error=${encodeNotice("Не выбран пользователь.")}`);
+  }
+
+  if (session.user.id === id) {
+    redirect(`/admin/users/${id}?error=${encodeNotice("Нельзя удалить текущего администратора.")}`);
+  }
+
+  await prisma.session.deleteMany({ where: { userId: id } });
+  await prisma.user.delete({ where: { id } });
+
+  revalidatePath("/admin/users");
+  redirect(`/admin/users?success=${encodeNotice("Пользователь удален.")}`);
 }
 
 export async function savePasswordResetAction(formData: FormData) {

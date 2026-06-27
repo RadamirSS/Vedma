@@ -3,7 +3,7 @@ import path from "node:path";
 
 import { prisma } from "@/lib/db/prisma";
 
-const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
+const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
 const allowedTypes = new Set(["image/jpeg", "image/png", "image/webp"]);
 
 function safeFilename(name: string) {
@@ -28,7 +28,7 @@ export async function storeUploadedFile(file: File) {
   }
 
   if (file.size > MAX_IMAGE_SIZE) {
-    throw new Error("Размер изображения не должен превышать 5 МБ.");
+    throw new Error("Размер изображения не должен превышать 10 МБ.");
   }
 
   const now = new Date();
@@ -55,7 +55,7 @@ export async function replaceStoredFile(existingPath: string, file: File) {
     throw new Error("Допустимы только JPG, PNG и WEBP.");
   }
   if (file.size > MAX_IMAGE_SIZE) {
-    throw new Error("Размер изображения не должен превышать 5 МБ.");
+    throw new Error("Размер изображения не должен превышать 10 МБ.");
   }
 
   const absolutePath = publicPathToAbsolute(existingPath);

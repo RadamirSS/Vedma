@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 
 import {
+  deleteUserAction,
   savePasswordResetAction,
   saveUserAction,
   saveUserDeactivateAction
@@ -60,6 +61,15 @@ export default async function AdminUserDetailPage({
               message="Деактивировать пользователя и завершить его сессии?"
             >
               Деактивировать
+            </ConfirmSubmitButton>
+          </form>
+          <form action={deleteUserAction} className="admin-card">
+            <input type="hidden" name="id" value={user.id} />
+            <ConfirmSubmitButton
+              className="btn btn-wine btn-small"
+              message="Удалить пользователя полностью? Это действие нельзя отменить."
+            >
+              Удалить пользователя
             </ConfirmSubmitButton>
           </form>
         </aside>
