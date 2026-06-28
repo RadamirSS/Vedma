@@ -1,13 +1,13 @@
 import { readFile } from "node:fs/promises";
 
-import { requireManagerOrAdmin } from "@/lib/auth/session";
+import { requireAdmin } from "@/lib/auth/session";
 import { prisma } from "@/lib/db/prisma";
 
 export async function GET(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  await requireManagerOrAdmin("/admin/orders");
+  await requireAdmin("/admin/orders");
   const { id } = await params;
   const file = await prisma.customerFile.findUnique({
     where: { id }

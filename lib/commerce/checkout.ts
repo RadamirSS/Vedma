@@ -33,6 +33,31 @@ function nextNumber(prefix: string) {
   return `${prefix}-${stamp}-${suffix}`;
 }
 
+function requireDeliveryDetails(payload: CheckoutPayload, deliveryRequired: boolean) {
+  if (!deliveryRequired) {
+    return;
+  }
+
+  const missing: string[] = [];
+
+  if (!payload.country) {
+    missing.push("страну");
+  }
+  if (!payload.city) {
+    missing.push("город");
+  }
+  if (!payload.addressLine1) {
+    missing.push("адрес доставки");
+  }
+  if (!payload.phone && !payload.telegram) {
+    missing.push("телефон или Telegram");
+  }
+
+  if (missing.length > 0) {
+    throw new Error(`Для доставки физических товаров укажите ${missing.join(", ")}.`);
+  }
+}
+
 export async function createCheckoutOrder(payload: CheckoutPayload) {
   const items = await resolveCartEntries(payload.cartEntries);
   if (items.length === 0) {
@@ -40,6 +65,8 @@ export async function createCheckoutOrder(payload: CheckoutPayload) {
   }
 
   const totals = getCartTotals(items);
+  requireDeliveryDetails(payload, totals.deliveryRequired);
+
   if (!payload.email) {
     throw new Error("Email обязателен для оформления заказа.");
   }

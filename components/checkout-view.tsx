@@ -144,7 +144,7 @@ export function CheckoutView({
           <div className="field full">
             <label htmlFor="files">PDF для разбора или анкеты</label>
             <input id="files" name="files" type="file" accept="application/pdf,.pdf" multiple />
-            <small className="muted">Только PDF, до 10 МБ на файл. Файлы хранятся приватно и доступны менеджеру/админу.</small>
+            <small className="muted">Только PDF, до 10 МБ на файл. Файлы хранятся приватно и доступны только администратору.</small>
           </div>
           <div className="field full">
             <label htmlFor="comment">Комментарий к заказу</label>

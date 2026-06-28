@@ -431,6 +431,15 @@ export async function updatePaymentStatusAction(formData: FormData) {
     redirect(`/admin/payments?error=${encodeNotice("Платеж не найден.")}`);
   }
 
+  const payment = await prisma.payment.findUnique({
+    where: { id },
+    include: { order: true }
+  });
+
+  if (!payment) {
+    redirect(`/admin/payments?error=${encodeNotice("Платеж не найден.")}`);
+  }
+
   await prisma.payment.update({
     where: { id },
     data: {
@@ -439,6 +448,29 @@ export async function updatePaymentStatusAction(formData: FormData) {
       paymentDate: status === "PAID" ? new Date() : null
     }
   });
+
+  if (payment.orderId) {
+    const nextOrderStatus =
+      status === "PAID" &&
+      payment.order &&
+      (payment.order.status === "AWAITING_PAYMENT" ||
+        payment.order.status === "PENDING_CONFIRMATION")
+        ? "PAID"
+        : undefined;
+
+    await prisma.order.update({
+      where: { id: payment.orderId },
+      data: {
+        paymentStatus: status,
+        ...(nextOrderStatus ? { status: nextOrderStatus } : {})
+      }
+    });
+
+    revalidatePath("/admin/orders");
+    revalidatePath(`/admin/orders/${payment.orderId}`);
+    revalidatePath("/account/orders");
+    revalidatePath(`/account/orders/${payment.orderId}`);
+  }
 
   revalidatePath("/admin/payments");
   redirect(`/admin/payments?success=${encodeNotice("Статус платежа обновлен.")}`);
