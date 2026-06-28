@@ -16,8 +16,8 @@ import {
 } from "@/lib/admin/validation";
 import { hashPassword, verifyPassword } from "@/lib/auth/password";
 import {
-  clearCurrentSession,
-  createUserSession,
+  clearAdminSession,
+  createAdminSession,
   requireAdmin,
   requireManagerOrAdmin
 } from "@/lib/auth/session";
@@ -72,6 +72,21 @@ async function syncServiceMedia(serviceId: string, paths: string[]) {
   }
 }
 
+async function storeCatalogMainImage(file: File, alt: string | null) {
+  const stored = await storeUploadedFile(file);
+  const media = await prisma.media.create({
+    data: {
+      path: stored.publicPath,
+      filename: stored.filename,
+      mimeType: stored.mimeType,
+      size: stored.size,
+      alt
+    }
+  });
+
+  return media.path;
+}
+
 function requirePasswordLength(password: string | null, required = false) {
   if (!password && !required) {
     return null;
@@ -105,12 +120,12 @@ export async function loginAction(formData: FormData) {
     data: { lastLoginAt: new Date() }
   });
 
-  await createUserSession(user.id);
+  await createAdminSession(user.id);
   redirect(next);
 }
 
 export async function logoutAction() {
-  await clearCurrentSession();
+  await clearAdminSession();
   redirect("/admin/login?success=" + encodeNotice("Вы вышли из системы."));
 }
 
@@ -145,6 +160,7 @@ export async function saveProductAction(formData: FormData) {
     seoDescription: string | null;
     sourceUrl: string | null;
   };
+  const mainImageUpload = formData.get("mainImageUpload");
   const existing = await prisma.product.findFirst({
     where: {
       slug: String(data.slug),
@@ -156,8 +172,22 @@ export async function saveProductAction(formData: FormData) {
     redirect(`/admin/products${id ? `/${id}` : "/new"}?error=${encodeNotice("Slug уже используется.")}`);
   }
 
+  let imagePath = data.image;
+  if (mainImageUpload instanceof File && mainImageUpload.size > 0) {
+    try {
+      imagePath = await storeCatalogMainImage(mainImageUpload, data.title);
+    } catch (error) {
+      redirect(
+        `/admin/products${id ? `/${id}` : "/new"}?error=${encodeNotice(
+          error instanceof Error ? error.message : "Не удалось загрузить изображение."
+        )}`
+      );
+    }
+  }
+
   const payload = {
     ...data,
+    image: imagePath,
     gallery: Array.isArray(data.gallery) ? data.gallery : [],
     tags: Array.isArray(data.tags) ? data.tags : [],
     priceLabel: data.priceLabel || (data.priceRub ? `${data.priceRub} ₽` : null)
@@ -184,6 +214,7 @@ export async function saveProductAction(formData: FormData) {
   revalidatePath(`/products/${product.slug}`);
   revalidatePath("/");
   revalidatePath("/admin/products");
+  revalidatePath("/admin/media");
   redirect(`/admin/products/${product.id}?success=${encodeNotice("Товар сохранен.")}`);
 }
 
@@ -266,6 +297,7 @@ export async function saveServiceAction(formData: FormData) {
     seoDescription: string | null;
     sourceUrl: string | null;
   };
+  const mainImageUpload = formData.get("mainImageUpload");
   const existing = await prisma.service.findFirst({
     where: {
       slug: String(data.slug),
@@ -277,8 +309,22 @@ export async function saveServiceAction(formData: FormData) {
     redirect(`/admin/services${id ? `/${id}` : "/new"}?error=${encodeNotice("Slug уже используется.")}`);
   }
 
+  let imagePath = data.image;
+  if (mainImageUpload instanceof File && mainImageUpload.size > 0) {
+    try {
+      imagePath = await storeCatalogMainImage(mainImageUpload, data.title);
+    } catch (error) {
+      redirect(
+        `/admin/services${id ? `/${id}` : "/new"}?error=${encodeNotice(
+          error instanceof Error ? error.message : "Не удалось загрузить изображение."
+        )}`
+      );
+    }
+  }
+
   const payload = {
     ...data,
+    image: imagePath,
     gallery: Array.isArray(data.gallery) ? data.gallery : [],
     tags: Array.isArray(data.tags) ? data.tags : [],
     priceLabel: data.priceLabel || (data.priceRub ? `от ${data.priceRub} ₽` : null)
@@ -305,6 +351,7 @@ export async function saveServiceAction(formData: FormData) {
   revalidatePath(`/services/${service.slug}`);
   revalidatePath("/");
   revalidatePath("/admin/services");
+  revalidatePath("/admin/media");
   redirect(`/admin/services/${service.id}?success=${encodeNotice("Услуга сохранена.")}`);
 }
 
@@ -734,7 +781,7 @@ export async function saveUserAction(formData: FormData) {
   if (id && passwordHash) {
     await prisma.session.deleteMany({ where: { userId: id } });
     if (session.user.id === id) {
-      await clearCurrentSession();
+      await clearAdminSession();
       redirect(`/admin/login?success=${encodeNotice("Пароль обновлен. Войдите снова.")}`);
     }
   }

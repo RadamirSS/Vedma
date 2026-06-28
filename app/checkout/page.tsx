@@ -1,12 +1,12 @@
 import { CheckoutView } from "@/components/checkout-view";
 import { SectionHeading } from "@/components/section-heading";
-import { getCurrentSession } from "@/lib/auth/session";
+import { getCurrentCustomerSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db/prisma";
 
 export default async function CheckoutPage() {
-  const session = await getCurrentSession();
+  const session = await getCurrentCustomerSession();
   const profile =
-    session?.user.role === "CUSTOMER"
+    session
       ? await prisma.customerProfile.findUnique({
           where: { userId: session.user.id }
         })
@@ -22,7 +22,7 @@ export default async function CheckoutPage() {
         />
         <CheckoutView
           currentUser={
-            session?.user.role === "CUSTOMER"
+            session
               ? {
                   email: session.user.email,
                   name: session.user.name,

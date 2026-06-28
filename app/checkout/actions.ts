@@ -3,7 +3,7 @@
 import { ContactMethod } from "@prisma/client";
 
 import { createCheckoutOrder } from "@/lib/commerce/checkout";
-import { getCurrentSession } from "@/lib/auth/session";
+import { getCurrentCustomerSession } from "@/lib/auth/session";
 
 export type CheckoutActionState = {
   success: boolean;
@@ -43,7 +43,7 @@ export async function submitCheckoutAction(
       throw new Error("Нужно подтвердить возраст и согласие с правилами.");
     }
 
-    const session = await getCurrentSession();
+    const session = await getCurrentCustomerSession();
     const files = formData
       .getAll("files")
       .filter((value): value is File => value instanceof File && value.size > 0);
@@ -65,7 +65,7 @@ export async function submitCheckoutAction(
       comment: toNullableString(formData.get("comment")),
       uploadedFileIds: [],
       uploadedFiles: files,
-      currentSessionUserId: session?.user.role === "CUSTOMER" ? session.user.id : null
+      currentSessionUserId: session?.user.id ?? null
     });
 
     return {

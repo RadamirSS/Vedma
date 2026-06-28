@@ -3,14 +3,14 @@ import { redirect } from "next/navigation";
 import { loginAction } from "@/app/admin/actions";
 import { AdminNotice } from "@/components/admin/admin-notice";
 import { SubmitButton } from "@/components/admin/submit-button";
-import { getCurrentSession } from "@/lib/auth/session";
+import { getCurrentAdminSession } from "@/lib/auth/session";
 
 export default async function AdminLoginPage({
   searchParams
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const session = await getCurrentSession();
+  const session = await getCurrentAdminSession();
   const params = await searchParams;
   const next = typeof params.next === "string" ? params.next : "/admin/dashboard";
   const error = typeof params.error === "string" ? params.error : undefined;

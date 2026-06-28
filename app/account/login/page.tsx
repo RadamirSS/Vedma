@@ -3,21 +3,26 @@ import { redirect } from "next/navigation";
 import { customerLoginAction } from "@/app/account/actions";
 import { AdminNotice } from "@/components/admin/admin-notice";
 import { SubmitButton } from "@/components/admin/submit-button";
-import { getCurrentSession } from "@/lib/auth/session";
+import { getCurrentAdminSession, getCurrentCustomerSession } from "@/lib/auth/session";
 
 export default async function AccountLoginPage({
   searchParams
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const session = await getCurrentSession();
+  const customerSession = await getCurrentCustomerSession();
+  const adminSession = await getCurrentAdminSession();
   const params = await searchParams;
   const next = typeof params.next === "string" ? params.next : "/account/orders";
   const error = typeof params.error === "string" ? params.error : undefined;
   const success = typeof params.success === "string" ? params.success : undefined;
 
-  if (session?.user.role === "CUSTOMER") {
+  if (customerSession) {
     redirect("/account/orders");
+  }
+
+  if (adminSession) {
+    redirect("/admin/dashboard?error=Кабинет+клиента+недоступен+для+администратора.");
   }
 
   return (

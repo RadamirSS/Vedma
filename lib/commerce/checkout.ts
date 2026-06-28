@@ -1,7 +1,7 @@
 import { ContactMethod, Currency, PaymentProvider, PaymentStatus, RequestStatus, Role } from "@prisma/client";
 
 import { hashPassword } from "@/lib/auth/password";
-import { createUserSession } from "@/lib/auth/session";
+import { createCustomerSession } from "@/lib/auth/session";
 import { verifyPassword } from "@/lib/auth/password";
 import { resolveCartEntries, getCartTotals, type CartEntry } from "@/lib/commerce/cart";
 import { storePrivatePdf } from "@/lib/commerce/files";
@@ -235,7 +235,7 @@ export async function createCheckoutOrder(payload: CheckoutPayload) {
     });
   }
 
-  await createUserSession(user.id);
+  await createCustomerSession(user.id);
 
   return {
     orderId: order.id,

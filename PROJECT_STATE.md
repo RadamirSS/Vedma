@@ -3,12 +3,12 @@
 Date: 2026-06-28
 Repository: `Vedma`
 Current branch: `codex/package-3-commerce-intake`
-Main branch status: ready to receive Package 3 once the current branch commit is pushed
+Main branch status: not ready for Package 3 merge until Package 3.1 live media-upload acceptance is completed
 
 ## Instruction Sources
 
 - Global repo-independent rules from `~/.codex/AGENTS.md`
-- Current Package 3 execution task
+- Current Package 3.1 stabilization task
 
 ## Current Snapshot
 
@@ -81,6 +81,19 @@ Implemented on `codex/package-3-commerce-intake`:
 - admin orders, requests, payments, and customers modules
 - manager/admin-only PDF access route at `/admin/files/[id]`
 
+### Package 3.1
+
+Status: `DONE_WITH_REVIEW_BLOCKER`
+
+Completed on `codex/package-3-commerce-intake`:
+
+- admin and customer sessions are split into `vedma_admin_session` and `vedma_customer_session`
+- admin login only accepts `ADMIN` / `MANAGER`; customer login only accepts `CUSTOMER`
+- admin route guards now stay inside `/admin/*` and no longer bounce into `/account/login`
+- manager navigation hides `/admin/settings` and `/admin/users`, and direct access redirects back to `/admin/dashboard` with an encoded admin-only error
+- product and service forms now accept direct JPG/PNG/WEBP main-image uploads and store them through the existing media pipeline
+- public catalog build stability was improved by caching published catalog/review reads during prerender so DB-backed `pnpm build` completes reliably
+
 ## DB And Fallback Behavior
 
 The intended behavior is now explicit:
@@ -92,13 +105,16 @@ The intended behavior is now explicit:
 
 ## Current Validation Status
 
-Verified on 2026-06-28 during Package 3 closeout:
+Verified on 2026-06-28 during Package 3 / 3.1 closeout:
 
 - `pnpm db:generate`: passed
 - `pnpm lint`: passed
-- `pnpm build`: passed against the real local PostgreSQL instance when run outside the sandbox
+- `pnpm build`: passed against the real local PostgreSQL instance when run outside the sandbox after caching catalog prerender reads
 - `ALLOW_STATIC_CATALOG_FALLBACK=true pnpm build`: passed and logged explicit fallback usage
 - `pnpm db:verify:catalog`: passed when rerun outside the sandbox
+- admin auth smoke matrix: passed for admin, manager, customer, and anonymous route separation
+- live manager media form rendering: verified for both product and service forms, including inline `mainImageUpload` field and helper text
+- live manager media form submission: not fully replayed from Codex because localhost server-action POST approval timed out twice in this environment
 
 Important environment note:
 
@@ -111,26 +127,22 @@ Important environment note:
 - Customer account creation currently happens through checkout, not through a separate signup funnel
 - Preview routes still exist: `/admin-preview`, `/account-preview`
 - Audit docs outside the updated source-of-truth files may still contain older Package 2 wording
+- Package 3.1 still needs one final live submit acceptance pass for manager image upload before merging this branch into `main`
 
 ## Merge Readiness
 
-Status: `READY_PENDING_COMMIT_AND_PUSH`
+Status: `PUSHABLE_NOT_MERGE_READY`
 
-Critical checks now pass on the current branch. The branch is ready to be committed and pushed, then merged into `main`.
+Critical technical checks now pass on the current branch, but merge should wait for a final live manager image-upload submit confirmation outside the Codex sandbox approval bottleneck.
 
 ## Recommended Next Package
 
-### Package 4 — Payments And Operational Workflow Hardening
+### Package 3.1 Acceptance Closeout
 
 Focus:
 
-- operator workflow polish around manual billing and fulfillment
-- richer order/request lifecycle tooling
-- internal auditability and handoff visibility
+- run one live manager product upload submit against the branch on a local browser or deployment preview
+- confirm the saved product references the new `Media` record and the public product page renders the uploaded image
+- repeat the same live submit check for the service form
 
-Still out of scope for the next package unless explicitly reprioritized:
-
-- online payments
-- checkout redesign
-- Lava
-- customer-cabinet redesign
+Do not start Package 4 until that acceptance step is complete.

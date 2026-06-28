@@ -3,8 +3,14 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 
-import { clearCurrentSession, createUserSession, authenticateUser, requireCustomerSession } from "@/lib/auth/session";
+import {
+  clearCustomerSession,
+  createCustomerSession,
+  authenticateUser,
+  requireCustomerSession
+} from "@/lib/auth/session";
 import { prisma } from "@/lib/db/prisma";
+import { Role } from "@prisma/client";
 
 function encodeNotice(message: string) {
   return encodeURIComponent(message);
@@ -28,12 +34,16 @@ export async function customerLoginAction(formData: FormData) {
     redirect(`/account/login?error=${encodeNotice("Неверные учетные данные.")}`);
   }
 
-  await createUserSession(user.id);
+  if (user.role !== Role.CUSTOMER) {
+    redirect(`/account/login?error=${encodeNotice("Для входа в кабинет клиента используйте учетную запись клиента.")}`);
+  }
+
+  await createCustomerSession(user.id);
   redirect(next);
 }
 
 export async function customerLogoutAction() {
-  await clearCurrentSession();
+  await clearCustomerSession();
   redirect("/account/login?success=" + encodeNotice("Вы вышли из кабинета."));
 }
 

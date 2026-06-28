@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { Prisma } from "@prisma/client";
 
 import type { CatalogItem } from "@/lib/catalog-types";
@@ -225,8 +226,8 @@ function mapServiceRecord(record: {
   };
 }
 
-export async function getProducts() {
-  return withFallback(
+const loadProducts = cache(async () =>
+  withFallback(
     async () => {
       const records = await prisma.product.findMany({
         orderBy: { createdAt: "asc" },
@@ -236,11 +237,11 @@ export async function getProducts() {
     },
     () => getFallbackProducts(),
     "getProducts"
-  );
-}
+  )
+);
 
-export async function getPublishedProducts() {
-  return withFallback(
+const loadPublishedProducts = cache(async () =>
+  withFallback(
     async () => {
       const records = await prisma.product.findMany({
         where: { publicationStatus: "PUBLISHED" },
@@ -251,25 +252,11 @@ export async function getPublishedProducts() {
     },
     () => getFallbackProducts(),
     "getPublishedProducts"
-  );
-}
+  )
+);
 
-export async function getProductBySlug(slug: string) {
-  return withFallback(
-    async () => {
-      const record = await prisma.product.findUnique({
-        where: { slug },
-        include: { media: { select: { path: true } } }
-      });
-      return record ? mapProductRecord(record) : null;
-    },
-    () => getFallbackProductBySlug(slug) ?? null,
-    `getProductBySlug(${slug})`
-  );
-}
-
-export async function getServices() {
-  return withFallback(
+const loadServices = cache(async () =>
+  withFallback(
     async () => {
       const records = await prisma.service.findMany({
         orderBy: { createdAt: "asc" },
@@ -279,11 +266,11 @@ export async function getServices() {
     },
     () => getFallbackServices(),
     "getServices"
-  );
-}
+  )
+);
 
-export async function getPublishedServices() {
-  return withFallback(
+const loadPublishedServices = cache(async () =>
+  withFallback(
     async () => {
       const records = await prisma.service.findMany({
         where: { publicationStatus: "PUBLISHED" },
@@ -294,21 +281,33 @@ export async function getPublishedServices() {
     },
     () => getFallbackServices(),
     "getPublishedServices"
-  );
+  )
+);
+
+export async function getProducts() {
+  return loadProducts();
+}
+
+export async function getPublishedProducts() {
+  return loadPublishedProducts();
+}
+
+export async function getProductBySlug(slug: string) {
+  const products = await getPublishedProducts();
+  return products.find((product) => product.slug === slug) ?? getFallbackProductBySlug(slug) ?? null;
+}
+
+export async function getServices() {
+  return loadServices();
+}
+
+export async function getPublishedServices() {
+  return loadPublishedServices();
 }
 
 export async function getServiceBySlug(slug: string) {
-  return withFallback(
-    async () => {
-      const record = await prisma.service.findUnique({
-        where: { slug },
-        include: { media: { select: { path: true } } }
-      });
-      return record ? mapServiceRecord(record) : null;
-    },
-    () => getFallbackServiceBySlug(slug) ?? null,
-    `getServiceBySlug(${slug})`
-  );
+  const services = await getPublishedServices();
+  return services.find((service) => service.slug === slug) ?? getFallbackServiceBySlug(slug) ?? null;
 }
 
 export async function getFeaturedProducts(limit = 6) {

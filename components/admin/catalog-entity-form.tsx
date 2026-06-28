@@ -228,6 +228,17 @@ export function CatalogEntityForm({
       </label>
 
       <label>
+        <span>Загрузить новое главное изображение</span>
+        <input
+          className="admin-input"
+          name="mainImageUpload"
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+        />
+        <small className="muted">JPG, PNG или WEBP до 10 МБ. Если выбран и файл, и медиа из списка, файл имеет приоритет.</small>
+      </label>
+
+      <label>
         <span>Исходный URL</span>
         <input className="admin-input" name="sourceUrl" defaultValue={initial?.sourceUrl ?? ""} />
       </label>
