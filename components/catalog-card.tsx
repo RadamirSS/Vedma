@@ -3,9 +3,9 @@
 import Link from "next/link";
 import type { Route } from "next";
 
+import { AddToCartButton } from "@/components/commerce/add-to-cart-button";
 import { CatalogVisual } from "@/components/catalog-visual";
-import { useCart } from "@/components/cart-context";
-import type { CatalogItem } from "@/lib/mock-data";
+import type { CatalogItem } from "@/lib/catalog-types";
 import { getProductDisplayCategory } from "@/lib/product-categories";
 import { formatPrice } from "@/lib/utils";
 
@@ -19,7 +19,6 @@ function getCategoryLabel(item: CatalogItem) {
 }
 
 export function CatalogCard({ item }: { item: CatalogItem }) {
-  const { addToCart } = useCart();
   const detailHref =
     (item.type === "service" ? `/services/${item.slug}` : `/products/${item.slug}`) as Route;
   const categoryLabel = getCategoryLabel(item);
@@ -52,20 +51,22 @@ export function CatalogCard({ item }: { item: CatalogItem }) {
             <Link className="btn btn-ghost btn-small" href={detailHref}>
               Подробнее
             </Link>
+            <AddToCartButton
+              itemType={item.type}
+              slug={item.slug}
+              className="btn btn-primary btn-small"
+              label={item.type === "service" ? "В корзину" : "В корзину"}
+            />
             {item.type === "service" ? (
               <a
-                className="btn btn-primary btn-small"
+                className="btn btn-ghost btn-small"
                 href={`${TELEGRAM}?text=${encodeURIComponent(`Здравствуйте! Интересует услуга: ${item.title}`)}`}
                 target="_blank"
                 rel="noreferrer"
               >
-                Записаться
+                Уточнить
               </a>
-            ) : (
-              <button className="btn btn-primary btn-small" type="button" onClick={() => addToCart(item.id)}>
-                В корзину
-              </button>
-            )}
+            ) : null}
           </div>
         </div>
       </div>

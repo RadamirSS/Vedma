@@ -186,6 +186,12 @@ p {
   transform: translateY(-2px);
 }
 
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.72;
+  transform: none;
+}
+
 .btn-primary {
   background: linear-gradient(135deg, var(--gold2), var(--gold) 46%, #9e742e);
   color: #190f0f;
@@ -518,6 +524,96 @@ p {
 .step-card,
 .legal-card {
   padding: 24px;
+}
+
+.account-header,
+.account-nav,
+.account-form,
+.account-grid,
+.account-order-list,
+.account-user-card,
+.account-statuses {
+  display: grid;
+  gap: 16px;
+}
+
+.account-header {
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 320px);
+  align-items: start;
+  margin-bottom: 24px;
+}
+
+.account-title {
+  font-size: clamp(40px, 5vw, 72px);
+}
+
+.account-nav {
+  grid-auto-flow: column;
+  justify-content: start;
+  margin-bottom: 24px;
+}
+
+.account-user-card,
+.account-login-card {
+  border: 1px solid rgba(201, 164, 92, 0.22);
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, rgba(255, 247, 234, 0.075), rgba(255, 247, 234, 0.035));
+  box-shadow: var(--shadow);
+}
+
+.account-user-card {
+  padding: 20px;
+}
+
+.account-login-card {
+  max-width: 620px;
+  margin: 0 auto;
+  padding: 28px;
+}
+
+.account-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.account-card-head,
+.account-card-foot,
+.checkout-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cart-list-page {
+  display: grid;
+  gap: 12px;
+}
+
+.cart-item--page {
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+}
+
+.cart-line-total {
+  font-weight: 700;
+}
+
+.checkout-error,
+.checkout-success {
+  margin-top: 16px;
+  padding: 12px 14px;
+  border-radius: 16px;
+}
+
+.checkout-error {
+  background: rgba(122, 30, 44, 0.28);
+  border: 1px solid rgba(205, 93, 93, 0.3);
+}
+
+.checkout-success {
+  background: rgba(82, 140, 82, 0.24);
+  border: 1px solid rgba(120, 190, 120, 0.3);
 }
 
 .visual-card {

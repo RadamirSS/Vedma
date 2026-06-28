@@ -1,7 +1,9 @@
+import { cache } from "react";
+
 import { prisma } from "@/lib/db/prisma";
 import { reviews as fallbackReviews } from "@/lib/mock-data";
 
-export async function getPublishedReviews() {
+export const getPublishedReviews = cache(async () => {
   if (!process.env.DATABASE_URL) {
     return fallbackReviews;
   }
@@ -25,4 +27,4 @@ export async function getPublishedReviews() {
   } catch {
     return fallbackReviews;
   }
-}
+});

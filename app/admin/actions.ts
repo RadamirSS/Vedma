@@ -2,7 +2,7 @@
 
 import { randomUUID } from "node:crypto";
 
-import { Role } from "@prisma/client";
+import { OrderStatus, PaymentStatus, RequestStatus, Role } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -16,12 +16,14 @@ import {
 } from "@/lib/admin/validation";
 import { hashPassword, verifyPassword } from "@/lib/auth/password";
 import {
-  clearCurrentSession,
-  createUserSession,
+  clearAdminSession,
+  createAdminSession,
   requireAdmin,
   requireManagerOrAdmin
 } from "@/lib/auth/session";
+import { getSafeAdminRedirectPath } from "@/lib/auth/safe-redirect";
 import { prisma } from "@/lib/db/prisma";
+import { ORDER_STATUS_LABELS, PAYMENT_STATUS_LABELS, REQUEST_STATUS_LABELS } from "@/lib/admin/constants";
 
 function encodeNotice(message: string) {
   return encodeURIComponent(message);
@@ -71,6 +73,21 @@ async function syncServiceMedia(serviceId: string, paths: string[]) {
   }
 }
 
+async function storeCatalogMainImage(file: File, alt: string | null) {
+  const stored = await storeUploadedFile(file);
+  const media = await prisma.media.create({
+    data: {
+      path: stored.publicPath,
+      filename: stored.filename,
+      mimeType: stored.mimeType,
+      size: stored.size,
+      alt
+    }
+  });
+
+  return media.path;
+}
+
 function requirePasswordLength(password: string | null, required = false) {
   if (!password && !required) {
     return null;
@@ -84,7 +101,7 @@ function requirePasswordLength(password: string | null, required = false) {
 export async function loginAction(formData: FormData) {
   const email = toNullableString(formData.get("email"))?.toLowerCase();
   const password = toNullableString(formData.get("password"));
-  const next = toNullableString(formData.get("next")) ?? "/admin/dashboard";
+  const next = getSafeAdminRedirectPath(toNullableString(formData.get("next")));
 
   if (!email || !password) {
     redirect(`/admin/login?error=${encodeNotice("Введите email и пароль.")}`);
@@ -104,12 +121,12 @@ export async function loginAction(formData: FormData) {
     data: { lastLoginAt: new Date() }
   });
 
-  await createUserSession(user.id);
+  await createAdminSession(user.id);
   redirect(next);
 }
 
 export async function logoutAction() {
-  await clearCurrentSession();
+  await clearAdminSession();
   redirect("/admin/login?success=" + encodeNotice("Вы вышли из системы."));
 }
 
@@ -144,6 +161,7 @@ export async function saveProductAction(formData: FormData) {
     seoDescription: string | null;
     sourceUrl: string | null;
   };
+  const mainImageUpload = formData.get("mainImageUpload");
   const existing = await prisma.product.findFirst({
     where: {
       slug: String(data.slug),
@@ -155,8 +173,22 @@ export async function saveProductAction(formData: FormData) {
     redirect(`/admin/products${id ? `/${id}` : "/new"}?error=${encodeNotice("Slug уже используется.")}`);
   }
 
+  let imagePath = data.image;
+  if (mainImageUpload instanceof File && mainImageUpload.size > 0) {
+    try {
+      imagePath = await storeCatalogMainImage(mainImageUpload, data.title);
+    } catch (error) {
+      redirect(
+        `/admin/products${id ? `/${id}` : "/new"}?error=${encodeNotice(
+          error instanceof Error ? error.message : "Не удалось загрузить изображение."
+        )}`
+      );
+    }
+  }
+
   const payload = {
     ...data,
+    image: imagePath,
     gallery: Array.isArray(data.gallery) ? data.gallery : [],
     tags: Array.isArray(data.tags) ? data.tags : [],
     priceLabel: data.priceLabel || (data.priceRub ? `${data.priceRub} ₽` : null)
@@ -183,6 +215,7 @@ export async function saveProductAction(formData: FormData) {
   revalidatePath(`/products/${product.slug}`);
   revalidatePath("/");
   revalidatePath("/admin/products");
+  revalidatePath("/admin/media");
   redirect(`/admin/products/${product.id}?success=${encodeNotice("Товар сохранен.")}`);
 }
 
@@ -223,12 +256,20 @@ export async function bulkProductsAction(formData: FormData) {
   const publicationStatus =
     action === "publish" ? "PUBLISHED" : action === "hide" ? "ARCHIVED" : "DRAFT";
 
+  const products = await prisma.product.findMany({
+    where: { id: { in: ids } },
+    select: { slug: true }
+  });
+
   await prisma.product.updateMany({
     where: { id: { in: ids } },
     data: { publicationStatus }
   });
 
   revalidatePath("/products");
+  for (const product of products) {
+    revalidatePath(`/products/${product.slug}`);
+  }
   revalidatePath("/");
   revalidatePath("/admin/products");
   redirect(`/admin/products?success=${encodeNotice("Массовое действие выполнено.")}`);
@@ -265,6 +306,7 @@ export async function saveServiceAction(formData: FormData) {
     seoDescription: string | null;
     sourceUrl: string | null;
   };
+  const mainImageUpload = formData.get("mainImageUpload");
   const existing = await prisma.service.findFirst({
     where: {
       slug: String(data.slug),
@@ -276,8 +318,22 @@ export async function saveServiceAction(formData: FormData) {
     redirect(`/admin/services${id ? `/${id}` : "/new"}?error=${encodeNotice("Slug уже используется.")}`);
   }
 
+  let imagePath = data.image;
+  if (mainImageUpload instanceof File && mainImageUpload.size > 0) {
+    try {
+      imagePath = await storeCatalogMainImage(mainImageUpload, data.title);
+    } catch (error) {
+      redirect(
+        `/admin/services${id ? `/${id}` : "/new"}?error=${encodeNotice(
+          error instanceof Error ? error.message : "Не удалось загрузить изображение."
+        )}`
+      );
+    }
+  }
+
   const payload = {
     ...data,
+    image: imagePath,
     gallery: Array.isArray(data.gallery) ? data.gallery : [],
     tags: Array.isArray(data.tags) ? data.tags : [],
     priceLabel: data.priceLabel || (data.priceRub ? `от ${data.priceRub} ₽` : null)
@@ -304,7 +360,196 @@ export async function saveServiceAction(formData: FormData) {
   revalidatePath(`/services/${service.slug}`);
   revalidatePath("/");
   revalidatePath("/admin/services");
+  revalidatePath("/admin/media");
   redirect(`/admin/services/${service.id}?success=${encodeNotice("Услуга сохранена.")}`);
+}
+
+function requireEnumValue<T extends string>(value: string | null, allowed: readonly T[], message: string) {
+  if (!value || !allowed.includes(value as T)) {
+    throw new Error(message);
+  }
+
+  return value as T;
+}
+
+export async function updateOrderStatusAction(formData: FormData) {
+  await requireManagerOrAdmin("/admin/orders");
+  const id = toNullableString(formData.get("id"));
+  const status = requireEnumValue(
+    toNullableString(formData.get("status")),
+    Object.keys(ORDER_STATUS_LABELS) as OrderStatus[],
+    "Не выбран статус заказа."
+  );
+  const paymentStatus = requireEnumValue(
+    toNullableString(formData.get("paymentStatus")),
+    Object.keys(PAYMENT_STATUS_LABELS) as PaymentStatus[],
+    "Не выбран статус платежа."
+  );
+  const adminComment = toNullableString(formData.get("adminComment"));
+
+  if (!id) {
+    redirect(`/admin/orders?error=${encodeNotice("Заказ не найден.")}`);
+  }
+
+  const existing = await prisma.order.findUnique({ where: { id } });
+  if (!existing) {
+    redirect(`/admin/orders?error=${encodeNotice("Заказ не найден.")}`);
+  }
+
+  await prisma.order.update({
+    where: { id },
+    data: {
+      status,
+      paymentStatus,
+      adminComment
+    }
+  });
+
+  if (existing.status !== status) {
+    await prisma.statusHistory.create({
+      data: {
+        entityType: "ORDER",
+        entityId: existing.id,
+        orderId: existing.id,
+        changedById: (await requireManagerOrAdmin("/admin/orders")).user.id,
+        oldStatus: existing.status,
+        newStatus: status,
+        comment: adminComment ?? "Статус обновлен из админ-панели."
+      }
+    });
+  }
+
+  revalidatePath("/admin/orders");
+  revalidatePath(`/admin/orders/${id}`);
+  revalidatePath("/account/orders");
+  redirect(`/admin/orders/${id}?success=${encodeNotice("Заказ обновлен.")}`);
+}
+
+export async function updateRequestStatusAction(formData: FormData) {
+  await requireManagerOrAdmin("/admin/requests");
+  const id = toNullableString(formData.get("id"));
+  const status = requireEnumValue(
+    toNullableString(formData.get("status")),
+    Object.keys(REQUEST_STATUS_LABELS) as RequestStatus[],
+    "Не выбран статус заявки."
+  );
+  const adminComment = toNullableString(formData.get("adminComment"));
+
+  if (!id) {
+    redirect(`/admin/requests?error=${encodeNotice("Заявка не найдена.")}`);
+  }
+
+  const session = await requireManagerOrAdmin("/admin/requests");
+  const existing = await prisma.request.findUnique({ where: { id } });
+  if (!existing) {
+    redirect(`/admin/requests?error=${encodeNotice("Заявка не найдена.")}`);
+  }
+
+  await prisma.request.update({
+    where: { id },
+    data: {
+      status,
+      adminComment,
+      responsibleUserId: session.user.id
+    }
+  });
+
+  if (existing.status !== status) {
+    await prisma.statusHistory.create({
+      data: {
+        entityType: "REQUEST",
+        entityId: existing.id,
+        requestId: existing.id,
+        changedById: session.user.id,
+        oldStatus: existing.status,
+        newStatus: status,
+        comment: adminComment ?? "Статус обновлен из админ-панели."
+      }
+    });
+  }
+
+  revalidatePath("/admin/requests");
+  revalidatePath(`/admin/requests/${id}`);
+  redirect(`/admin/requests/${id}?success=${encodeNotice("Заявка обновлена.")}`);
+}
+
+export async function updatePaymentStatusAction(formData: FormData) {
+  await requireManagerOrAdmin("/admin/payments");
+  const id = toNullableString(formData.get("id"));
+  const status = requireEnumValue(
+    toNullableString(formData.get("status")),
+    Object.keys(PAYMENT_STATUS_LABELS) as PaymentStatus[],
+    "Не выбран статус платежа."
+  );
+  const adminComment = toNullableString(formData.get("adminComment"));
+
+  if (!id) {
+    redirect(`/admin/payments?error=${encodeNotice("Платеж не найден.")}`);
+  }
+
+  const payment = await prisma.payment.findUnique({
+    where: { id },
+    include: { order: true }
+  });
+
+  if (!payment) {
+    redirect(`/admin/payments?error=${encodeNotice("Платеж не найден.")}`);
+  }
+
+  await prisma.payment.update({
+    where: { id },
+    data: {
+      status,
+      adminComment,
+      paymentDate: status === "PAID" ? new Date() : null
+    }
+  });
+
+  if (payment.orderId) {
+    const nextOrderStatus =
+      status === "PAID" &&
+      payment.order &&
+      (payment.order.status === "AWAITING_PAYMENT" ||
+        payment.order.status === "PENDING_CONFIRMATION")
+        ? "PAID"
+        : undefined;
+
+    await prisma.order.update({
+      where: { id: payment.orderId },
+      data: {
+        paymentStatus: status,
+        ...(nextOrderStatus ? { status: nextOrderStatus } : {})
+      }
+    });
+
+    revalidatePath("/admin/orders");
+    revalidatePath(`/admin/orders/${payment.orderId}`);
+    revalidatePath("/account/orders");
+    revalidatePath(`/account/orders/${payment.orderId}`);
+  }
+
+  revalidatePath("/admin/payments");
+  redirect(`/admin/payments?success=${encodeNotice("Статус платежа обновлен.")}`);
+}
+
+export async function updateCustomerNotesAction(formData: FormData) {
+  await requireManagerOrAdmin("/admin/customers");
+  const userId = toNullableString(formData.get("userId"));
+  const adminNotes = toNullableString(formData.get("adminNotes"));
+
+  if (!userId) {
+    redirect(`/admin/customers?error=${encodeNotice("Клиент не найден.")}`);
+  }
+
+  await prisma.customerProfile.upsert({
+    where: { userId },
+    update: { adminNotes },
+    create: { userId, adminNotes }
+  });
+
+  revalidatePath("/admin/customers");
+  revalidatePath(`/admin/customers/${userId}`);
+  redirect(`/admin/customers/${userId}?success=${encodeNotice("Заметка сохранена.")}`);
 }
 
 export async function deleteServiceAction(formData: FormData) {
@@ -344,12 +589,20 @@ export async function bulkServicesAction(formData: FormData) {
   const publicationStatus =
     action === "publish" ? "PUBLISHED" : action === "hide" ? "ARCHIVED" : "DRAFT";
 
+  const services = await prisma.service.findMany({
+    where: { id: { in: ids } },
+    select: { slug: true }
+  });
+
   await prisma.service.updateMany({
     where: { id: { in: ids } },
     data: { publicationStatus }
   });
 
   revalidatePath("/services");
+  for (const service of services) {
+    revalidatePath(`/services/${service.slug}`);
+  }
   revalidatePath("/");
   revalidatePath("/admin/services");
   redirect(`/admin/services?success=${encodeNotice("Массовое действие выполнено.")}`);
@@ -545,7 +798,7 @@ export async function saveUserAction(formData: FormData) {
   if (id && passwordHash) {
     await prisma.session.deleteMany({ where: { userId: id } });
     if (session.user.id === id) {
-      await clearCurrentSession();
+      await clearAdminSession();
       redirect(`/admin/login?success=${encodeNotice("Пароль обновлен. Войдите снова.")}`);
     }
   }

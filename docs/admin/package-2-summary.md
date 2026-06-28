@@ -1,5 +1,7 @@
 # Package 2 Summary
 
+Status on 2026-06-28: `CLOSED`
+
 ## Result
 
 Package 2 adds a real CMS admin panel to the existing Package 1 repository without changing public URLs or replacing the repository layer.
@@ -59,7 +61,7 @@ DB-backed verification status for the stabilized branch:
 
 ## Recommended Next Steps
 
-1. Apply the Package 2 migration to the target PostgreSQL database.
-2. Seed or update at least one admin user with `ADMIN_EMAIL` and `ADMIN_PASSWORD`.
-3. Smoke-test login, role protection, product/service CRUD, media replacement, settings save, and public revalidation against the real DB.
-4. Merge this stabilized admin branch before starting Package 3.
+1. Treat Package 2 as complete and closed; do not reopen it for commerce work.
+2. Use `codex/package-3-commerce-intake` as the continuation branch for checkout, customers, and admin commerce operations.
+3. Keep `ALLOW_STATIC_CATALOG_FALLBACK=false` for real DB verification, and only enable fallback explicitly for no-DB builds.
+4. Move next to Package 4 operational hardening after Package 3 is merged.

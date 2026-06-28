@@ -1,254 +1,159 @@
 # Project State
 
-Date: 2026-06-27
+Date: 2026-06-28
 Repository: `Vedma`
-Current branch: `codex/package-2-admin-panel`
-Main branch status: behind current branch by committed Package 2 / 2.1 stabilization work
+Current branch: `codex/package-3-commerce-intake`
+Main branch status: Package 3 / 3.1 branch is ready for merge after acceptance closeout; do not merge in this task
 
 ## Instruction Sources
 
 - Global repo-independent rules from `~/.codex/AGENTS.md`
-- Current Package 2.2 stabilization task
+- Current Package 3.1 stabilization task
 
 ## Current Snapshot
 
-The repository currently contains two relevant Git states:
+The repository now has a real commerce backbone on the current branch:
 
-1. `main` reflects Package 1 and Package 1.1.
-2. `codex/package-2-admin-panel` adds committed Package 2 and the Package 2.1 closeout changes being finalized in this stabilization pass.
+- `main` already contains the merged Package 1, 1.1, 2, and 2.1/2.2 stabilization work.
+- `codex/package-3-commerce-intake` adds customer checkout, customer accounts, private PDF intake, and the missing admin commerce modules.
 
-Untracked local files such as `.env`, `.tmp/`, screenshots, and temporary uploads are not part of the branch closeout and should not be committed.
+Untracked local files such as `.env`, `.tmp/`, screenshots, uploaded admin assets, and zip backups remain local-only and must not be committed.
 
-## Actual Architecture
+## Runtime Architecture
 
 ### Public stack
 
 - Next.js App Router pages
-- Prisma-aware catalog repository for products/services
-- settings loader backed by `SiteSetting`
-- reviews loader backed by `Review`
-- static fallback for catalog and reviews when DB data is unavailable
-- client-side cart and checkout mock still backed by `lib/mock-data.ts`
+- Prisma-aware catalog repository for products and services
+- client cart resolved against repository-backed slugs through `/api/cart/resolve`
+- real checkout submission with account creation / login reuse
+- customer account area for orders and profile data
+- static catalog fallback retained for no-DB builds when explicitly enabled
 
 ### Admin stack
 
 - protected `/admin` route tree
 - Prisma-backed login/session flow
-- server actions for mutations
+- server actions for admin mutations
 - role-based access for `ADMIN` and `MANAGER`
 - CRUD for products, services, reviews, settings, media, and users
+- new admin queues for orders, requests, payments, and customers
+- private customer PDF files are available only to `ADMIN` through `/admin/files/[id]`
 
 ### Database stack
 
 - PostgreSQL via Prisma
-- two migrations:
+- migrations:
   - `20260625122538_package_1_init`
   - `20260627120000_package_2_admin_auth`
+  - `20260628153000_package_3_commerce_intake`
 
-## Current Package Status
+## Package Status
 
 ### Package 1
 
 Status: `DONE`
 
-- Prisma foundation, migration, import, verification, and repository-backed public catalog are implemented.
-- This work is merged into `main`.
-
 ### Package 1.1
 
 Status: `DONE`
-
-- Real PostgreSQL smoke verification was completed and documented on 2026-06-25.
 
 ### Package 2
 
 Status: `DONE`
 
-- Real admin panel exists on the current branch.
-- Implemented areas:
-  - auth and sessions
-  - dashboard
-  - products
-  - services
-  - media
-  - reviews
-  - settings
-  - users
-
-### Package 2.1
+### Package 2.1 / 2.2
 
 Status: `DONE`
 
-- The branch now includes the Package 2.1 closeout fixes:
-  - larger media upload limits
-  - larger server-action body limit
-  - user-facing media action error redirects
-  - admin-side user deletion
-- Real DB-backed build and catalog verification now pass in the stabilized environment.
-- The original exploratory monolithic smoke script remains a local artifact, but the critical Package 2.1 fixes have been verified individually and the branch is ready for merge.
+- admin stabilization, smoke-test closeout, build verification, and merge-readiness work are complete
 
-## Current Runtime Status
+### Package 3
 
-### Database
+Status: `DONE_ON_BRANCH`
 
-Operational for implemented CMS flows.
+Implemented on `codex/package-3-commerce-intake`:
 
-Actively used models:
+- repository-backed cart and add-to-cart CTAs for products and services
+- real checkout flow creating `Order`, `OrderItem`, `Request`, `Payment`, `CustomerProfile`, `CustomerFile`, and `StatusHistory`
+- customer account login, orders list, order detail, and profile management
+- private PDF upload storage under `private/customer-files`
+- admin orders, requests, payments, and customers modules
+- private customer PDF files are available only to `ADMIN` through `/admin/files/[id]`
 
-- `Product`
-- `Service`
-- `Media`
-- `User`
-- `Session`
-- `Review`
-- `SiteSetting`
+### Package 3.1
 
-Schema-only or dashboard-count-only models:
+Status: `DONE_ON_BRANCH_READY_TO_MERGE`
 
-- `Order`
-- `Request`
-- `Payment`
+Completed on `codex/package-3-commerce-intake`:
 
-### Admin
+- admin and customer sessions are split into `vedma_admin_session` and `vedma_customer_session`
+- admin login only accepts `ADMIN` / `MANAGER`; customer login only accepts `CUSTOMER`
+- admin/customer login `next` redirects are sanitized:
+  - admin accepts only `/admin/*` and falls back to `/admin/dashboard`
+  - customer accepts only `/account/*`, `/checkout/*`, or `/cart/*` and falls back to `/account/orders`
+- manager navigation hides `/admin/settings` and `/admin/users`, and direct access redirects back to `/admin/dashboard` with an encoded admin-only error
+- product and service forms now accept direct JPG/PNG/WEBP main-image uploads and store them through the existing media pipeline
+- public catalog detail pages no longer leak static fallback data when DB-backed records are archived or unpublished
+- admin bulk hide/publish now revalidates affected product/service detail routes
 
-Status: real, functional, accepted for Package 2 scope
+## DB And Fallback Behavior
 
-Implemented:
+The intended behavior is now explicit:
 
-- `/admin/login`
-- `/admin/dashboard`
-- `/admin/products`
-- `/admin/services`
-- `/admin/media`
-- `/admin/reviews`
-- `/admin/settings`
-- `/admin/users`
-
-Missing:
-
-- orders module
-- requests module
-- payments module
-- customer management beyond admin users
-- audit log
-
-### Public Site
-
-Production-near:
-
-- `/products`
-- `/products/[slug]`
-- `/services`
-- `/services/[slug]`
-- `/contacts`
-- `/legal`
-
-Mixed live/static:
-
-- `/`
-- `/reviews`
-- `/about`
-
-Not production-ready:
-
-- `/checkout`
-- client cart flow
-
-## Content Sources
-
-- Products/services: Prisma first, fallback to `lib/catalog-data.ts`
-- Reviews: Prisma first, fallback to `lib/mock-data.ts`
-- Settings/SEO/footer/legal/contacts/home hero: `SiteSetting` with defaults in code
-- Cart and checkout items: `lib/mock-data.ts`
-- About-page support content: `lib/mock-data.ts`
-- Media metadata: Prisma `Media`
-- Media files: `public/uploads/vk/*` and `public/uploads/admin/*`
-
-## Current Technical Debt
-
-- Stale audit docs in `docs/audit/` still describe a pre-Package-2 repo.
-- Checkout/cart are still mock and not repository-backed.
-- `Order`, `Request`, and `Payment` are not wired into runtime flows.
-- Static fallback still masks some DB failure paths.
-- Preview routes still exist: `/admin-preview`, `/account-preview`.
-- DB-backed production builds depend on the PostgreSQL instance referenced by `.env` being available.
-- `eslint .` needed generated-path ignores so lint remains meaningful after a local build.
+- With the active local `.env`, `DATABASE_URL` points to PostgreSQL and `ALLOW_STATIC_CATALOG_FALLBACK="false"`.
+- In that verification mode, build should use the real DB and fail if PostgreSQL is unreachable.
+- When `ALLOW_STATIC_CATALOG_FALLBACK=true` is set explicitly, catalog pages may fall back to static data during build if Prisma cannot connect.
+- This keeps real DB verification strict while still preserving a deliberate no-DB build path.
+- The normal 2026-06-28 acceptance build used the real DB and did not use static fallback.
 
 ## Current Validation Status
 
-Historically verified:
+Verified on 2026-06-28 during Package 3 / 3.1 closeout:
 
-- Package 1 / 1.1 real PostgreSQL verification completed on 2026-06-25.
-- Package 2 branch build/lint/generate passed at implementation time.
+- `pnpm lint`: passed
+- `pnpm build`: passed against the real local PostgreSQL instance with fallback disabled
+- `pnpm db:verify:catalog`: passed when rerun outside the sandbox
+- admin auth smoke matrix: passed for admin, manager, customer, and anonymous route separation
+- live manager browser submit: verified for both product and service creation
+- product upload proof:
+  - product created from `/admin/products/new`
+  - public image path saved as `/uploads/admin/2026/06/1782670875731-vedma-browser-smoke.png`
+  - linked `Media` row `cmqy47n10000c8oqjc55go8wq` stored `productId=cmqy47n10000d8oqjawu4ojya`
+- service upload proof:
+  - service created from `/admin/services/new`
+  - public image path saved as `/uploads/admin/2026/06/1782670876591-vedma-browser-smoke.png`
+  - linked `Media` row `cmqy47nov000e8oqjeujzev6m` stored `serviceId=cmqy47nox000f8oqjzycsbarm`
+- archived visibility proof:
+  - after manager-side archive save, `/products/browser-smoke-product-pkg31-proof` returned `404`
+  - after manager-side archive save, `/services/browser-smoke-service-pkg31-proof` returned `404`
 
-Current stabilized state:
+Important environment note:
 
-- `pnpm lint` passes.
-- `pnpm build` passes against the real local PostgreSQL instance referenced by `.env`.
-- `pnpm db:verify:catalog` passes and regenerates a clean verification report.
-- Fallback behavior is still available when `DATABASE_URL` is absent or fallback is explicitly allowed, but the active `.env` is intentionally configured for real DB verification with fallback disabled.
+- sandboxed commands in this Codex environment may fail to reach `localhost:5432`, so DB-backed verification should be treated as valid only from unsandboxed/local-shell runs
 
-## Maturity Scores
+## Remaining Limitations
 
-- Architecture: `7/10`
-- Code quality: `7/10`
-- Maintainability: `6/10`
-- Scalability: `6/10`
-- Developer experience: `6/10`
-- Security: `5/10`
-- Admin readiness: `7/10`
-- Commerce readiness: `3/10`
-- Production readiness: `5/10`
+- Payments remain manual status tracking only; no online provider, webhook, or invoicing automation exists
+- Customer file access is intentionally restricted to `ADMIN` through `/admin/files/[id]` and is not downloadable from the customer account
+- Customer account creation currently happens through checkout, not through a separate signup funnel
+- Preview routes still exist: `/admin-preview`, `/account-preview`
+- Audit docs outside the updated source-of-truth files may still contain older Package 2 wording
+
+## Merge Readiness
+
+Status: `READY_TO_MERGE`
+
+Critical technical and browser acceptance checks now pass on the current branch. This task does not merge to `main`, but no Package 3.1 blocker remains on the branch itself.
 
 ## Recommended Next Package
 
-### Package 3 — Commerce And Intake Backbone
+### Package 4 — Payments And Operational Workflow Hardening
 
-Goal:
+Focus:
 
-- replace mock checkout with real order/request capture and admin processing
+- payment-provider integration and webhook handling
+- operational order workflow hardening beyond the current manual admin flow
+- customer communications and fulfillment automation after merge
 
-Dependencies:
-
-- merge the stabilized admin branch
-- keep the local DB-backed verification path available for future acceptance checks
-
-Acceptance criteria:
-
-- checkout persists submissions
-- admin can process them
-- cart resolves against repository-backed items
-- `Order` and/or `Request` models become operational
-
-## Roadmap
-
-### Package 3 — Commerce And Intake Backbone
-
-- real checkout submission
-- orders/requests admin
-- repository-backed cart
-
-### Package 4 — Payments And Operational Workflows
-
-- payment tracking/integration
-- fulfillment flows
-- richer operational statuses
-
-### Package 5 — Content Hardening And Fallback Reduction
-
-- migrate remaining static content into managed storage
-- reduce fallback dependence
-- normalize category/content modeling
-
-### Package 6 — Customer Area, Security, And Auditability
-
-- customer auth and account area
-- activity/audit logs
-- stronger operational security
-
-## Immediate Priorities
-
-1. Merge `codex/package-2-admin-panel` into `main`.
-2. Decide how checkout should map to `Order` versus `Request`.
-3. Remove stale audit assumptions from future planning.
-4. Start Package 3 only after the admin merge is complete.
+Do not start Package 4 in this task.

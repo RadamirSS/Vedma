@@ -4,87 +4,184 @@ import {
   createContext,
   useContext,
   useEffect,
-  useMemo,
   useState,
+  startTransition,
   type ReactNode
 } from "react";
 
-import { getAllItems } from "@/lib/mock-data";
-
 type CartEntry = {
-  id: string;
+  type: "product" | "service";
+  slug: string;
   qty: number;
+};
+
+type ResolvedCartItem = {
+  catalogId: string | null;
+  slug: string;
+  type: "product" | "service";
+  title: string;
+  image?: string;
+  quantity: number;
+  maxQuantity: number | null;
+  unitAmount: number;
+  currency: "RUB" | "USD";
+  priceRub: number | null;
+  priceUsd: number | null;
+  detailHref: string;
+  sourceId?: string;
 };
 
 type CartContextValue = {
   items: CartEntry[];
+  resolvedItems: ResolvedCartItem[];
   count: number;
   total: number;
+  totalRub: number;
+  totalUsd: number;
+  deliveryRequired: boolean;
+  isPending: boolean;
   isOpen: boolean;
   openCart: () => void;
   closeCart: () => void;
-  addToCart: (id: string) => void;
-  changeQty: (id: string, delta: number) => void;
+  addItem: (entry: Omit<CartEntry, "qty">) => void;
+  changeQty: (type: CartEntry["type"], slug: string, delta: number) => void;
   clearCart: () => void;
+  setOpen: (value: boolean) => void;
 };
 
 const CartContext = createContext<CartContextValue | null>(null);
-const allItems = getAllItems();
+const STORAGE_KEY = "bazhena-cart";
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartEntry[]>([]);
+  const [resolvedItems, setResolvedItems] = useState<ResolvedCartItem[]>([]);
+  const [total, setTotal] = useState(0);
+  const [totalRub, setTotalRub] = useState(0);
+  const [totalUsd, setTotalUsd] = useState(0);
+  const [deliveryRequired, setDeliveryRequired] = useState(false);
+  const [isPending, setIsPending] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
-    const saved = window.localStorage.getItem("bazhena-cart");
+    const saved = window.localStorage.getItem(STORAGE_KEY);
     if (saved) {
       setItems(JSON.parse(saved) as CartEntry[]);
     }
   }, []);
 
   useEffect(() => {
-    window.localStorage.setItem("bazhena-cart", JSON.stringify(items));
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
   }, [items]);
 
-  const count = items.reduce((sum, item) => sum + item.qty, 0);
-  const total = items.reduce((sum, entry) => {
-    const item = allItems.find((value) => value.id === entry.id);
-    return sum + (item?.price ?? 0) * entry.qty;
-  }, 0);
+  useEffect(() => {
+    let aborted = false;
 
-  const value = useMemo<CartContextValue>(
-    () => ({
+    async function syncResolvedCart() {
+      if (items.length === 0) {
+        setResolvedItems([]);
+        setTotal(0);
+        setTotalRub(0);
+        setTotalUsd(0);
+        setDeliveryRequired(false);
+        return;
+      }
+
+      setIsPending(true);
+
+      const response = await fetch("/api/cart/resolve", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ entries: items })
+      });
+
+      if (!response.ok || aborted) {
+        setIsPending(false);
+        return;
+      }
+
+      const data = (await response.json()) as {
+        items: ResolvedCartItem[];
+        totals: {
+          totalAmount: number;
+          totalAmountRub: number;
+          totalAmountUsd: number;
+          deliveryRequired: boolean;
+        };
+      };
+
+      if (aborted) {
+        return;
+      }
+
+      setResolvedItems(data.items);
+      setTotal(data.totals.totalAmount);
+      setTotalRub(data.totals.totalAmountRub);
+      setTotalUsd(data.totals.totalAmountUsd);
+      setDeliveryRequired(data.totals.deliveryRequired);
+      setIsPending(false);
+    }
+
+    startTransition(() => {
+      void syncResolvedCart();
+    });
+
+    return () => {
+      aborted = true;
+    };
+  }, [items]);
+
+  const count = resolvedItems.reduce((sum, item) => sum + item.quantity, 0);
+
+  const value: CartContextValue = {
       items,
+      resolvedItems,
       count,
       total,
+      totalRub,
+      totalUsd,
+      deliveryRequired,
+      isPending,
       isOpen,
       openCart: () => setIsOpen(true),
       closeCart: () => setIsOpen(false),
-      addToCart: (id) => {
+      addItem: (entry) => {
         setItems((current) => {
-          const existing = current.find((entry) => entry.id === id);
+          const existing = current.find(
+            (currentEntry) =>
+              currentEntry.type === entry.type && currentEntry.slug === entry.slug
+          );
+
           if (existing) {
-            return current.map((entry) =>
-              entry.id === id ? { ...entry, qty: entry.qty + 1 } : entry
+            return current.map((currentEntry) =>
+              currentEntry.type === entry.type && currentEntry.slug === entry.slug
+                ? {
+                    ...currentEntry,
+                    qty: entry.type === "service" ? 1 : currentEntry.qty + 1
+                  }
+                : currentEntry
             );
           }
-          return [...current, { id, qty: 1 }];
+          return [...current, { ...entry, qty: 1 }];
         });
         setIsOpen(true);
       },
-      changeQty: (id, delta) => {
+      changeQty: (type, slug, delta) => {
         setItems((current) =>
           current
             .map((entry) =>
-              entry.id === id ? { ...entry, qty: entry.qty + delta } : entry
+              entry.type === type && entry.slug === slug
+                ? {
+                    ...entry,
+                    qty: type === "service" ? 1 : entry.qty + delta
+                  }
+                : entry
             )
             .filter((entry) => entry.qty > 0)
         );
       },
-      clearCart: () => setItems([])
-    }),
-    [count, isOpen, items, total]
-  );
+      clearCart: () => setItems([]),
+      setOpen: (value) => setIsOpen(value)
+    };
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }

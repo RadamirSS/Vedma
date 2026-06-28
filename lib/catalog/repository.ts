@@ -255,17 +255,8 @@ export async function getPublishedProducts() {
 }
 
 export async function getProductBySlug(slug: string) {
-  return withFallback(
-    async () => {
-      const record = await prisma.product.findUnique({
-        where: { slug },
-        include: { media: { select: { path: true } } }
-      });
-      return record ? mapProductRecord(record) : null;
-    },
-    () => getFallbackProductBySlug(slug) ?? null,
-    `getProductBySlug(${slug})`
-  );
+  const products = await getPublishedProducts();
+  return products.find((product) => product.slug === slug) ?? null;
 }
 
 export async function getServices() {
@@ -298,17 +289,8 @@ export async function getPublishedServices() {
 }
 
 export async function getServiceBySlug(slug: string) {
-  return withFallback(
-    async () => {
-      const record = await prisma.service.findUnique({
-        where: { slug },
-        include: { media: { select: { path: true } } }
-      });
-      return record ? mapServiceRecord(record) : null;
-    },
-    () => getFallbackServiceBySlug(slug) ?? null,
-    `getServiceBySlug(${slug})`
-  );
+  const services = await getPublishedServices();
+  return services.find((service) => service.slug === slug) ?? null;
 }
 
 export async function getFeaturedProducts(limit = 6) {
