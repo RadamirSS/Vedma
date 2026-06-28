@@ -21,6 +21,7 @@ import {
   requireAdmin,
   requireManagerOrAdmin
 } from "@/lib/auth/session";
+import { getSafeAdminRedirectPath } from "@/lib/auth/safe-redirect";
 import { prisma } from "@/lib/db/prisma";
 import { ORDER_STATUS_LABELS, PAYMENT_STATUS_LABELS, REQUEST_STATUS_LABELS } from "@/lib/admin/constants";
 
@@ -100,7 +101,7 @@ function requirePasswordLength(password: string | null, required = false) {
 export async function loginAction(formData: FormData) {
   const email = toNullableString(formData.get("email"))?.toLowerCase();
   const password = toNullableString(formData.get("password"));
-  const next = toNullableString(formData.get("next")) ?? "/admin/dashboard";
+  const next = getSafeAdminRedirectPath(toNullableString(formData.get("next")));
 
   if (!email || !password) {
     redirect(`/admin/login?error=${encodeNotice("Введите email и пароль.")}`);
@@ -255,12 +256,20 @@ export async function bulkProductsAction(formData: FormData) {
   const publicationStatus =
     action === "publish" ? "PUBLISHED" : action === "hide" ? "ARCHIVED" : "DRAFT";
 
+  const products = await prisma.product.findMany({
+    where: { id: { in: ids } },
+    select: { slug: true }
+  });
+
   await prisma.product.updateMany({
     where: { id: { in: ids } },
     data: { publicationStatus }
   });
 
   revalidatePath("/products");
+  for (const product of products) {
+    revalidatePath(`/products/${product.slug}`);
+  }
   revalidatePath("/");
   revalidatePath("/admin/products");
   redirect(`/admin/products?success=${encodeNotice("Массовое действие выполнено.")}`);
@@ -580,12 +589,20 @@ export async function bulkServicesAction(formData: FormData) {
   const publicationStatus =
     action === "publish" ? "PUBLISHED" : action === "hide" ? "ARCHIVED" : "DRAFT";
 
+  const services = await prisma.service.findMany({
+    where: { id: { in: ids } },
+    select: { slug: true }
+  });
+
   await prisma.service.updateMany({
     where: { id: { in: ids } },
     data: { publicationStatus }
   });
 
   revalidatePath("/services");
+  for (const service of services) {
+    revalidatePath(`/services/${service.slug}`);
+  }
   revalidatePath("/");
   revalidatePath("/admin/services");
   redirect(`/admin/services?success=${encodeNotice("Массовое действие выполнено.")}`);

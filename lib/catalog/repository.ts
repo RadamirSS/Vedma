@@ -1,4 +1,3 @@
-import { cache } from "react";
 import { Prisma } from "@prisma/client";
 
 import type { CatalogItem } from "@/lib/catalog-types";
@@ -226,8 +225,8 @@ function mapServiceRecord(record: {
   };
 }
 
-const loadProducts = cache(async () =>
-  withFallback(
+export async function getProducts() {
+  return withFallback(
     async () => {
       const records = await prisma.product.findMany({
         orderBy: { createdAt: "asc" },
@@ -237,11 +236,11 @@ const loadProducts = cache(async () =>
     },
     () => getFallbackProducts(),
     "getProducts"
-  )
-);
+  );
+}
 
-const loadPublishedProducts = cache(async () =>
-  withFallback(
+export async function getPublishedProducts() {
+  return withFallback(
     async () => {
       const records = await prisma.product.findMany({
         where: { publicationStatus: "PUBLISHED" },
@@ -252,11 +251,16 @@ const loadPublishedProducts = cache(async () =>
     },
     () => getFallbackProducts(),
     "getPublishedProducts"
-  )
-);
+  );
+}
 
-const loadServices = cache(async () =>
-  withFallback(
+export async function getProductBySlug(slug: string) {
+  const products = await getPublishedProducts();
+  return products.find((product) => product.slug === slug) ?? null;
+}
+
+export async function getServices() {
+  return withFallback(
     async () => {
       const records = await prisma.service.findMany({
         orderBy: { createdAt: "asc" },
@@ -266,11 +270,11 @@ const loadServices = cache(async () =>
     },
     () => getFallbackServices(),
     "getServices"
-  )
-);
+  );
+}
 
-const loadPublishedServices = cache(async () =>
-  withFallback(
+export async function getPublishedServices() {
+  return withFallback(
     async () => {
       const records = await prisma.service.findMany({
         where: { publicationStatus: "PUBLISHED" },
@@ -281,33 +285,12 @@ const loadPublishedServices = cache(async () =>
     },
     () => getFallbackServices(),
     "getPublishedServices"
-  )
-);
-
-export async function getProducts() {
-  return loadProducts();
-}
-
-export async function getPublishedProducts() {
-  return loadPublishedProducts();
-}
-
-export async function getProductBySlug(slug: string) {
-  const products = await getPublishedProducts();
-  return products.find((product) => product.slug === slug) ?? getFallbackProductBySlug(slug) ?? null;
-}
-
-export async function getServices() {
-  return loadServices();
-}
-
-export async function getPublishedServices() {
-  return loadPublishedServices();
+  );
 }
 
 export async function getServiceBySlug(slug: string) {
   const services = await getPublishedServices();
-  return services.find((service) => service.slug === slug) ?? getFallbackServiceBySlug(slug) ?? null;
+  return services.find((service) => service.slug === slug) ?? null;
 }
 
 export async function getFeaturedProducts(limit = 6) {

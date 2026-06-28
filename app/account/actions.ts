@@ -9,6 +9,7 @@ import {
   authenticateUser,
   requireCustomerSession
 } from "@/lib/auth/session";
+import { getSafeCustomerRedirectPath } from "@/lib/auth/safe-redirect";
 import { prisma } from "@/lib/db/prisma";
 import { Role } from "@prisma/client";
 
@@ -23,7 +24,7 @@ function toNullableString(value: FormDataEntryValue | null) {
 export async function customerLoginAction(formData: FormData) {
   const email = toNullableString(formData.get("email"))?.toLowerCase();
   const password = toNullableString(formData.get("password"));
-  const next = toNullableString(formData.get("next")) ?? "/account/orders";
+  const next = getSafeCustomerRedirectPath(toNullableString(formData.get("next")));
 
   if (!email || !password) {
     redirect(`/account/login?error=${encodeNotice("Введите email и пароль.")}`);

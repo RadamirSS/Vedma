@@ -3,7 +3,7 @@
 Date: 2026-06-28
 Repository: `Vedma`
 Current branch: `codex/package-3-commerce-intake`
-Main branch status: not ready for Package 3 merge until Package 3.1 live media-upload acceptance is completed
+Main branch status: Package 3 / 3.1 branch is ready for merge after acceptance closeout; do not merge in this task
 
 ## Instruction Sources
 
@@ -83,16 +83,19 @@ Implemented on `codex/package-3-commerce-intake`:
 
 ### Package 3.1
 
-Status: `DONE_WITH_REVIEW_BLOCKER`
+Status: `DONE_ON_BRANCH_READY_TO_MERGE`
 
 Completed on `codex/package-3-commerce-intake`:
 
 - admin and customer sessions are split into `vedma_admin_session` and `vedma_customer_session`
 - admin login only accepts `ADMIN` / `MANAGER`; customer login only accepts `CUSTOMER`
-- admin route guards now stay inside `/admin/*` and no longer bounce into `/account/login`
+- admin/customer login `next` redirects are sanitized:
+  - admin accepts only `/admin/*` and falls back to `/admin/dashboard`
+  - customer accepts only `/account/*`, `/checkout/*`, or `/cart/*` and falls back to `/account/orders`
 - manager navigation hides `/admin/settings` and `/admin/users`, and direct access redirects back to `/admin/dashboard` with an encoded admin-only error
 - product and service forms now accept direct JPG/PNG/WEBP main-image uploads and store them through the existing media pipeline
-- public catalog build stability was improved by caching published catalog/review reads during prerender so DB-backed `pnpm build` completes reliably
+- public catalog detail pages no longer leak static fallback data when DB-backed records are archived or unpublished
+- admin bulk hide/publish now revalidates affected product/service detail routes
 
 ## DB And Fallback Behavior
 
@@ -102,19 +105,28 @@ The intended behavior is now explicit:
 - In that verification mode, build should use the real DB and fail if PostgreSQL is unreachable.
 - When `ALLOW_STATIC_CATALOG_FALLBACK=true` is set explicitly, catalog pages may fall back to static data during build if Prisma cannot connect.
 - This keeps real DB verification strict while still preserving a deliberate no-DB build path.
+- The normal 2026-06-28 acceptance build used the real DB and did not use static fallback.
 
 ## Current Validation Status
 
 Verified on 2026-06-28 during Package 3 / 3.1 closeout:
 
-- `pnpm db:generate`: passed
 - `pnpm lint`: passed
-- `pnpm build`: passed against the real local PostgreSQL instance when run outside the sandbox after caching catalog prerender reads
-- `ALLOW_STATIC_CATALOG_FALLBACK=true pnpm build`: passed and logged explicit fallback usage
+- `pnpm build`: passed against the real local PostgreSQL instance with fallback disabled
 - `pnpm db:verify:catalog`: passed when rerun outside the sandbox
 - admin auth smoke matrix: passed for admin, manager, customer, and anonymous route separation
-- live manager media form rendering: verified for both product and service forms, including inline `mainImageUpload` field and helper text
-- live manager media form submission: not fully replayed from Codex because localhost server-action POST approval timed out twice in this environment
+- live manager browser submit: verified for both product and service creation
+- product upload proof:
+  - product created from `/admin/products/new`
+  - public image path saved as `/uploads/admin/2026/06/1782670875731-vedma-browser-smoke.png`
+  - linked `Media` row `cmqy47n10000c8oqjc55go8wq` stored `productId=cmqy47n10000d8oqjawu4ojya`
+- service upload proof:
+  - service created from `/admin/services/new`
+  - public image path saved as `/uploads/admin/2026/06/1782670876591-vedma-browser-smoke.png`
+  - linked `Media` row `cmqy47nov000e8oqjeujzev6m` stored `serviceId=cmqy47nox000f8oqjzycsbarm`
+- archived visibility proof:
+  - after manager-side archive save, `/products/browser-smoke-product-pkg31-proof` returned `404`
+  - after manager-side archive save, `/services/browser-smoke-service-pkg31-proof` returned `404`
 
 Important environment note:
 
@@ -127,22 +139,21 @@ Important environment note:
 - Customer account creation currently happens through checkout, not through a separate signup funnel
 - Preview routes still exist: `/admin-preview`, `/account-preview`
 - Audit docs outside the updated source-of-truth files may still contain older Package 2 wording
-- Package 3.1 still needs one final live submit acceptance pass for manager image upload before merging this branch into `main`
 
 ## Merge Readiness
 
-Status: `PUSHABLE_NOT_MERGE_READY`
+Status: `READY_TO_MERGE`
 
-Critical technical checks now pass on the current branch, but merge should wait for a final live manager image-upload submit confirmation outside the Codex sandbox approval bottleneck.
+Critical technical and browser acceptance checks now pass on the current branch. This task does not merge to `main`, but no Package 3.1 blocker remains on the branch itself.
 
 ## Recommended Next Package
 
-### Package 3.1 Acceptance Closeout
+### Package 4 — Payments And Operational Workflow Hardening
 
 Focus:
 
-- run one live manager product upload submit against the branch on a local browser or deployment preview
-- confirm the saved product references the new `Media` record and the public product page renders the uploaded image
-- repeat the same live submit check for the service form
+- payment-provider integration and webhook handling
+- operational order workflow hardening beyond the current manual admin flow
+- customer communications and fulfillment automation after merge
 
-Do not start Package 4 until that acceptance step is complete.
+Do not start Package 4 in this task.

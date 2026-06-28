@@ -2,7 +2,7 @@
 
 Date: 2026-06-28
 Branch: `codex/package-3-commerce-intake`
-Status: `DONE_ON_BRANCH`
+Status: `DONE_ON_BRANCH_READY_TO_MERGE`
 
 ## Scope Delivered
 
@@ -33,15 +33,14 @@ Status: `DONE_ON_BRANCH`
 
 ## Verification Snapshot
 
-- `pnpm db:generate`: passed
 - `pnpm lint`: passed
-- `pnpm build`: passed with real DB access after caching published catalog reads during prerender
+- `pnpm build`: passed with real DB access and fallback disabled during the normal acceptance build
 - `pnpm db:verify:catalog`: passed with real DB access
-- `ALLOW_STATIC_CATALOG_FALLBACK=true pnpm build`: passed and confirmed explicit fallback behavior
+- fallback used during normal build: `no`
 
 ## Package 3.1 Pre-Production Stabilization
 
-Status: `DONE_WITH_REVIEW_BLOCKER`
+Status: `DONE_ON_BRANCH_READY_TO_MERGE`
 
 ### Auth / Session Separation
 
@@ -58,14 +57,33 @@ Status: `DONE_WITH_REVIEW_BLOCKER`
 - direct manager access to `/admin/settings` and `/admin/users` now redirects inside admin flow instead of leaking to `/account/login`
 - customer access to `/admin/*` redirects to `/admin/login`
 - anonymous `/admin/*` access redirects to `/admin/login`
+- browser-side redirect sanitization confirmed:
+  - `/admin/login?next=https://evil.example/boom` ended at `/admin/dashboard`
+  - `/account/login?next=/admin/dashboard` ended at `/account/orders`
 
 ### Inline Product / Service Image Upload
 
 - `CatalogEntityForm` now exposes `mainImageUpload` for both product and service forms
 - uploaded JPG/PNG/WEBP files reuse `storeUploadedFile`, create a `Media` record, and override the selected existing media path when both are supplied
 - product/service save actions revalidate public catalog pages plus `/admin/media`
-- live form rendering was verified on the running app for both product and service create screens
-- full live submit replay from Codex remained blocked by localhost server-action POST approval timing out twice, so merge should wait for one final browser-side acceptance pass
+- full live browser submit was verified on 2026-06-28 against the production build and real PostgreSQL:
+  - product created from `/admin/products/new`
+  - product saved `image=/uploads/admin/2026/06/1782670875731-vedma-browser-smoke.png`
+  - linked `Media` row `cmqy47n10000c8oqjc55go8wq` saved `productId=cmqy47n10000d8oqjawu4ojya`
+  - public `/products/[slug]` rendered the uploaded product image before archive
+  - service created from `/admin/services/new`
+  - service saved `image=/uploads/admin/2026/06/1782670876591-vedma-browser-smoke.png`
+  - linked `Media` row `cmqy47nov000e8oqjeujzev6m` saved `serviceId=cmqy47nox000f8oqjzycsbarm`
+  - public `/services/[slug]` rendered the uploaded service image before archive
+
+### Catalog Fallback Leak Fix
+
+- `lib/catalog/repository.ts` no longer falls back to static items inside `getProductBySlug` or `getServiceBySlug` after DB-backed published queries
+- repository-level `react` caching was removed from the published catalog loaders so admin revalidation sees the latest publication state
+- admin bulk product/service publish-hide actions now revalidate the affected detail routes
+- archived visibility acceptance passed on the production server:
+  - `/products/browser-smoke-product-pkg31-proof` returned `404`
+  - `/services/browser-smoke-service-pkg31-proof` returned `404`
 
 ### Verification Commands
 
@@ -75,7 +93,6 @@ Status: `DONE_WITH_REVIEW_BLOCKER`
 
 ### Remaining Known Limitations
 
-- final browser-side manager upload submit proof is still pending outside the Codex sandbox approval bottleneck
 - payment state is manual only
 - customers cannot self-download private PDFs
 - no separate customer signup flow outside checkout
@@ -96,7 +113,7 @@ Status: `DONE_WITH_REVIEW_BLOCKER`
 
 ## Merge Readiness
 
-Status: `PUSHABLE_NOT_MERGE_READY`
+Status: `READY_TO_MERGE`
 
 ## Recommended Next Package
 
