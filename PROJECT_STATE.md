@@ -38,7 +38,7 @@ Untracked local files such as `.env`, `.tmp/`, screenshots, uploaded admin asset
 - role-based access for `ADMIN` and `MANAGER`
 - CRUD for products, services, reviews, settings, media, and users
 - new admin queues for orders, requests, payments, and customers
-- manager/admin-only access to private customer PDFs
+- private customer PDF files are available only to `ADMIN` through `/admin/files/[id]`
 
 ### Database stack
 
@@ -79,7 +79,7 @@ Implemented on `codex/package-3-commerce-intake`:
 - customer account login, orders list, order detail, and profile management
 - private PDF upload storage under `private/customer-files`
 - admin orders, requests, payments, and customers modules
-- manager/admin-only PDF access route at `/admin/files/[id]`
+- private customer PDF files are available only to `ADMIN` through `/admin/files/[id]`
 
 ### Package 3.1
 
@@ -135,7 +135,7 @@ Important environment note:
 ## Remaining Limitations
 
 - Payments remain manual status tracking only; no online provider, webhook, or invoicing automation exists
-- Customer file access is intentionally restricted to managers/admins in the CMS and is not downloadable from the customer account
+- Customer file access is intentionally restricted to `ADMIN` through `/admin/files/[id]` and is not downloadable from the customer account
 - Customer account creation currently happens through checkout, not through a separate signup funnel
 - Preview routes still exist: `/admin-preview`, `/account-preview`
 - Audit docs outside the updated source-of-truth files may still contain older Package 2 wording
