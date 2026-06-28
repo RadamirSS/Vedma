@@ -1,9 +1,10 @@
 import { createHash, randomBytes } from "node:crypto";
 
-import { Role } from "@prisma/client";
+import { Role, type User } from "@prisma/client";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
+import { verifyPassword } from "@/lib/auth/password";
 import { prisma } from "@/lib/db/prisma";
 
 export const SESSION_COOKIE = "vedma_admin_session";
@@ -16,6 +17,11 @@ function hashToken(token: string) {
 function buildLoginRedirect(nextPath?: string) {
   const value = nextPath ? `?next=${encodeURIComponent(nextPath)}` : "";
   return `/admin/login${value}`;
+}
+
+function buildCustomerLoginRedirect(nextPath?: string) {
+  const value = nextPath ? `?next=${encodeURIComponent(nextPath)}` : "";
+  return `/account/login${value}`;
 }
 
 export async function createUserSession(userId: string) {
@@ -83,6 +89,33 @@ export async function getCurrentSession() {
   return session;
 }
 
+export async function getCurrentUser() {
+  const session = await getCurrentSession();
+  return session?.user ?? null;
+}
+
+export async function authenticateUser(email: string, password: string): Promise<User | null> {
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user || !user.isActive || !verifyPassword(password, user.passwordHash)) {
+    return null;
+  }
+
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { lastLoginAt: new Date() }
+  });
+
+  return user;
+}
+
+export async function requireUserSession(nextPath?: string) {
+  const session = await getCurrentSession();
+  if (!session) {
+    redirect(buildCustomerLoginRedirect(nextPath));
+  }
+  return session;
+}
+
 export async function requireAdminSession(nextPath?: string) {
   const session = await getCurrentSession();
   if (!session) {
@@ -105,4 +138,20 @@ export async function requireAdmin(nextPath?: string) {
 
 export async function requireManagerOrAdmin(nextPath?: string) {
   return requireRole([Role.ADMIN, Role.MANAGER], nextPath);
+}
+
+export async function requireCustomerSession(nextPath?: string) {
+  const session = await requireUserSession(nextPath);
+  if (session.user.role !== "CUSTOMER") {
+    redirect("/account?error=Недостаточно+прав");
+  }
+  return session;
+}
+
+export async function requireCustomerOrAdminSession(nextPath?: string) {
+  const session = await requireUserSession(nextPath);
+  if (!["CUSTOMER", "ADMIN", "MANAGER"].includes(session.user.role)) {
+    redirect("/account?error=Недостаточно+прав");
+  }
+  return session;
 }

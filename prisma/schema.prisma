@@ -27,19 +27,28 @@ enum AvailabilityStatus {
 }
 
 enum OrderStatus {
-  DRAFT
   NEW
-  CONFIRMED
-  FULFILLED
+  PENDING_CONFIRMATION
+  AWAITING_PAYMENT
+  PAID
+  IN_PROGRESS
+  READY_TO_SHIP
+  SHIPPED
+  COMPLETED
   CANCELLED
+  REFUNDED
 }
 
 enum PaymentStatus {
+  NOT_ISSUED
+  INVOICE_SENT
   PENDING
-  AUTHORIZED
   PAID
+  PARTIAL
   FAILED
+  EXPIRED
   REFUNDED
+  CANCELLED
 }
 
 enum PaymentProvider {
@@ -52,8 +61,12 @@ enum PaymentProvider {
 enum RequestStatus {
   NEW
   IN_PROGRESS
+  WAITING_FOR_CLIENT
+  AWAITING_PAYMENT
+  PAID
   COMPLETED
   CANCELLED
+  SPAM
 }
 
 enum Currency {
@@ -61,17 +74,43 @@ enum Currency {
   USD
 }
 
+enum ContactMethod {
+  TELEGRAM
+  PHONE
+  EMAIL
+  VK
+  WHATSAPP
+}
+
+enum OrderItemType {
+  PRODUCT
+  SERVICE
+}
+
+enum StatusHistoryEntityType {
+  ORDER
+  REQUEST
+}
+
 model User {
-  id           String   @id @default(cuid())
-  email        String   @unique
-  passwordHash String?
-  name         String?
-  role         Role     @default(ADMIN)
-  isActive     Boolean  @default(true)
-  lastLoginAt  DateTime?
-  sessions     Session[]
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id                  String              @id @default(cuid())
+  email               String              @unique
+  passwordHash        String?
+  name                String?
+  phone               String?
+  telegram            String?
+  role                Role                @default(CUSTOMER)
+  isActive            Boolean             @default(true)
+  lastLoginAt         DateTime?
+  sessions            Session[]
+  customerProfile     CustomerProfile?
+  customerOrders      Order[]             @relation("CustomerOrders")
+  customerRequests    Request[]           @relation("CustomerRequests")
+  customerFiles       CustomerFile[]
+  assignedRequests    Request[]           @relation("AssignedRequests")
+  statusHistory       StatusHistory[]     @relation("StatusChangedBy")
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
 }
 
 model Session {
@@ -113,6 +152,8 @@ model Product {
   seoDescription     String?
   needsReview        Boolean            @default(false)
   media              Media[]
+  orderItems         OrderItem[]        @relation("OrderItemProduct")
+  selectedByRequests Request[]          @relation("RequestSelectedProduct")
   createdAt          DateTime           @default(now())
   updatedAt          DateTime           @updatedAt
 }
@@ -143,6 +184,8 @@ model Service {
   needsReview        Boolean           @default(false)
   publicationStatus  PublicationStatus @default(DRAFT)
   media              Media[]
+  orderItems         OrderItem[]       @relation("OrderItemService")
+  selectedByRequests Request[]         @relation("RequestSelectedService")
   createdAt          DateTime          @default(now())
   updatedAt          DateTime          @updatedAt
 }
@@ -165,45 +208,85 @@ model Media {
 }
 
 model Order {
-  id               String        @id @default(cuid())
-  orderNumber      String        @unique
-  status           OrderStatus   @default(DRAFT)
-  paymentStatus    PaymentStatus @default(PENDING)
-  totalAmountRub   Int?
-  totalAmountUsd   Int?
-  customerName     String?
-  customerEmail    String?
-  customerPhone    String?
-  customerTelegram String?
-  payments         Payment[]
-  createdAt        DateTime      @default(now())
-  updatedAt        DateTime      @updatedAt
+  id                 String          @id @default(cuid())
+  orderNumber        String          @unique
+  customerId         String
+  customer           User            @relation("CustomerOrders", fields: [customerId], references: [id], onDelete: Restrict)
+  status             OrderStatus     @default(NEW)
+  paymentStatus      PaymentStatus   @default(NOT_ISSUED)
+  currency           Currency        @default(RUB)
+  totalAmount        Int
+  totalAmountRub     Int?
+  totalAmountUsd     Int?
+  customerName       String?
+  customerEmail      String?
+  customerPhone      String?
+  customerTelegram   String?
+  customerComment    String?
+  adminComment       String?
+  contactMethod      ContactMethod?
+  deliveryRequired   Boolean         @default(false)
+  deliveryCity       String?
+  deliveryCountry    String?
+  deliveryAddress1   String?
+  deliveryAddress2   String?
+  deliveryPostalCode String?
+  requestSource      String?
+  items              OrderItem[]
+  payments           Payment[]
+  files              CustomerFile[]
+  statusHistory      StatusHistory[] @relation("OrderStatusHistory")
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+
+  @@index([customerId])
+  @@index([status])
+  @@index([paymentStatus])
 }
 
 model Request {
-  id            String        @id @default(cuid())
-  requestNumber String        @unique
-  source        String?
-  status        RequestStatus @default(NEW)
-  clientName    String?
-  phone         String?
-  telegram      String?
-  email         String?
-  comment       String?
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  id                String          @id @default(cuid())
+  requestNumber     String          @unique
+  source            String?
+  customerId        String?
+  customer          User?           @relation("CustomerRequests", fields: [customerId], references: [id], onDelete: SetNull)
+  name              String?
+  email             String?
+  phone             String?
+  telegram          String?
+  selectedProductId String?
+  selectedServiceId String?
+  selectedProduct   Product?        @relation("RequestSelectedProduct", fields: [selectedProductId], references: [id], onDelete: SetNull)
+  selectedService   Service?        @relation("RequestSelectedService", fields: [selectedServiceId], references: [id], onDelete: SetNull)
+  comment           String?
+  status            RequestStatus   @default(NEW)
+  responsibleUserId String?
+  responsibleUser   User?           @relation("AssignedRequests", fields: [responsibleUserId], references: [id], onDelete: SetNull)
+  adminComment      String?
+  statusHistory     StatusHistory[] @relation("RequestStatusHistory")
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  @@index([customerId])
+  @@index([status])
+  @@index([responsibleUserId])
 }
 
 model Payment {
-  id        String          @id @default(cuid())
-  provider  PaymentProvider @default(MANUAL)
-  status    PaymentStatus   @default(PENDING)
-  amountRub Int?
-  amountUsd Int?
-  orderId   String?
-  order     Order?          @relation(fields: [orderId], references: [id], onDelete: SetNull)
-  createdAt DateTime        @default(now())
-  updatedAt DateTime        @updatedAt
+  id           String          @id @default(cuid())
+  provider     PaymentProvider @default(MANUAL)
+  status       PaymentStatus   @default(NOT_ISSUED)
+  amount       Int
+  currency     Currency        @default(RUB)
+  paymentDate  DateTime?
+  adminComment String?
+  orderId      String?
+  order        Order?          @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  @@index([orderId])
+  @@index([status])
 }
 
 model Review {
@@ -223,4 +306,76 @@ model SiteSetting {
   value     Json
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model CustomerProfile {
+  id            String   @id @default(cuid())
+  userId         String   @unique
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  city           String?
+  country        String?
+  addressLine1   String?
+  addressLine2   String?
+  postalCode     String?
+  birthDate      DateTime?
+  adminNotes     String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model OrderItem {
+  id               String        @id @default(cuid())
+  orderId          String
+  order            Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  itemType         OrderItemType
+  productId        String?
+  serviceId        String?
+  product          Product?      @relation("OrderItemProduct", fields: [productId], references: [id], onDelete: SetNull)
+  service          Service?      @relation("OrderItemService", fields: [serviceId], references: [id], onDelete: SetNull)
+  titleSnapshot    String
+  priceSnapshot    Int
+  priceSnapshotRub Int?
+  priceSnapshotUsd Int?
+  quantity         Int           @default(1)
+  imageSnapshot    String?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  @@index([orderId])
+}
+
+model CustomerFile {
+  id           String   @id @default(cuid())
+  customerId   String
+  customer     User     @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  orderId      String?
+  order        Order?   @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  originalName String
+  storedPath   String   @unique
+  mimeType     String
+  size         Int
+  adminOnly    Boolean  @default(true)
+  uploadedAt   DateTime @default(now())
+
+  @@index([customerId])
+  @@index([orderId])
+}
+
+model StatusHistory {
+  id           String                  @id @default(cuid())
+  entityType   StatusHistoryEntityType
+  entityId     String
+  orderId      String?
+  order        Order?                  @relation("OrderStatusHistory", fields: [orderId], references: [id], onDelete: Cascade)
+  requestId    String?
+  request      Request?                @relation("RequestStatusHistory", fields: [requestId], references: [id], onDelete: Cascade)
+  changedById  String?
+  changedBy    User?                   @relation("StatusChangedBy", fields: [changedById], references: [id], onDelete: SetNull)
+  oldStatus    String?
+  newStatus    String
+  comment      String?
+  createdAt    DateTime                @default(now())
+
+  @@index([entityType, entityId])
+  @@index([changedById])
 }

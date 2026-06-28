@@ -9,3 +9,4 @@ playwright/.auth/
 **/vk_session/
 **/*cookies*
 imports/vk/raw/.browser-state/
+private/

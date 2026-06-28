@@ -40,6 +40,9 @@ export function Header({ settings }: { settings: SiteSettingsShape }) {
         </nav>
 
         <div className="nav-actions">
+          <Link className="btn btn-ghost btn-small" href="/account/orders">
+            Кабинет
+          </Link>
           <a
             className="btn btn-ghost btn-small"
             href={settings.socialLinks.telegram}
@@ -48,8 +51,8 @@ export function Header({ settings }: { settings: SiteSettingsShape }) {
           >
             Telegram
           </a>
-          <Link className="btn btn-primary btn-small" href="/checkout">
-            Записаться
+          <Link className="btn btn-primary btn-small" href="/cart">
+            Оформить
           </Link>
           <button className="btn btn-ghost btn-small cart-btn" type="button" onClick={openCart}>
             Корзина

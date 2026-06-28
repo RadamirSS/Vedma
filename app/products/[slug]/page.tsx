@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
+import { AddToCartButton } from "@/components/commerce/add-to-cart-button";
 import { CatalogCard } from "@/components/catalog-card";
 import { CatalogVisual } from "@/components/catalog-visual";
 import { LegalNotice } from "@/components/legal-notice";
@@ -62,8 +63,9 @@ export default async function ProductDetailPage({
               <span className="pill">{formatPrice(item.price)}</span>
             </div>
             <div className="hero-actions">
-              <Link className="btn btn-primary" href="/checkout">
-                Добавить в оформление
+              <AddToCartButton itemType="product" slug={item.slug} className="btn btn-primary" label="Добавить в корзину" />
+              <Link className="btn btn-ghost" href="/checkout">
+                Перейти к оформлению
               </Link>
               <a
                 className="btn btn-ghost"

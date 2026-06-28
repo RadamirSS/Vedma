@@ -2,7 +2,7 @@
 
 import { randomUUID } from "node:crypto";
 
-import { Role } from "@prisma/client";
+import { OrderStatus, PaymentStatus, RequestStatus, Role } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -22,6 +22,7 @@ import {
   requireManagerOrAdmin
 } from "@/lib/auth/session";
 import { prisma } from "@/lib/db/prisma";
+import { ORDER_STATUS_LABELS, PAYMENT_STATUS_LABELS, REQUEST_STATUS_LABELS } from "@/lib/admin/constants";
 
 function encodeNotice(message: string) {
   return encodeURIComponent(message);
@@ -305,6 +306,162 @@ export async function saveServiceAction(formData: FormData) {
   revalidatePath("/");
   revalidatePath("/admin/services");
   redirect(`/admin/services/${service.id}?success=${encodeNotice("Услуга сохранена.")}`);
+}
+
+function requireEnumValue<T extends string>(value: string | null, allowed: readonly T[], message: string) {
+  if (!value || !allowed.includes(value as T)) {
+    throw new Error(message);
+  }
+
+  return value as T;
+}
+
+export async function updateOrderStatusAction(formData: FormData) {
+  await requireManagerOrAdmin("/admin/orders");
+  const id = toNullableString(formData.get("id"));
+  const status = requireEnumValue(
+    toNullableString(formData.get("status")),
+    Object.keys(ORDER_STATUS_LABELS) as OrderStatus[],
+    "Не выбран статус заказа."
+  );
+  const paymentStatus = requireEnumValue(
+    toNullableString(formData.get("paymentStatus")),
+    Object.keys(PAYMENT_STATUS_LABELS) as PaymentStatus[],
+    "Не выбран статус платежа."
+  );
+  const adminComment = toNullableString(formData.get("adminComment"));
+
+  if (!id) {
+    redirect(`/admin/orders?error=${encodeNotice("Заказ не найден.")}`);
+  }
+
+  const existing = await prisma.order.findUnique({ where: { id } });
+  if (!existing) {
+    redirect(`/admin/orders?error=${encodeNotice("Заказ не найден.")}`);
+  }
+
+  await prisma.order.update({
+    where: { id },
+    data: {
+      status,
+      paymentStatus,
+      adminComment
+    }
+  });
+
+  if (existing.status !== status) {
+    await prisma.statusHistory.create({
+      data: {
+        entityType: "ORDER",
+        entityId: existing.id,
+        orderId: existing.id,
+        changedById: (await requireManagerOrAdmin("/admin/orders")).user.id,
+        oldStatus: existing.status,
+        newStatus: status,
+        comment: adminComment ?? "Статус обновлен из админ-панели."
+      }
+    });
+  }
+
+  revalidatePath("/admin/orders");
+  revalidatePath(`/admin/orders/${id}`);
+  revalidatePath("/account/orders");
+  redirect(`/admin/orders/${id}?success=${encodeNotice("Заказ обновлен.")}`);
+}
+
+export async function updateRequestStatusAction(formData: FormData) {
+  await requireManagerOrAdmin("/admin/requests");
+  const id = toNullableString(formData.get("id"));
+  const status = requireEnumValue(
+    toNullableString(formData.get("status")),
+    Object.keys(REQUEST_STATUS_LABELS) as RequestStatus[],
+    "Не выбран статус заявки."
+  );
+  const adminComment = toNullableString(formData.get("adminComment"));
+
+  if (!id) {
+    redirect(`/admin/requests?error=${encodeNotice("Заявка не найдена.")}`);
+  }
+
+  const session = await requireManagerOrAdmin("/admin/requests");
+  const existing = await prisma.request.findUnique({ where: { id } });
+  if (!existing) {
+    redirect(`/admin/requests?error=${encodeNotice("Заявка не найдена.")}`);
+  }
+
+  await prisma.request.update({
+    where: { id },
+    data: {
+      status,
+      adminComment,
+      responsibleUserId: session.user.id
+    }
+  });
+
+  if (existing.status !== status) {
+    await prisma.statusHistory.create({
+      data: {
+        entityType: "REQUEST",
+        entityId: existing.id,
+        requestId: existing.id,
+        changedById: session.user.id,
+        oldStatus: existing.status,
+        newStatus: status,
+        comment: adminComment ?? "Статус обновлен из админ-панели."
+      }
+    });
+  }
+
+  revalidatePath("/admin/requests");
+  revalidatePath(`/admin/requests/${id}`);
+  redirect(`/admin/requests/${id}?success=${encodeNotice("Заявка обновлена.")}`);
+}
+
+export async function updatePaymentStatusAction(formData: FormData) {
+  await requireManagerOrAdmin("/admin/payments");
+  const id = toNullableString(formData.get("id"));
+  const status = requireEnumValue(
+    toNullableString(formData.get("status")),
+    Object.keys(PAYMENT_STATUS_LABELS) as PaymentStatus[],
+    "Не выбран статус платежа."
+  );
+  const adminComment = toNullableString(formData.get("adminComment"));
+
+  if (!id) {
+    redirect(`/admin/payments?error=${encodeNotice("Платеж не найден.")}`);
+  }
+
+  await prisma.payment.update({
+    where: { id },
+    data: {
+      status,
+      adminComment,
+      paymentDate: status === "PAID" ? new Date() : null
+    }
+  });
+
+  revalidatePath("/admin/payments");
+  redirect(`/admin/payments?success=${encodeNotice("Статус платежа обновлен.")}`);
+}
+
+export async function updateCustomerNotesAction(formData: FormData) {
+  await requireManagerOrAdmin("/admin/customers");
+  const userId = toNullableString(formData.get("userId"));
+  const adminNotes = toNullableString(formData.get("adminNotes"));
+
+  if (!userId) {
+    redirect(`/admin/customers?error=${encodeNotice("Клиент не найден.")}`);
+  }
+
+  await prisma.customerProfile.upsert({
+    where: { userId },
+    update: { adminNotes },
+    create: { userId, adminNotes }
+  });
+
+  revalidatePath("/admin/customers");
+  revalidatePath(`/admin/customers/${userId}`);
+  redirect(`/admin/customers/${userId}?success=${encodeNotice("Заметка сохранена.")}`);
 }
 
 export async function deleteServiceAction(formData: FormData) {

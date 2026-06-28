@@ -3,13 +3,18 @@
 import Link from "next/link";
 
 import { useCart } from "@/components/cart-context";
-import { getAllItems } from "@/lib/mock-data";
 import { formatCatalogLabel, formatPrice } from "@/lib/utils";
 
-const allItems = getAllItems();
-
 export function CartDrawer() {
-  const { items, total, isOpen, closeCart, changeQty, clearCart } = useCart();
+  const {
+    resolvedItems,
+    total,
+    isOpen,
+    closeCart,
+    changeQty,
+    clearCart,
+    isPending
+  } = useCart();
 
   return (
     <>
@@ -26,39 +31,48 @@ export function CartDrawer() {
           </button>
         </div>
         <div className="drawer-body">
-          {items.length === 0 ? (
+          {resolvedItems.length === 0 ? (
             <p className="muted">Корзина пустая. Добавьте услугу или товар из каталога.</p>
           ) : (
-            items.map((entry) => {
-              const item = allItems.find((value) => value.id === entry.id);
-              if (!item) return null;
-
+            resolvedItems.map((item) => {
               return (
-                <div key={entry.id} className="cart-item">
+                <div key={`${item.type}:${item.slug}`} className="cart-item">
                   <div className="cart-thumb">
                     {item.image ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={item.image} alt="" />
                     ) : (
-                      item.icon
+                      <span>{item.type === "product" ? "Т" : "У"}</span>
                     )}
                   </div>
                   <div>
                     <b>{item.title}</b>
                     <span>
-                      {formatCatalogLabel(item.category)} · {formatPrice(item.price)}
+                      {formatCatalogLabel(item.type === "product" ? "Товар" : "Услуга")} · {formatPrice(item.unitAmount)}
                     </span>
                     <div className="qty">
-                      <button type="button" onClick={() => changeQty(entry.id, -1)}>
+                      <button
+                        type="button"
+                        onClick={() => changeQty(item.type, item.slug, -1)}
+                        disabled={item.type === "service"}
+                      >
                         −
                       </button>
-                      <span>{entry.qty}</span>
-                      <button type="button" onClick={() => changeQty(entry.id, 1)}>
+                      <span>{item.quantity}</span>
+                      <button
+                        type="button"
+                        onClick={() => changeQty(item.type, item.slug, 1)}
+                        disabled={item.type === "service" || (item.maxQuantity !== null && item.quantity >= item.maxQuantity)}
+                      >
                         +
                       </button>
                     </div>
                   </div>
-                  <button className="remove" type="button" onClick={() => changeQty(entry.id, -entry.qty)}>
+                  <button
+                    className="remove"
+                    type="button"
+                    onClick={() => changeQty(item.type, item.slug, -item.quantity)}
+                  >
                     ×
                   </button>
                 </div>
@@ -69,9 +83,12 @@ export function CartDrawer() {
         <div className="drawer-foot">
           <div className="total">
             <span>Итого</span>
-            <b>{formatPrice(total)}</b>
+            <b>{isPending ? "..." : formatPrice(total)}</b>
           </div>
-          <Link className="btn btn-primary" href="/checkout" onClick={closeCart}>
+          <Link className="btn btn-primary" href="/cart" onClick={closeCart}>
+            Перейти в корзину
+          </Link>
+          <Link className="btn btn-ghost" href="/checkout" onClick={closeCart}>
             Оформить заказ
           </Link>
           <button className="btn btn-ghost" type="button" onClick={clearCart}>
