@@ -34,7 +34,7 @@ export default async function AccountOrderDetailPage({
   return (
     <AccountShell
       title={order.orderNumber}
-      description="Детали заказа, ручной статус платежа и история обработки."
+      description="Детали заказа, ручной статус платежа и история обработки. Администратор отправит реквизиты отдельно, когда заказ будет подтвержден."
       user={session.user}
     >
       <div className="dashboard-grid">

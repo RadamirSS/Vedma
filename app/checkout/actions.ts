@@ -70,7 +70,7 @@ export async function submitCheckoutAction(
 
     return {
       success: true,
-      message: `Заказ ${order.orderNumber} создан. История доступна в кабинете.`,
+      message: `Заказ ${order.orderNumber} создан. Оплата пока подтверждается вручную: администратор свяжется с вами и пришлет реквизиты, а статус будет виден в кабинете.`,
       redirectTo: `/account/orders/${order.orderId}`
     };
   } catch (error) {

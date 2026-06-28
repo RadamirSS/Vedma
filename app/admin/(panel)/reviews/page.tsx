@@ -4,6 +4,8 @@ import { prisma } from "@/lib/db/prisma";
 import { formatAdminDate } from "@/lib/admin/format";
 import { AdminEmptyState } from "@/components/admin/admin-empty-state";
 import { AdminNotice } from "@/components/admin/admin-notice";
+import { AdminReadOnlyNotice } from "@/components/admin/admin-read-only-notice";
+import { isReadOnlyAdminRole, requireAdminSession } from "@/lib/auth/session";
 
 export default async function AdminReviewsPage({
   searchParams
@@ -11,6 +13,8 @@ export default async function AdminReviewsPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const params = await searchParams;
+  const session = await requireAdminSession("/admin/reviews");
+  const isReadOnly = isReadOnlyAdminRole(session.user.role);
   const q = typeof params.q === "string" ? params.q : "";
   const success = typeof params.success === "string" ? params.success : undefined;
   const error = typeof params.error === "string" ? params.error : undefined;
@@ -36,11 +40,14 @@ export default async function AdminReviewsPage({
           <h1>Управление отзывами</h1>
           <p>Отзывы публикуются на публичной странице и на главной без редизайна существующих блоков.</p>
         </div>
-        <Link className="btn btn-primary" href="/admin/reviews/new">
-          Новый отзыв
-        </Link>
+        {!isReadOnly ? (
+          <Link className="btn btn-primary" href="/admin/reviews/new">
+            Новый отзыв
+          </Link>
+        ) : null}
       </div>
       <AdminNotice success={success} error={error} />
+      {isReadOnly ? <AdminReadOnlyNotice text="Демо-аккаунт может просматривать отзывы, но не может создавать, менять или удалять их." /> : null}
       <div className="admin-toolbar">
         <form>
           <input className="admin-input" name="q" placeholder="Поиск по автору, заголовку или тексту" defaultValue={q} />
@@ -55,8 +62,8 @@ export default async function AdminReviewsPage({
         <AdminEmptyState
           title="Отзывы не найдены"
           text="Создайте первый отзыв или очистите строку поиска."
-          href="/admin/reviews/new"
-          cta="Добавить отзыв"
+          href={isReadOnly ? "/admin/reviews" : "/admin/reviews/new"}
+          cta={isReadOnly ? "Сбросить поиск" : "Добавить отзыв"}
         />
       ) : (
         <div className="admin-table">
@@ -83,7 +90,7 @@ export default async function AdminReviewsPage({
                   <td>{formatAdminDate(review.updatedAt)}</td>
                   <td>
                     <Link className="btn btn-ghost btn-small" href={`/admin/reviews/${review.id}`}>
-                      Редактировать
+                      {isReadOnly ? "Открыть" : "Редактировать"}
                     </Link>
                   </td>
                 </tr>

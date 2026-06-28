@@ -13,6 +13,7 @@
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev --name package_1_init",
     "db:seed": "prisma db seed",
+    "db:seed:demo": "tsx prisma/seed-demo.ts",
     "db:studio": "prisma studio",
     "db:import:catalog": "tsx scripts/import-catalog-to-db.ts",
     "db:verify:catalog": "tsx scripts/verify-catalog-db.ts"

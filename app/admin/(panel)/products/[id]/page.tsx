@@ -2,11 +2,13 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { deleteProductAction, saveProductAction } from "@/app/admin/actions";
+import { AdminReadOnlyNotice } from "@/components/admin/admin-read-only-notice";
 import { ConfirmSubmitButton } from "@/components/admin/confirm-submit-button";
 import { AdminNotice } from "@/components/admin/admin-notice";
 import { CatalogEntityForm } from "@/components/admin/catalog-entity-form";
 import { AVAILABILITY_OPTIONS, PRODUCT_CATEGORY_OPTIONS, PUBLICATION_OPTIONS } from "@/lib/admin/constants";
 import { formatAdminDate } from "@/lib/admin/format";
+import { isReadOnlyAdminRole, requireAdminSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db/prisma";
 
 export default async function AdminProductDetailPage({
@@ -18,6 +20,8 @@ export default async function AdminProductDetailPage({
 }) {
   const { id } = await params;
   const query = await searchParams;
+  const session = await requireAdminSession(`/admin/products/${id}`);
+  const isReadOnly = isReadOnlyAdminRole(session.user.role);
   const [product, media] = await Promise.all([
     prisma.product.findUnique({ where: { id } }),
     prisma.media.findMany({
@@ -50,12 +54,14 @@ export default async function AdminProductDetailPage({
         success={typeof query.success === "string" ? query.success : undefined}
         error={typeof query.error === "string" ? query.error : undefined}
       />
+      {isReadOnly ? <AdminReadOnlyNotice text="Демо-аккаунт может просматривать карточки товаров, но не может менять, публиковать или удалять их." /> : null}
       <div className="admin-detail-grid">
         <CatalogEntityForm
           entity="product"
           action={saveProductAction}
           cancelHref="/admin/products"
           previewHref={`/products/${product.slug}`}
+          readOnly={isReadOnly}
           media={media}
           categoryOptions={PRODUCT_CATEGORY_OPTIONS}
           publicationOptions={PUBLICATION_OPTIONS}
@@ -67,22 +73,24 @@ export default async function AdminProductDetailPage({
             tags: Array.isArray(product.tags) ? product.tags.filter((v): v is string => typeof v === "string") : []
           }}
         />
-        <aside>
-          <div className="admin-section-head">
-            <h2>Опасная зона</h2>
-            <p>Удаление не затрагивает саму базу Package 1 и отвязывает медиа от карточки.</p>
-          </div>
-          <form action={deleteProductAction}>
-            <input type="hidden" name="id" value={product.id} />
-            <ConfirmSubmitButton
-              className="btn btn-wine"
-              message="Удалить товар? Это действие нельзя отменить."
-              pendingLabel="Удаление..."
-            >
-              Удалить товар
-            </ConfirmSubmitButton>
-          </form>
-        </aside>
+        {!isReadOnly ? (
+          <aside>
+            <div className="admin-section-head">
+              <h2>Опасная зона</h2>
+              <p>Удаление не затрагивает саму базу Package 1 и отвязывает медиа от карточки.</p>
+            </div>
+            <form action={deleteProductAction}>
+              <input type="hidden" name="id" value={product.id} />
+              <ConfirmSubmitButton
+                className="btn btn-wine"
+                message="Удалить товар? Это действие нельзя отменить."
+                pendingLabel="Удаление..."
+              >
+                Удалить товар
+              </ConfirmSubmitButton>
+            </form>
+          </aside>
+        ) : null}
       </div>
     </div>
   );

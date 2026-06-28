@@ -4,8 +4,10 @@ import { bulkProductsAction } from "@/app/admin/actions";
 import { AdminEmptyState } from "@/components/admin/admin-empty-state";
 import { AdminNotice } from "@/components/admin/admin-notice";
 import { AdminPagination } from "@/components/admin/admin-pagination";
+import { AdminReadOnlyNotice } from "@/components/admin/admin-read-only-notice";
 import { SubmitButton } from "@/components/admin/submit-button";
 import { buildPagination, formatAdminDate, parseSearchParam } from "@/lib/admin/format";
+import { isReadOnlyAdminRole, requireAdminSession } from "@/lib/auth/session";
 import { formatPrice } from "@/lib/utils";
 import { prisma } from "@/lib/db/prisma";
 
@@ -21,6 +23,8 @@ export default async function AdminProductsPage({
   const status = parseSearchParam(params.status);
   const sort = parseSearchParam(params.sort, "updatedAt-desc");
   const page = Number.parseInt(parseSearchParam(params.page, "1"), 10) || 1;
+  const session = await requireAdminSession("/admin/products");
+  const isReadOnly = isReadOnlyAdminRole(session.user.role);
   const success = typeof params.success === "string" ? params.success : undefined;
   const error = typeof params.error === "string" ? params.error : undefined;
   const query = new URLSearchParams();
@@ -58,12 +62,15 @@ export default async function AdminProductsPage({
           <h1>Управление товарами</h1>
           <p>Поиск, фильтрация, массовые действия и переход к редактированию существующего каталога.</p>
         </div>
-        <Link className="btn btn-primary" href="/admin/products/new">
-          Новый товар
-        </Link>
+        {!isReadOnly ? (
+          <Link className="btn btn-primary" href="/admin/products/new">
+            Новый товар
+          </Link>
+        ) : null}
       </div>
 
       <AdminNotice success={success} error={error} />
+      {isReadOnly ? <AdminReadOnlyNotice /> : null}
 
       <div className="admin-toolbar">
         <form>
@@ -92,15 +99,15 @@ export default async function AdminProductsPage({
         <AdminEmptyState
           title="Товары не найдены"
           text="Измените фильтры или создайте новую карточку товара."
-          href="/admin/products/new"
-          cta="Добавить товар"
+          href={isReadOnly ? "/admin/products" : "/admin/products/new"}
+          cta={isReadOnly ? "Сбросить фильтры" : "Добавить товар"}
         />
       ) : (
         <form action={bulkProductsAction} className="admin-table">
           <table>
             <thead>
               <tr>
-                <th />
+                <th>{isReadOnly ? "Просмотр" : ""}</th>
                 <th>Изображение</th>
                 <th>Название</th>
                 <th>Категория</th>
@@ -114,7 +121,7 @@ export default async function AdminProductsPage({
               {items.map((item) => (
                 <tr key={item.id}>
                   <td>
-                    <input className="admin-checkbox" type="checkbox" name="ids" value={item.id} />
+                    {!isReadOnly ? <input className="admin-checkbox" type="checkbox" name="ids" value={item.id} /> : null}
                   </td>
                   <td>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -135,7 +142,7 @@ export default async function AdminProductsPage({
                   <td>
                     <div className="admin-actions-row">
                       <Link className="btn btn-ghost btn-small" href={`/admin/products/${item.id}`}>
-                        Редактировать
+                        {isReadOnly ? "Открыть" : "Редактировать"}
                       </Link>
                       <Link className="btn btn-ghost btn-small" href={`/products/${item.slug}`} target="_blank">
                         Preview
@@ -146,18 +153,20 @@ export default async function AdminProductsPage({
               ))}
             </tbody>
           </table>
-          <div className="admin-toolbar">
-            <select className="admin-select" name="bulkAction" defaultValue="publish">
-              <option value="publish">Опубликовать</option>
-              <option value="hide">Скрыть</option>
-              <option value="draft">В черновик</option>
-            </select>
-            <div />
-            <div />
-            <SubmitButton className="btn btn-primary btn-small" pendingLabel="Применение...">
-              Применить к выбранным
-            </SubmitButton>
-          </div>
+          {!isReadOnly ? (
+            <div className="admin-toolbar">
+              <select className="admin-select" name="bulkAction" defaultValue="publish">
+                <option value="publish">Опубликовать</option>
+                <option value="hide">Скрыть</option>
+                <option value="draft">В черновик</option>
+              </select>
+              <div />
+              <div />
+              <SubmitButton className="btn btn-primary btn-small" pendingLabel="Применение...">
+                Применить к выбранным
+              </SubmitButton>
+            </div>
+          ) : null}
         </form>
       )}
 

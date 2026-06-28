@@ -20,6 +20,7 @@ type Props = {
   categoryOptions: readonly string[];
   publicationOptions: Array<{ value: PublicationStatus; label: string }>;
   availabilityOptions?: Array<{ value: AvailabilityStatus; label: string }>;
+  readOnly?: boolean;
   initial?: {
     id?: string;
     title?: string;
@@ -56,10 +57,11 @@ export function CatalogEntityForm({
   categoryOptions,
   publicationOptions,
   availabilityOptions,
+  readOnly = false,
   initial
 }: Props) {
   return (
-    <DirtyForm action={action} className="admin-form-grid">
+    <DirtyForm action={action} className="admin-form-grid" disabled={readOnly}>
       {initial?.id ? <input type="hidden" name="id" value={initial.id} /> : null}
 
       <label>
@@ -278,11 +280,13 @@ export function CatalogEntityForm({
       </label>
 
       <div className="full admin-actions-row">
-        <SubmitButton className="btn btn-primary" pendingLabel="Сохранение...">
-          Сохранить
-        </SubmitButton>
+        {!readOnly ? (
+          <SubmitButton className="btn btn-primary" pendingLabel="Сохранение...">
+            Сохранить
+          </SubmitButton>
+        ) : null}
         <a className="btn btn-ghost" href={cancelHref}>
-          Отмена
+          {readOnly ? "К списку" : "Отмена"}
         </a>
         {previewHref ? (
           <a className="btn btn-ghost" href={previewHref} target="_blank" rel="noreferrer">

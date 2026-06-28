@@ -2,10 +2,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { deleteMediaAction, updateMediaAction } from "@/app/admin/actions";
+import { AdminReadOnlyNotice } from "@/components/admin/admin-read-only-notice";
 import { ConfirmSubmitButton } from "@/components/admin/confirm-submit-button";
 import { AdminNotice } from "@/components/admin/admin-notice";
 import { DirtyForm } from "@/components/admin/dirty-form";
 import { SubmitButton } from "@/components/admin/submit-button";
+import { isReadOnlyAdminRole, requireAdminSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db/prisma";
 
 export default async function AdminMediaDetailPage({
@@ -17,6 +19,8 @@ export default async function AdminMediaDetailPage({
 }) {
   const { id } = await params;
   const query = await searchParams;
+  const session = await requireAdminSession(`/admin/media/${id}`);
+  const isReadOnly = isReadOnlyAdminRole(session.user.role);
   const media = await prisma.media.findUnique({ where: { id } });
   if (!media) notFound();
 
@@ -35,8 +39,9 @@ export default async function AdminMediaDetailPage({
         success={typeof query.success === "string" ? query.success : undefined}
         error={typeof query.error === "string" ? query.error : undefined}
       />
+      {isReadOnly ? <AdminReadOnlyNotice text="Демо-аккаунт может просматривать метаданные медиа, но не может менять или удалять файлы." /> : null}
       <div className="admin-detail-grid">
-        <DirtyForm action={updateMediaAction} className="admin-form-grid">
+        <DirtyForm action={updateMediaAction} className="admin-form-grid" disabled={isReadOnly}>
           <input type="hidden" name="id" value={media.id} />
           <label className="full">
             <span>Preview</span>
@@ -56,23 +61,25 @@ export default async function AdminMediaDetailPage({
             <input className="admin-input" type="file" name="replacement" accept="image/jpeg,image/png,image/webp" />
           </label>
           <div className="full admin-actions-row">
-            <SubmitButton className="btn btn-primary">Сохранить</SubmitButton>
+            {!isReadOnly ? <SubmitButton className="btn btn-primary">Сохранить</SubmitButton> : null}
             <a className="btn btn-ghost" href={media.path} target="_blank" rel="noreferrer">
               Открыть файл
             </a>
           </div>
         </DirtyForm>
-        <aside>
-          <form action={deleteMediaAction}>
-            <input type="hidden" name="id" value={media.id} />
-            <ConfirmSubmitButton
-              className="btn btn-wine"
-              message="Удалить файл из медиатеки? Если он привязан к товару или услуге, удаление будет остановлено."
-            >
-              Удалить файл
-            </ConfirmSubmitButton>
-          </form>
-        </aside>
+        {!isReadOnly ? (
+          <aside>
+            <form action={deleteMediaAction}>
+              <input type="hidden" name="id" value={media.id} />
+              <ConfirmSubmitButton
+                className="btn btn-wine"
+                message="Удалить файл из медиатеки? Если он привязан к товару или услуге, удаление будет остановлено."
+              >
+                Удалить файл
+              </ConfirmSubmitButton>
+            </form>
+          </aside>
+        ) : null}
       </div>
     </div>
   );

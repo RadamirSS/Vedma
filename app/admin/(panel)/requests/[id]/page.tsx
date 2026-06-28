@@ -3,9 +3,11 @@ import { notFound } from "next/navigation";
 
 import { updateRequestStatusAction } from "@/app/admin/actions";
 import { AdminNotice } from "@/components/admin/admin-notice";
+import { AdminReadOnlyNotice } from "@/components/admin/admin-read-only-notice";
 import { SubmitButton } from "@/components/admin/submit-button";
 import { REQUEST_STATUS_LABELS, REQUEST_STATUS_OPTIONS } from "@/lib/admin/constants";
 import { formatAdminDate } from "@/lib/admin/format";
+import { isReadOnlyAdminRole, requireAdminSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db/prisma";
 
 export default async function AdminRequestDetailPage({
@@ -17,6 +19,8 @@ export default async function AdminRequestDetailPage({
 }) {
   const { id } = await params;
   const query = await searchParams;
+  const session = await requireAdminSession(`/admin/requests/${id}`);
+  const isReadOnly = isReadOnlyAdminRole(session.user.role);
   const success = typeof query.success === "string" ? query.success : undefined;
   const request = await prisma.request.findUnique({
     where: { id },
@@ -49,6 +53,7 @@ export default async function AdminRequestDetailPage({
       </div>
 
       <AdminNotice success={success} />
+      {isReadOnly ? <AdminReadOnlyNotice text="Демо-аккаунт может просматривать заявки, но не может менять статусы или внутренние комментарии." /> : null}
 
       <div className="admin-detail-grid">
         <article className="admin-card">
@@ -86,7 +91,7 @@ export default async function AdminRequestDetailPage({
             <input type="hidden" name="id" value={request.id} />
             <label className="admin-field">
               <span>Статус</span>
-              <select className="admin-select" name="status" defaultValue={request.status}>
+              <select className="admin-select" name="status" defaultValue={request.status} disabled={isReadOnly}>
                 {REQUEST_STATUS_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label}
@@ -96,11 +101,13 @@ export default async function AdminRequestDetailPage({
             </label>
             <label className="admin-field full">
               <span>Комментарий администратора</span>
-              <textarea className="admin-textarea" name="adminComment" defaultValue={request.adminComment ?? ""} />
+              <textarea className="admin-textarea" name="adminComment" defaultValue={request.adminComment ?? ""} disabled={isReadOnly} />
             </label>
-            <SubmitButton className="btn btn-primary" pendingLabel="Сохранение...">
-              Сохранить заявку
-            </SubmitButton>
+            {!isReadOnly ? (
+              <SubmitButton className="btn btn-primary" pendingLabel="Сохранение...">
+                Сохранить заявку
+              </SubmitButton>
+            ) : null}
           </form>
           <div className="stack-top">
             <div className="summary-line">

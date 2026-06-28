@@ -21,7 +21,7 @@ export default async function AccountOrdersPage() {
   return (
     <AccountShell
       title="Мои заказы"
-      description="Все оформленные товары и услуги хранятся здесь. Статусы платежей обновляются вручную администратором."
+      description="Все оформленные товары и услуги хранятся здесь. Заказ создается сразу, а администратор вручную подтверждает оплату и обновляет статус в кабинете."
       user={session.user}
     >
       <div className="account-grid">

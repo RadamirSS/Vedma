@@ -1,7 +1,9 @@
 import { saveReviewAction } from "@/app/admin/actions";
+import { AdminReadOnlyNotice } from "@/components/admin/admin-read-only-notice";
 import { AdminNotice } from "@/components/admin/admin-notice";
 import { DirtyForm } from "@/components/admin/dirty-form";
 import { SubmitButton } from "@/components/admin/submit-button";
+import { isReadOnlyAdminRole, requireAdminSession } from "@/lib/auth/session";
 
 export default async function AdminNewReviewPage({
   searchParams
@@ -9,6 +11,8 @@ export default async function AdminNewReviewPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const params = await searchParams;
+  const session = await requireAdminSession("/admin/reviews/new");
+  const isReadOnly = isReadOnlyAdminRole(session.user.role);
 
   return (
     <div className="admin-page">
@@ -20,7 +24,8 @@ export default async function AdminNewReviewPage({
         success={typeof params.success === "string" ? params.success : undefined}
         error={typeof params.error === "string" ? params.error : undefined}
       />
-      <DirtyForm action={saveReviewAction} className="admin-form-grid">
+      {isReadOnly ? <AdminReadOnlyNotice text="Демо-аккаунт не может создавать отзывы. Форма открыта только для просмотра." /> : null}
+      <DirtyForm action={saveReviewAction} className="admin-form-grid" disabled={isReadOnly}>
         <label>
           <span>Автор</span>
           <input className="admin-input" name="authorName" />
@@ -46,7 +51,7 @@ export default async function AdminNewReviewPage({
           <textarea className="admin-textarea" name="text" required />
         </label>
         <div className="full admin-actions-row">
-          <SubmitButton className="btn btn-primary">Сохранить</SubmitButton>
+          {!isReadOnly ? <SubmitButton className="btn btn-primary">Сохранить</SubmitButton> : null}
         </div>
       </DirtyForm>
     </div>

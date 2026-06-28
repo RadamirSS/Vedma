@@ -1,10 +1,12 @@
 import { notFound } from "next/navigation";
 
 import { deleteReviewAction, saveReviewAction } from "@/app/admin/actions";
+import { AdminReadOnlyNotice } from "@/components/admin/admin-read-only-notice";
 import { ConfirmSubmitButton } from "@/components/admin/confirm-submit-button";
 import { AdminNotice } from "@/components/admin/admin-notice";
 import { DirtyForm } from "@/components/admin/dirty-form";
 import { SubmitButton } from "@/components/admin/submit-button";
+import { isReadOnlyAdminRole, requireAdminSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db/prisma";
 
 export default async function AdminReviewDetailPage({
@@ -16,6 +18,8 @@ export default async function AdminReviewDetailPage({
 }) {
   const { id } = await params;
   const query = await searchParams;
+  const session = await requireAdminSession(`/admin/reviews/${id}`);
+  const isReadOnly = isReadOnlyAdminRole(session.user.role);
   const review = await prisma.review.findUnique({ where: { id } });
   if (!review) notFound();
 
@@ -29,8 +33,9 @@ export default async function AdminReviewDetailPage({
         success={typeof query.success === "string" ? query.success : undefined}
         error={typeof query.error === "string" ? query.error : undefined}
       />
+      {isReadOnly ? <AdminReadOnlyNotice text="Демо-аккаунт может просматривать отзывы, но не может менять или удалять их." /> : null}
       <div className="admin-detail-grid">
-        <DirtyForm action={saveReviewAction} className="admin-form-grid">
+        <DirtyForm action={saveReviewAction} className="admin-form-grid" disabled={isReadOnly}>
           <input type="hidden" name="id" value={review.id} />
           <label>
             <span>Автор</span>
@@ -57,20 +62,22 @@ export default async function AdminReviewDetailPage({
             <textarea className="admin-textarea" name="text" defaultValue={review.text} required />
           </label>
           <div className="full admin-actions-row">
-            <SubmitButton className="btn btn-primary">Сохранить</SubmitButton>
+            {!isReadOnly ? <SubmitButton className="btn btn-primary">Сохранить</SubmitButton> : null}
           </div>
         </DirtyForm>
-        <aside>
-          <form action={deleteReviewAction}>
-            <input type="hidden" name="id" value={review.id} />
-            <ConfirmSubmitButton
-              className="btn btn-wine"
-              message="Удалить отзыв? Это действие нельзя отменить."
-            >
-              Удалить отзыв
-            </ConfirmSubmitButton>
-          </form>
-        </aside>
+        {!isReadOnly ? (
+          <aside>
+            <form action={deleteReviewAction}>
+              <input type="hidden" name="id" value={review.id} />
+              <ConfirmSubmitButton
+                className="btn btn-wine"
+                message="Удалить отзыв? Это действие нельзя отменить."
+              >
+                Удалить отзыв
+              </ConfirmSubmitButton>
+            </form>
+          </aside>
+        ) : null}
       </div>
     </div>
   );

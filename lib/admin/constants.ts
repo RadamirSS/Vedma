@@ -8,7 +8,7 @@ import type {
   Role
 } from "@prisma/client";
 
-export const ADMIN_ROLES: Role[] = ["ADMIN", "MANAGER"];
+export const ADMIN_ROLES: Role[] = ["ADMIN", "MANAGER", "DEMO"];
 
 export const PUBLICATION_OPTIONS: Array<{ value: PublicationStatus; label: string }> = [
   { value: "DRAFT", label: "Черновик" },
@@ -43,10 +43,11 @@ export const SERVICE_CATEGORY_OPTIONS = [
   "Прочее"
 ] as const;
 
-export const USER_ROLE_OPTIONS: Array<{ value: Extract<Role, "ADMIN" | "MANAGER">; label: string }> =
+export const USER_ROLE_OPTIONS: Array<{ value: Extract<Role, "ADMIN" | "MANAGER" | "DEMO">; label: string }> =
   [
     { value: "ADMIN", label: "Администратор" },
-    { value: "MANAGER", label: "Менеджер" }
+    { value: "MANAGER", label: "Менеджер" },
+    { value: "DEMO", label: "Демо (только просмотр)" }
   ];
 
 export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {

@@ -1,11 +1,14 @@
 import Link from "next/link";
 
+import { AdminReadOnlyNotice } from "@/components/admin/admin-read-only-notice";
 import { requireAdminSession } from "@/lib/auth/session";
+import { isReadOnlyAdminRole } from "@/lib/auth/session";
 import { prisma } from "@/lib/db/prisma";
 import { formatAdminDate } from "@/lib/admin/format";
 
 export default async function AdminDashboardPage() {
   const session = await requireAdminSession("/admin/dashboard");
+  const isReadOnly = isReadOnlyAdminRole(session.user.role);
   const [products, services, media, orders, requests, payments, recentProducts, recentServices] =
     await Promise.all([
       prisma.product.count(),
@@ -30,15 +33,19 @@ export default async function AdminDashboardPage() {
           <h1>Production CMS</h1>
           <p>Каталог, медиа, отзывы, настройки и пользователи управляются из живой базы данных.</p>
         </div>
-        <div className="admin-actions-row">
-          <Link className="btn btn-primary" href="/admin/products/new">
-            Добавить товар
-          </Link>
-          <Link className="btn btn-ghost" href="/admin/services/new">
-            Добавить услугу
-          </Link>
-        </div>
+        {!isReadOnly ? (
+          <div className="admin-actions-row">
+            <Link className="btn btn-primary" href="/admin/products/new">
+              Добавить товар
+            </Link>
+            <Link className="btn btn-ghost" href="/admin/services/new">
+              Добавить услугу
+            </Link>
+          </div>
+        ) : null}
       </div>
+
+      {isReadOnly ? <AdminReadOnlyNotice /> : null}
 
       <section className="admin-stats">
         {[
@@ -63,14 +70,18 @@ export default async function AdminDashboardPage() {
             <p>Переход к основным рабочим разделам каталога.</p>
           </div>
           <div className="admin-grid">
-            <Link className="admin-card" href="/admin/products/new">
-              <h3>Новый товар</h3>
-              <p>Добавить карточку товара и сразу опубликовать или сохранить как черновик.</p>
-            </Link>
-            <Link className="admin-card" href="/admin/services/new">
-              <h3>Новая услуга</h3>
-              <p>Создать новый формат работы, цену и SEO-данные.</p>
-            </Link>
+            {!isReadOnly ? (
+              <Link className="admin-card" href="/admin/products/new">
+                <h3>Новый товар</h3>
+                <p>Добавить карточку товара и сразу опубликовать или сохранить как черновик.</p>
+              </Link>
+            ) : null}
+            {!isReadOnly ? (
+              <Link className="admin-card" href="/admin/services/new">
+                <h3>Новая услуга</h3>
+                <p>Создать новый формат работы, цену и SEO-данные.</p>
+              </Link>
+            ) : null}
             <Link className="admin-card" href="/admin/media">
               <h3>Медиа</h3>
               <p>Загрузить, переиспользовать или заменить изображения.</p>

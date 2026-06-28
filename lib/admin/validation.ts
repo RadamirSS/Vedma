@@ -174,7 +174,8 @@ export function validateUserForm(formData: FormData): ValidationResult<Record<st
   try {
     const email = requiredString(formData.get("email"), "Email").toLowerCase();
     const roleValue = formData.get("role");
-    const role: Role = roleValue === "MANAGER" ? "MANAGER" : "ADMIN";
+    const role: Role =
+      roleValue === "MANAGER" ? "MANAGER" : roleValue === "DEMO" ? "DEMO" : "ADMIN";
 
     return {
       success: true,

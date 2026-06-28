@@ -6,9 +6,10 @@ type Props = {
   action: (formData: FormData) => void | Promise<void>;
   children: React.ReactNode;
   className?: string;
+  disabled?: boolean;
 };
 
-export function DirtyForm({ action, children, className }: Props) {
+export function DirtyForm({ action, children, className, disabled = false }: Props) {
   const [isDirty, setIsDirty] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
@@ -33,11 +34,15 @@ export function DirtyForm({ action, children, className }: Props) {
         await action(formData);
       }}
       className={className}
-      onChange={() => setIsDirty(true)}
+      onChange={() => {
+        if (!disabled) {
+          setIsDirty(true);
+        }
+      }}
       onSubmit={() => setIsSubmitting(true)}
     >
-      {children}
-      {isDirty ? <p className="admin-form-hint">Есть несохраненные изменения.</p> : null}
+      <fieldset disabled={disabled}>{children}</fieldset>
+      {isDirty && !disabled ? <p className="admin-form-hint">Есть несохраненные изменения.</p> : null}
     </form>
   );
 }

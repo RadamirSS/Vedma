@@ -10,6 +10,8 @@ import { prisma } from "@/lib/db/prisma";
 export const ADMIN_SESSION_COOKIE = "vedma_admin_session";
 export const CUSTOMER_SESSION_COOKIE = "vedma_customer_session";
 const SESSION_TTL_DAYS = 14;
+const ADMIN_READ_ROLES: Role[] = [Role.ADMIN, Role.MANAGER, Role.DEMO];
+const ADMIN_WRITE_ROLES: Role[] = [Role.ADMIN, Role.MANAGER];
 
 type SessionWithUser = Session & { user: User };
 
@@ -120,7 +122,7 @@ export async function clearCustomerSession() {
 }
 
 export async function getCurrentAdminSession() {
-  return readScopedSession(ADMIN_SESSION_COOKIE, [Role.ADMIN, Role.MANAGER]);
+  return readScopedSession(ADMIN_SESSION_COOKIE, ADMIN_READ_ROLES);
 }
 
 export async function getCurrentCustomerSession() {
@@ -162,7 +164,29 @@ export async function requireAdmin(nextPath?: string) {
 }
 
 export async function requireManagerOrAdmin(nextPath?: string) {
-  return requireRole([Role.ADMIN, Role.MANAGER], nextPath);
+  return requireRole(ADMIN_WRITE_ROLES, nextPath);
+}
+
+export async function requireWritableAdmin(nextPath?: string) {
+  return requireAdmin(nextPath);
+}
+
+export async function requireWritableManagerOrAdmin(nextPath?: string) {
+  return requireManagerOrAdmin(nextPath);
+}
+
+export function isReadOnlyAdminRole(role: Role) {
+  return role === Role.DEMO;
+}
+
+export function getAdminRoleLabel(role: Role) {
+  if (role === Role.ADMIN) {
+    return "Администратор";
+  }
+  if (role === Role.MANAGER) {
+    return "Менеджер";
+  }
+  return "Демо (только просмотр)";
 }
 
 export async function requireCustomerSession(nextPath?: string) {

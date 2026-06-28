@@ -18,8 +18,8 @@ import { hashPassword, verifyPassword } from "@/lib/auth/password";
 import {
   clearAdminSession,
   createAdminSession,
-  requireAdmin,
-  requireManagerOrAdmin
+  requireWritableAdmin,
+  requireWritableManagerOrAdmin
 } from "@/lib/auth/session";
 import { getSafeAdminRedirectPath } from "@/lib/auth/safe-redirect";
 import { prisma } from "@/lib/db/prisma";
@@ -112,7 +112,7 @@ export async function loginAction(formData: FormData) {
     redirect(`/admin/login?error=${encodeNotice("Неверные учетные данные.")}`);
   }
 
-  if (user.role !== Role.ADMIN && user.role !== Role.MANAGER) {
+  if (user.role !== Role.ADMIN && user.role !== Role.MANAGER && user.role !== Role.DEMO) {
     redirect(`/admin/login?error=${encodeNotice("Доступ запрещен.")}`);
   }
 
@@ -131,7 +131,7 @@ export async function logoutAction() {
 }
 
 export async function saveProductAction(formData: FormData) {
-  await requireManagerOrAdmin("/admin/products");
+  await requireWritableManagerOrAdmin("/admin/products");
   const validation = validateProductForm(formData);
   const id = toNullableString(formData.get("id"));
 
@@ -220,7 +220,7 @@ export async function saveProductAction(formData: FormData) {
 }
 
 export async function deleteProductAction(formData: FormData) {
-  await requireManagerOrAdmin("/admin/products");
+  await requireWritableManagerOrAdmin("/admin/products");
   const id = toNullableString(formData.get("id"));
   if (!id) {
     redirect(`/admin/products?error=${encodeNotice("Не выбран товар.")}`);
@@ -245,7 +245,7 @@ export async function deleteProductAction(formData: FormData) {
 }
 
 export async function bulkProductsAction(formData: FormData) {
-  await requireManagerOrAdmin("/admin/products");
+  await requireWritableManagerOrAdmin("/admin/products");
   const ids = formData.getAll("ids").filter((value): value is string => typeof value === "string");
   const action = toNullableString(formData.get("bulkAction"));
 
@@ -276,7 +276,7 @@ export async function bulkProductsAction(formData: FormData) {
 }
 
 export async function saveServiceAction(formData: FormData) {
-  await requireManagerOrAdmin("/admin/services");
+  await requireWritableManagerOrAdmin("/admin/services");
   const validation = validateServiceForm(formData);
   const id = toNullableString(formData.get("id"));
 
@@ -373,7 +373,7 @@ function requireEnumValue<T extends string>(value: string | null, allowed: reado
 }
 
 export async function updateOrderStatusAction(formData: FormData) {
-  await requireManagerOrAdmin("/admin/orders");
+  await requireWritableManagerOrAdmin("/admin/orders");
   const id = toNullableString(formData.get("id"));
   const status = requireEnumValue(
     toNullableString(formData.get("status")),
@@ -411,7 +411,7 @@ export async function updateOrderStatusAction(formData: FormData) {
         entityType: "ORDER",
         entityId: existing.id,
         orderId: existing.id,
-        changedById: (await requireManagerOrAdmin("/admin/orders")).user.id,
+        changedById: (await requireWritableManagerOrAdmin("/admin/orders")).user.id,
         oldStatus: existing.status,
         newStatus: status,
         comment: adminComment ?? "Статус обновлен из админ-панели."
@@ -426,7 +426,7 @@ export async function updateOrderStatusAction(formData: FormData) {
 }
 
 export async function updateRequestStatusAction(formData: FormData) {
-  await requireManagerOrAdmin("/admin/requests");
+  await requireWritableManagerOrAdmin("/admin/requests");
   const id = toNullableString(formData.get("id"));
   const status = requireEnumValue(
     toNullableString(formData.get("status")),
@@ -439,7 +439,7 @@ export async function updateRequestStatusAction(formData: FormData) {
     redirect(`/admin/requests?error=${encodeNotice("Заявка не найдена.")}`);
   }
 
-  const session = await requireManagerOrAdmin("/admin/requests");
+  const session = await requireWritableManagerOrAdmin("/admin/requests");
   const existing = await prisma.request.findUnique({ where: { id } });
   if (!existing) {
     redirect(`/admin/requests?error=${encodeNotice("Заявка не найдена.")}`);
@@ -474,7 +474,7 @@ export async function updateRequestStatusAction(formData: FormData) {
 }
 
 export async function updatePaymentStatusAction(formData: FormData) {
-  await requireManagerOrAdmin("/admin/payments");
+  await requireWritableManagerOrAdmin("/admin/payments");
   const id = toNullableString(formData.get("id"));
   const status = requireEnumValue(
     toNullableString(formData.get("status")),
@@ -533,7 +533,7 @@ export async function updatePaymentStatusAction(formData: FormData) {
 }
 
 export async function updateCustomerNotesAction(formData: FormData) {
-  await requireManagerOrAdmin("/admin/customers");
+  await requireWritableManagerOrAdmin("/admin/customers");
   const userId = toNullableString(formData.get("userId"));
   const adminNotes = toNullableString(formData.get("adminNotes"));
 
@@ -553,7 +553,7 @@ export async function updateCustomerNotesAction(formData: FormData) {
 }
 
 export async function deleteServiceAction(formData: FormData) {
-  await requireManagerOrAdmin("/admin/services");
+  await requireWritableManagerOrAdmin("/admin/services");
   const id = toNullableString(formData.get("id"));
   if (!id) {
     redirect(`/admin/services?error=${encodeNotice("Не выбрана услуга.")}`);
@@ -578,7 +578,7 @@ export async function deleteServiceAction(formData: FormData) {
 }
 
 export async function bulkServicesAction(formData: FormData) {
-  await requireManagerOrAdmin("/admin/services");
+  await requireWritableManagerOrAdmin("/admin/services");
   const ids = formData.getAll("ids").filter((value): value is string => typeof value === "string");
   const action = toNullableString(formData.get("bulkAction"));
 
@@ -609,7 +609,7 @@ export async function bulkServicesAction(formData: FormData) {
 }
 
 export async function saveReviewAction(formData: FormData) {
-  await requireManagerOrAdmin("/admin/reviews");
+  await requireWritableManagerOrAdmin("/admin/reviews");
   const validation = validateReviewForm(formData);
   const id = toNullableString(formData.get("id"));
 
@@ -636,7 +636,7 @@ export async function saveReviewAction(formData: FormData) {
 }
 
 export async function deleteReviewAction(formData: FormData) {
-  await requireManagerOrAdmin("/admin/reviews");
+  await requireWritableManagerOrAdmin("/admin/reviews");
   const id = toNullableString(formData.get("id"));
   if (!id) {
     redirect(`/admin/reviews?error=${encodeNotice("Не выбран отзыв.")}`);
@@ -650,7 +650,7 @@ export async function deleteReviewAction(formData: FormData) {
 }
 
 export async function saveSettingsAction(formData: FormData) {
-  await requireAdmin("/admin/settings");
+  await requireWritableAdmin("/admin/settings");
   const current = await getSiteSettings();
 
   const next = {
@@ -745,7 +745,7 @@ export async function saveSettingsAction(formData: FormData) {
 }
 
 export async function saveUserAction(formData: FormData) {
-  const session = await requireAdmin("/admin/users");
+  const session = await requireWritableAdmin("/admin/users");
   const validation = validateUserForm(formData);
   const id = toNullableString(formData.get("id"));
 
@@ -808,7 +808,7 @@ export async function saveUserAction(formData: FormData) {
 }
 
 export async function saveMediaUploadAction(formData: FormData) {
-  await requireManagerOrAdmin("/admin/media");
+  await requireWritableManagerOrAdmin("/admin/media");
   const file = formData.get("file");
   const alt = toNullableString(formData.get("alt"));
 
@@ -840,7 +840,7 @@ export async function saveMediaUploadAction(formData: FormData) {
 }
 
 export async function updateMediaAction(formData: FormData) {
-  await requireManagerOrAdmin("/admin/media");
+  await requireWritableManagerOrAdmin("/admin/media");
   const id = toNullableString(formData.get("id"));
   if (!id) {
     redirect(`/admin/media?error=${encodeNotice("Не выбран медиафайл.")}`);
@@ -890,7 +890,7 @@ export async function updateMediaAction(formData: FormData) {
 }
 
 export async function deleteMediaAction(formData: FormData) {
-  await requireManagerOrAdmin("/admin/media");
+  await requireWritableManagerOrAdmin("/admin/media");
   const id = toNullableString(formData.get("id"));
   if (!id) {
     redirect(`/admin/media?error=${encodeNotice("Не выбран медиафайл.")}`);
@@ -910,7 +910,7 @@ export async function deleteMediaAction(formData: FormData) {
 }
 
 export async function saveUserDeactivateAction(formData: FormData) {
-  await requireAdmin("/admin/users");
+  await requireWritableAdmin("/admin/users");
   const id = toNullableString(formData.get("id"));
 
   if (!id) {
@@ -928,7 +928,7 @@ export async function saveUserDeactivateAction(formData: FormData) {
 }
 
 export async function deleteUserAction(formData: FormData) {
-  const session = await requireAdmin("/admin/users");
+  const session = await requireWritableAdmin("/admin/users");
   const id = toNullableString(formData.get("id"));
 
   if (!id) {
@@ -947,7 +947,7 @@ export async function deleteUserAction(formData: FormData) {
 }
 
 export async function savePasswordResetAction(formData: FormData) {
-  await requireAdmin("/admin/users");
+  await requireWritableAdmin("/admin/users");
   const id = toNullableString(formData.get("id"));
   const password = requirePasswordLength(toNullableString(formData.get("password")), true);
 
@@ -969,7 +969,7 @@ export async function savePasswordResetAction(formData: FormData) {
 }
 
 export async function seedSettingsAction() {
-  await requireAdmin("/admin/settings");
+  await requireWritableAdmin("/admin/settings");
   const settings = await getSiteSettings();
 
   await prisma.siteSetting.upsert({

@@ -3,8 +3,10 @@ import { notFound } from "next/navigation";
 
 import { updateCustomerNotesAction } from "@/app/admin/actions";
 import { AdminNotice } from "@/components/admin/admin-notice";
+import { AdminReadOnlyNotice } from "@/components/admin/admin-read-only-notice";
 import { SubmitButton } from "@/components/admin/submit-button";
 import { formatAdminDate } from "@/lib/admin/format";
+import { isReadOnlyAdminRole, requireAdminSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db/prisma";
 
 export default async function AdminCustomerDetailPage({
@@ -16,6 +18,9 @@ export default async function AdminCustomerDetailPage({
 }) {
   const { id } = await params;
   const query = await searchParams;
+  const session = await requireAdminSession(`/admin/customers/${id}`);
+  const isReadOnly = isReadOnlyAdminRole(session.user.role);
+  const canViewPrivateFiles = session.user.role === "ADMIN";
   const success = typeof query.success === "string" ? query.success : undefined;
   const customer = await prisma.user.findFirst({
     where: {
@@ -54,6 +59,7 @@ export default async function AdminCustomerDetailPage({
       </div>
 
       <AdminNotice success={success} />
+      {isReadOnly ? <AdminReadOnlyNotice text="Демо-аккаунт может просматривать клиентов, но не может менять заметки или открывать приватные PDF." /> : null}
 
       <div className="admin-detail-grid">
         <article className="admin-card">
@@ -98,11 +104,14 @@ export default async function AdminCustomerDetailPage({
                 className="admin-textarea"
                 name="adminNotes"
                 defaultValue={customer.customerProfile?.adminNotes ?? ""}
+                disabled={isReadOnly}
               />
             </label>
-            <SubmitButton className="btn btn-primary" pendingLabel="Сохранение...">
-              Сохранить заметку
-            </SubmitButton>
+            {!isReadOnly ? (
+              <SubmitButton className="btn btn-primary" pendingLabel="Сохранение...">
+                Сохранить заметку
+              </SubmitButton>
+            ) : null}
           </form>
         </article>
       </div>
@@ -135,11 +144,15 @@ export default async function AdminCustomerDetailPage({
                 <span>{formatAdminDate(request.createdAt)}</span>
               </Link>
             ))}
-            {customer.customerFiles.map((file) => (
-              <a key={file.id} className="btn btn-ghost btn-small" href={`/admin/files/${file.id}`}>
-                {file.originalName}
-              </a>
-            ))}
+            {canViewPrivateFiles ? (
+              customer.customerFiles.map((file) => (
+                <a key={file.id} className="btn btn-ghost btn-small" href={`/admin/files/${file.id}`}>
+                  {file.originalName}
+                </a>
+              ))
+            ) : customer.customerFiles.length > 0 ? (
+              <p className="muted">Приватные PDF доступны только администратору.</p>
+            ) : null}
           </div>
         </article>
       </div>

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 
 import { updateOrderStatusAction } from "@/app/admin/actions";
 import { AdminNotice } from "@/components/admin/admin-notice";
+import { AdminReadOnlyNotice } from "@/components/admin/admin-read-only-notice";
 import { SubmitButton } from "@/components/admin/submit-button";
 import {
   CONTACT_METHOD_LABELS,
@@ -12,6 +13,7 @@ import {
   PAYMENT_STATUS_OPTIONS
 } from "@/lib/admin/constants";
 import { formatAdminDate } from "@/lib/admin/format";
+import { isReadOnlyAdminRole, requireAdminSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db/prisma";
 import { formatPrice } from "@/lib/utils";
 
@@ -24,6 +26,9 @@ export default async function AdminOrderDetailPage({
 }) {
   const { id } = await params;
   const query = await searchParams;
+  const session = await requireAdminSession(`/admin/orders/${id}`);
+  const isReadOnly = isReadOnlyAdminRole(session.user.role);
+  const canViewPrivateFiles = session.user.role === "ADMIN";
   const success = typeof query.success === "string" ? query.success : undefined;
   const order = await prisma.order.findUnique({
     where: { id },
@@ -61,6 +66,7 @@ export default async function AdminOrderDetailPage({
       </div>
 
       <AdminNotice success={success} />
+      {isReadOnly ? <AdminReadOnlyNotice text="Демо-аккаунт может просматривать заказ, но не может менять статусы, комментарии или открывать приватные PDF." /> : null}
 
       <div className="admin-detail-grid">
         <article>
@@ -111,6 +117,8 @@ export default async function AdminOrderDetailPage({
             <h3>Файлы</h3>
             {order.files.length === 0 ? (
               <p className="muted">Вложений нет.</p>
+            ) : !canViewPrivateFiles ? (
+              <p className="muted">Приватные PDF доступны только администратору.</p>
             ) : (
               <div className="admin-side-list">
                 {order.files.map((file) => (
@@ -134,7 +142,7 @@ export default async function AdminOrderDetailPage({
             <input type="hidden" name="id" value={order.id} />
             <label className="admin-field">
               <span>Статус заказа</span>
-              <select className="admin-select" name="status" defaultValue={order.status}>
+              <select className="admin-select" name="status" defaultValue={order.status} disabled={isReadOnly}>
                 {ORDER_STATUS_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label}
@@ -144,7 +152,7 @@ export default async function AdminOrderDetailPage({
             </label>
             <label className="admin-field">
               <span>Статус платежа</span>
-              <select className="admin-select" name="paymentStatus" defaultValue={order.paymentStatus}>
+              <select className="admin-select" name="paymentStatus" defaultValue={order.paymentStatus} disabled={isReadOnly}>
                 {PAYMENT_STATUS_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label}
@@ -154,11 +162,13 @@ export default async function AdminOrderDetailPage({
             </label>
             <label className="admin-field full">
               <span>Комментарий администратора</span>
-              <textarea className="admin-textarea" name="adminComment" defaultValue={order.adminComment ?? ""} />
+              <textarea className="admin-textarea" name="adminComment" defaultValue={order.adminComment ?? ""} disabled={isReadOnly} />
             </label>
-            <SubmitButton className="btn btn-primary" pendingLabel="Сохранение...">
-              Сохранить статус
-            </SubmitButton>
+            {!isReadOnly ? (
+              <SubmitButton className="btn btn-primary" pendingLabel="Сохранение...">
+                Сохранить статус
+              </SubmitButton>
+            ) : null}
           </form>
         </article>
 
