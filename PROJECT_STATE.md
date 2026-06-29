@@ -2,24 +2,24 @@
 
 Date: 2026-06-29
 Repository: `Vedma`
-Current branch: `cursor/package-3-3-customer-journey-cleanup`
-Main branch status: Package 3.3 customer journey cleanup ready for review; server deploy pending owner approval
+Current branch: `main`
+Main branch status: Package 3.3 customer journey cleanup merged and deployed to https://bajena.it
 
 ## Instruction Sources
 
 - Global repo-independent rules from `~/.codex/AGENTS.md`
 - Package 3.3 customer journey and catalog cleanup task
+- Package 3.3 acceptance closeout and live verification
 
 ## Current Snapshot
 
 The repository now runs a merged public site, admin panel, and manual-commerce backbone on `main`:
 
-- Packages 1, 1.1, 2, 2.1/2.2, 3, and 3.1 are merged into `main`.
+- Packages 1, 1.1, 2, 2.1/2.2, 3, 3.1, 3.2, and 3.3 are merged into `main`.
 - The public site is suitable for client-facing previews.
 - Managers can configure catalog items through the admin panel.
 - Payments remain manual placeholders.
-- Package 3.2 server demo readiness is on `main`.
-- Package 3.3 on review branch cleans up public customer journey, VK/admin artifacts, account dashboard, and checkout UX.
+- Package 3.3 customer journey cleanup is live on bajena.it.
 
 Untracked local files such as `.env`, `.tmp/`, screenshots, uploaded admin assets, and zip backups remain local-only and must not be committed.
 
@@ -105,7 +105,10 @@ Status: `MERGED` / demo readiness on `main`
 
 ### Package 3.3
 
-Status: `IN_REVIEW` on `cursor/package-3-3-customer-journey-cleanup`
+Status: `MERGED` / `DEPLOYED` on https://bajena.it
+
+Merge commit: `61beb7aa663d041df24d23b4b5aae17616e51cb2`  
+Feature branch tip: `a3992251602fedee89937c13e301292657f3ad8e`
 
 Implemented:
 
@@ -115,6 +118,13 @@ Implemented:
 - admin catalog form CMS cleanup (upload-first image, no source URL field)
 - `metadataBase` → `NEXT_PUBLIC_SITE_URL` / `https://bajena.it`
 - `.env` gitignore protection
+
+Acceptance proof (2026-06-29):
+
+- local checkout E2E: `ORD-20260629-042AGC` (`cmqzl07lo0004ca1s3msei3wr`), email `test+pkg33-1782759534687@bajena.it`
+- live checkout E2E: `ORD-20260629-UKELYU` (`cmqzl3flz0004l7b8fgv5rwqy`), email `test+pkg33-live-1782759692016@bajena.it`
+- live manager image upload: product `/uploads/admin/2026/06/1782759724908-pkg33-test.png`, service `/uploads/admin/2026/06/1782759771746-pkg33-test.png` (files persist under `shared/uploads-admin` after `systemctl restart vedma`)
+- smoke-test catalog rows (`pkg33-upload-*`) removed after verification; smoke-test orders retained in DB
 
 See [docs/packages/package-3-3-customer-journey-cleanup.md](docs/packages/package-3-3-customer-journey-cleanup.md).
 
@@ -127,14 +137,16 @@ See [docs/packages/package-3-3-customer-journey-cleanup.md](docs/packages/packag
 
 ## Current Validation Status
 
-Verified on 2026-06-29 on `cursor/package-3-3-customer-journey-cleanup`:
+Verified on 2026-06-29 on `main` (post-merge):
 
 - `pnpm lint`: passed
 - `pnpm build`: passed (production DB via SSH tunnel; `staticGenerationMaxConcurrency: 1`)
-- `pnpm db:verify:catalog`: passed
-- public smoke: no `/admin` hrefs; no visible VK on contacts/product pages
-- `/api/cart/resolve`: passed with published product slug
-- server deploy: pending owner approval
+- `pnpm db:verify:catalog`: passed (0 errors; 2 warnings for server-only service images when verified locally)
+- local browser checkout E2E: passed
+- live public smoke on bajena.it: passed
+- live browser checkout E2E: passed
+- live manager image upload (product + service): passed
+- server deploy on `main` at `61beb7aa663d041df24d23b4b5aae17616e51cb2`: `vedma` active
 
 ## Remaining Limitations
 
@@ -143,16 +155,16 @@ Verified on 2026-06-29 on `cursor/package-3-3-customer-journey-cleanup`:
 - No Lava integration
 - Customers cannot self-download private PDFs
 - Customer account creation still happens through checkout, not through a separate signup funnel
-- Server image upload on bajena.it needs post-deploy verification (symlink/permissions checklist in audit doc)
+- Smoke-test orders from acceptance E2E remain in production DB (marked by `test+pkg33-*@bajena.it` emails)
 
 ## Merge Readiness
 
-Status: `REVIEW_BRANCH_READY`
+Status: `MERGED_AND_DEPLOYED`
 
-Package 3.3 is on `cursor/package-3-3-customer-journey-cleanup` awaiting review and owner-approved server deploy.
+Package 3.3 is merged to `main` and deployed to bajena.it.
 
 ## Recommended Next Package
 
 ### Package 4
 
-Do not start until Package 3.3 is merged and server smoke verification is complete.
+Do not start until explicitly requested. Package 3.3 acceptance closeout is complete.
