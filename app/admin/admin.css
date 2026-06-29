@@ -167,6 +167,24 @@
   grid-column: 1 / -1;
 }
 
+.admin-image-section {
+  display: grid;
+  gap: 16px;
+}
+
+.admin-image-preview {
+  border: 1px solid rgba(201, 164, 92, 0.22);
+  border-radius: 12px;
+  overflow: hidden;
+  max-width: 280px;
+}
+
+.admin-image-preview img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
 .admin-input,
 .admin-select,
 .admin-textarea {

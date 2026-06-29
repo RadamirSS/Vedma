@@ -10,7 +10,7 @@ export default async function ReviewsPage() {
         <SectionHeading
           eyebrow="Социальное доказательство"
           title="Отзывы клиентов"
-          text="В реальной версии сюда можно добавить скриншоты Telegram / VK, фильтры по типу услуги и карточки историй."
+          text="Реальные истории клиентов с фильтрами по типу услуги и карточками отзывов."
         />
         <div className="reviews">
           {reviews.map((review) => (

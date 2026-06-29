@@ -553,6 +553,11 @@ p {
   margin-bottom: 24px;
 }
 
+.account-nav .is-active {
+  border-color: rgba(201, 164, 92, 0.55);
+  color: var(--gold);
+}
+
 .account-user-card,
 .account-login-card {
   border: 1px solid rgba(201, 164, 92, 0.22);

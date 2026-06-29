@@ -23,6 +23,7 @@ export default async function AccountOrdersPage() {
       title="Мои заказы"
       description="Все оформленные товары и услуги хранятся здесь. Заказ создается сразу, а администратор вручную подтверждает оплату и обновляет статус в кабинете."
       user={session.user}
+      activeHref="/account/orders"
     >
       <div className="account-grid">
         {orders.length === 0 ? (

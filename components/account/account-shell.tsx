@@ -5,15 +5,18 @@ import { customerLogoutAction } from "@/app/account/actions";
 import { SubmitButton } from "@/components/admin/submit-button";
 
 const navItems = [
+  { href: "/account", label: "Обзор" },
   { href: "/account/orders", label: "Заказы" },
-  { href: "/account/profile", label: "Профиль" }
+  { href: "/account/profile", label: "Профиль" },
+  { href: "/contacts", label: "Помощь / связь" }
 ] satisfies Array<{ href: Route; label: string }>;
 
 export function AccountShell({
   children,
   title,
   description,
-  user
+  user,
+  activeHref
 }: {
   children: React.ReactNode;
   title: string;
@@ -22,6 +25,7 @@ export function AccountShell({
     email: string;
     name?: string | null;
   };
+  activeHref?: Route;
 }) {
   return (
     <section className="section">
@@ -44,7 +48,11 @@ export function AccountShell({
         </div>
         <div className="account-nav">
           {navItems.map((item) => (
-            <Link key={item.href} className="btn btn-ghost btn-small" href={item.href}>
+            <Link
+              key={item.href}
+              className={`btn btn-ghost btn-small${activeHref === item.href ? " is-active" : ""}`}
+              href={item.href}
+            >
               {item.label}
             </Link>
           ))}

@@ -15,6 +15,9 @@ const initialState: CheckoutActionState = {
   redirectTo: null
 };
 
+const STALE_CART_MESSAGE =
+  "Товары из корзины больше недоступны. Обновите корзину или выберите товары заново.";
+
 export function CheckoutView({
   currentUser
 }: {
@@ -30,8 +33,18 @@ export function CheckoutView({
     postalCode?: string | null;
   } | null;
 }) {
-  const { items, resolvedItems, total, totalRub, totalUsd, deliveryRequired, clearCart, isPending } =
-    useCart();
+  const {
+    items,
+    resolvedItems,
+    total,
+    totalRub,
+    totalUsd,
+    deliveryRequired,
+    clearCart,
+    isPending,
+    resolveError,
+    cartUnavailable
+  } = useCart();
   const [state, formAction, pending] = useActionState(submitCheckoutAction, initialState);
 
   useEffect(() => {
@@ -41,12 +54,27 @@ export function CheckoutView({
   }, [clearCart, state.success]);
 
   const cartEntriesJson = useMemo(() => JSON.stringify(items), [items]);
+  const cartIsEmpty = items.length === 0 && resolvedItems.length === 0 && !isPending;
+  const submitDisabled = pending || isPending || resolvedItems.length === 0;
+
+  let submitDisabledReason: string | null = null;
+  if (isPending) {
+    submitDisabledReason = "Загружаем состав корзины...";
+  } else if (resolveError) {
+    submitDisabledReason = resolveError;
+  } else if (cartUnavailable) {
+    submitDisabledReason = STALE_CART_MESSAGE;
+  } else if (resolvedItems.length === 0) {
+    submitDisabledReason = "Добавьте товары или услуги из каталога, чтобы оформить заказ.";
+  }
 
   return (
     <div className="checkout-grid">
       <form className="form-card" action={formAction}>
         <input type="hidden" name="cartEntries" value={cartEntriesJson} />
         <h3>Данные клиента</h3>
+        {resolveError ? <p className="checkout-error">{resolveError}</p> : null}
+        {cartUnavailable ? <p className="checkout-error">{STALE_CART_MESSAGE}</p> : null}
         <div className="form-grid">
           <div className="field">
             <label htmlFor="name">Имя</label>
@@ -71,6 +99,9 @@ export function CheckoutView({
               defaultValue={currentUser?.email ?? ""}
               required
             />
+            <small className="muted">
+              Email нужен для подтверждения заказа и будущих чеков/уведомлений.
+            </small>
           </div>
           <div className="field">
             <label htmlFor="password">Пароль кабинета</label>
@@ -98,7 +129,6 @@ export function CheckoutView({
               <option value="WHATSAPP">WhatsApp</option>
               <option value="PHONE">Телефон</option>
               <option value="EMAIL">Email</option>
-              <option value="VK">VK</option>
             </select>
           </div>
           <div className="field">
@@ -166,7 +196,10 @@ export function CheckoutView({
         {state.message ? (
           <p className={state.success ? "checkout-success" : "checkout-error"}>{state.message}</p>
         ) : null}
-        <button className="btn btn-primary btn-wide stack-top" type="submit" disabled={pending || isPending || resolvedItems.length === 0}>
+        {submitDisabled && submitDisabledReason ? (
+          <p className="checkout-error stack-top">{submitDisabledReason}</p>
+        ) : null}
+        <button className="btn btn-primary btn-wide stack-top" type="submit" disabled={submitDisabled}>
           {pending ? "Отправляем заказ..." : "Отправить заказ"}
         </button>
         {state.success && state.redirectTo ? (
@@ -200,8 +233,24 @@ export function CheckoutView({
               </div>
             ) : null}
           </>
+        ) : cartIsEmpty ? (
+          <>
+            <p className="muted">Корзина пока пустая. Добавьте услугу или товар из каталога.</p>
+            <div className="stack-top hero-actions">
+              <Link className="btn btn-primary btn-wide" href="/products">
+                Перейти к товарам
+              </Link>
+              <Link className="btn btn-ghost btn-wide" href="/services">
+                Перейти к услугам
+              </Link>
+            </div>
+          </>
+        ) : cartUnavailable ? (
+          <p className="checkout-error">{STALE_CART_MESSAGE}</p>
+        ) : resolveError ? (
+          <p className="checkout-error">{resolveError}</p>
         ) : (
-          <p className="muted">Корзина пока пустая. Добавьте услугу или товар из каталога.</p>
+          <p className="muted">{isPending ? "Загружаем корзину..." : "Проверяем состав корзины..."}</p>
         )}
         <div className="stack-top">
           <p className="muted">

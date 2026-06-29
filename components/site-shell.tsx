@@ -24,7 +24,7 @@ export function SiteShell({
 
   return (
     <>
-      <Header settings={settings} />
+      <Header />
       <main>{children}</main>
       <Footer settings={settings} />
       <CartDrawer />
