@@ -5,6 +5,9 @@ import Link from "next/link";
 import { useCart } from "@/components/cart-context";
 import { formatCatalogLabel, formatPrice } from "@/lib/utils";
 
+const STALE_CART_MESSAGE =
+  "Товары из корзины больше недоступны. Обновите корзину или выберите товары заново.";
+
 export function CartDrawer() {
   const {
     resolvedItems,
@@ -13,8 +16,13 @@ export function CartDrawer() {
     closeCart,
     changeQty,
     clearCart,
-    isPending
+    isPending,
+    resolveError,
+    cartUnavailable,
+    items
   } = useCart();
+
+  const cartIsEmpty = items.length === 0 && resolvedItems.length === 0 && !isPending;
 
   return (
     <>
@@ -31,8 +39,14 @@ export function CartDrawer() {
           </button>
         </div>
         <div className="drawer-body">
+          {resolveError ? <p className="checkout-error">{resolveError}</p> : null}
+          {cartUnavailable ? <p className="checkout-error">{STALE_CART_MESSAGE}</p> : null}
           {resolvedItems.length === 0 ? (
-            <p className="muted">Корзина пустая. Добавьте услугу или товар из каталога.</p>
+            cartIsEmpty ? (
+              <p className="muted">Корзина пустая. Добавьте услугу или товар из каталога.</p>
+            ) : isPending ? (
+              <p className="muted">Загружаем корзину...</p>
+            ) : null
           ) : (
             resolvedItems.map((item) => {
               return (

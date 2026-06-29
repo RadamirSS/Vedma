@@ -40,6 +40,8 @@ type CartContextValue = {
   totalUsd: number;
   deliveryRequired: boolean;
   isPending: boolean;
+  resolveError: string | null;
+  cartUnavailable: boolean;
   isOpen: boolean;
   openCart: () => void;
   closeCart: () => void;
@@ -60,6 +62,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [totalUsd, setTotalUsd] = useState(0);
   const [deliveryRequired, setDeliveryRequired] = useState(false);
   const [isPending, setIsPending] = useState(false);
+  const [resolveError, setResolveError] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
@@ -83,42 +86,72 @@ export function CartProvider({ children }: { children: ReactNode }) {
         setTotalRub(0);
         setTotalUsd(0);
         setDeliveryRequired(false);
-        return;
-      }
-
-      setIsPending(true);
-
-      const response = await fetch("/api/cart/resolve", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ entries: items })
-      });
-
-      if (!response.ok || aborted) {
+        setResolveError(null);
         setIsPending(false);
         return;
       }
 
-      const data = (await response.json()) as {
-        items: ResolvedCartItem[];
-        totals: {
-          totalAmount: number;
-          totalAmountRub: number;
-          totalAmountUsd: number;
-          deliveryRequired: boolean;
+      setIsPending(true);
+      setResolveError(null);
+
+      try {
+        const response = await fetch("/api/cart/resolve", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ entries: items })
+        });
+
+        if (aborted) {
+          return;
+        }
+
+        if (!response.ok) {
+          const payload = (await response.json().catch(() => null)) as { error?: string } | null;
+          setResolvedItems([]);
+          setTotal(0);
+          setTotalRub(0);
+          setTotalUsd(0);
+          setDeliveryRequired(false);
+          setResolveError(
+            payload?.error ?? "Не удалось загрузить корзину. Обновите страницу и попробуйте снова."
+          );
+          setIsPending(false);
+          return;
+        }
+
+        const data = (await response.json()) as {
+          items: ResolvedCartItem[];
+          totals: {
+            totalAmount: number;
+            totalAmountRub: number;
+            totalAmountUsd: number;
+            deliveryRequired: boolean;
+          };
         };
-      };
 
-      if (aborted) {
-        return;
+        if (aborted) {
+          return;
+        }
+
+        setResolvedItems(data.items);
+        setTotal(data.totals.totalAmount);
+        setTotalRub(data.totals.totalAmountRub);
+        setTotalUsd(data.totals.totalAmountUsd);
+        setDeliveryRequired(data.totals.deliveryRequired);
+        setResolveError(null);
+        setIsPending(false);
+      } catch {
+        if (aborted) {
+          return;
+        }
+        setResolvedItems([]);
+        setTotal(0);
+        setTotalRub(0);
+        setTotalUsd(0);
+        setDeliveryRequired(false);
+        setResolveError("Не удалось загрузить корзину. Проверьте соединение и обновите страницу.");
+        setIsPending(false);
       }
-
-      setResolvedItems(data.items);
-      setTotal(data.totals.totalAmount);
-      setTotalRub(data.totals.totalAmountRub);
-      setTotalUsd(data.totals.totalAmountUsd);
-      setDeliveryRequired(data.totals.deliveryRequired);
-      setIsPending(false);
     }
 
     startTransition(() => {
@@ -130,58 +163,62 @@ export function CartProvider({ children }: { children: ReactNode }) {
     };
   }, [items]);
 
+  const cartUnavailable =
+    items.length > 0 && resolvedItems.length === 0 && !isPending && !resolveError;
   const count = resolvedItems.reduce((sum, item) => sum + item.quantity, 0);
 
   const value: CartContextValue = {
-      items,
-      resolvedItems,
-      count,
-      total,
-      totalRub,
-      totalUsd,
-      deliveryRequired,
-      isPending,
-      isOpen,
-      openCart: () => setIsOpen(true),
-      closeCart: () => setIsOpen(false),
-      addItem: (entry) => {
-        setItems((current) => {
-          const existing = current.find(
-            (currentEntry) =>
-              currentEntry.type === entry.type && currentEntry.slug === entry.slug
-          );
-
-          if (existing) {
-            return current.map((currentEntry) =>
-              currentEntry.type === entry.type && currentEntry.slug === entry.slug
-                ? {
-                    ...currentEntry,
-                    qty: entry.type === "service" ? 1 : currentEntry.qty + 1
-                  }
-                : currentEntry
-            );
-          }
-          return [...current, { ...entry, qty: 1 }];
-        });
-        setIsOpen(true);
-      },
-      changeQty: (type, slug, delta) => {
-        setItems((current) =>
-          current
-            .map((entry) =>
-              entry.type === type && entry.slug === slug
-                ? {
-                    ...entry,
-                    qty: type === "service" ? 1 : entry.qty + delta
-                  }
-                : entry
-            )
-            .filter((entry) => entry.qty > 0)
+    items,
+    resolvedItems,
+    count,
+    total,
+    totalRub,
+    totalUsd,
+    deliveryRequired,
+    isPending,
+    resolveError,
+    cartUnavailable,
+    isOpen,
+    openCart: () => setIsOpen(true),
+    closeCart: () => setIsOpen(false),
+    addItem: (entry) => {
+      setItems((current) => {
+        const existing = current.find(
+          (currentEntry) =>
+            currentEntry.type === entry.type && currentEntry.slug === entry.slug
         );
-      },
-      clearCart: () => setItems([]),
-      setOpen: (value) => setIsOpen(value)
-    };
+
+        if (existing) {
+          return current.map((currentEntry) =>
+            currentEntry.type === entry.type && currentEntry.slug === entry.slug
+              ? {
+                  ...currentEntry,
+                  qty: entry.type === "service" ? 1 : currentEntry.qty + 1
+                }
+              : currentEntry
+          );
+        }
+        return [...current, { ...entry, qty: 1 }];
+      });
+      setIsOpen(true);
+    },
+    changeQty: (type, slug, delta) => {
+      setItems((current) =>
+        current
+          .map((entry) =>
+            entry.type === type && entry.slug === slug
+              ? {
+                  ...entry,
+                  qty: type === "service" ? 1 : entry.qty + delta
+                }
+              : entry
+          )
+          .filter((entry) => entry.qty > 0)
+      );
+    },
+    clearCart: () => setItems([]),
+    setOpen: (value) => setIsOpen(value)
+  };
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }

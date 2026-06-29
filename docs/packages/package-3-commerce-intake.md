@@ -73,16 +73,20 @@ Status: `MERGED`
 - admin bulk product/service publish-hide actions revalidate affected detail routes
 - archived public detail routes were verified to return `404`
 
-## Package 3.2 Follow-Up
+## Package 3.3 Follow-Up
 
-Status: `IN_PROGRESS`
+Status: `IN_REVIEW` on `cursor/package-3-3-customer-journey-cleanup`
 
-Current follow-up scope on `main`:
+Scope:
 
-- server demo readiness and deployment checklist
-- read-only `DEMO` admin role
-- explicit manual-payment placeholder messaging
-- smoke verification for admin, manager, demo, and customer flows
+- public VK/import artifact removal
+- checkout cart resolve UX and visible error states
+- `/account` dashboard and improved customer cabinet
+- admin catalog form CMS cleanup (image upload-first, no source URL in manager workflow)
+- metadata domain fix (`bajena.it` / `NEXT_PUBLIC_SITE_URL`)
+- removal of `/admin-preview` and `/account-preview`
+
+Details: [package-3-3-customer-journey-cleanup.md](./package-3-3-customer-journey-cleanup.md)
 
 ## DB / Fallback Policy
 
@@ -99,4 +103,4 @@ Current follow-up scope on `main`:
 
 ## Next Package Gate
 
-Package 4 starts only after Package 3.2 deployment/demo readiness is complete.
+Package 4 starts only after Package 3.3 is merged and server smoke verification is complete.

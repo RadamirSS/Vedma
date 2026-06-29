@@ -98,7 +98,6 @@ export const legalCards = [
 
 export const contacts = [
   { label: "Telegram", value: "@Bazhena13witch" },
-  { label: "VK", value: "vk.com/bazhena13witch" },
   { label: "График ответа", value: "ежедневно, 11:00–21:00" },
   { label: "Формат работы", value: "онлайн по всему миру" }
 ];

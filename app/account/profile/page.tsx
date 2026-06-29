@@ -22,6 +22,7 @@ export default async function AccountProfilePage({
       title="Профиль клиента"
       description="Контакты, адрес и данные доставки используются для следующих заказов."
       user={session.user}
+      activeHref="/account/profile"
     >
       <div className="form-card">
         <AdminNotice success={success} />
@@ -34,6 +35,9 @@ export default async function AccountProfilePage({
             <label className="field">
               <span>Email</span>
               <input value={session.user.email} disabled />
+              <small className="muted">
+                Email нужен для подтверждения заказа и будущих чеков/уведомлений.
+              </small>
             </label>
             <label className="field">
               <span>Телефон</span>

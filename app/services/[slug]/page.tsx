@@ -73,11 +73,6 @@ export default async function ServiceDetailPage({
               >
                 Написать в Telegram
               </a>
-              {item.sourceUrl ? (
-                <a className="btn btn-ghost" href={item.sourceUrl} target="_blank" rel="noreferrer">
-                  Источник: VK
-                </a>
-              ) : null}
             </div>
           </div>
         </div>

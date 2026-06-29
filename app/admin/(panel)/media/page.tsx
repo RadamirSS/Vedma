@@ -51,7 +51,7 @@ export default async function AdminMediaPage({
         <div className="admin-title">
           <span className="eyebrow">Медиатека</span>
           <h1>Управление медиа</h1>
-          <p>Импортированные VK-файлы, новые загрузки, alt-тексты и замена файлов без потери публичных ссылок.</p>
+          <p>Загруженные изображения, alt-тексты и замена файлов без потери публичных ссылок.</p>
         </div>
       </div>
       <AdminNotice success={success} error={error} />

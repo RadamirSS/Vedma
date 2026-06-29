@@ -31,11 +31,20 @@ export default async function AccountOrderDetailPage({
     notFound();
   }
 
+  const deliveryLines = [
+    order.deliveryCountry ? `Страна: ${order.deliveryCountry}` : null,
+    order.deliveryCity ? `Город: ${order.deliveryCity}` : null,
+    order.deliveryAddress1 ? `Адрес: ${order.deliveryAddress1}` : null,
+    order.deliveryAddress2 ? `Дополнение: ${order.deliveryAddress2}` : null,
+    order.deliveryPostalCode ? `Индекс: ${order.deliveryPostalCode}` : null
+  ].filter(Boolean);
+
   return (
     <AccountShell
       title={order.orderNumber}
-      description="Детали заказа, ручной статус платежа и история обработки. Администратор отправит реквизиты отдельно, когда заказ будет подтвержден."
+      description="Детали заказа, статусы и вложения. Оплата пока подтверждается вручную — реквизиты пришлёт администратор после проверки заказа."
       user={session.user}
+      activeHref="/account/orders"
     >
       <div className="dashboard-grid">
         <article className="form-card">
@@ -58,6 +67,10 @@ export default async function AccountOrderDetailPage({
         <aside className="cart-summary">
           <h3>Статусы</h3>
           <div className="summary-line">
+            <span>Номер заказа</span>
+            <b>{order.orderNumber}</b>
+          </div>
+          <div className="summary-line">
             <span>Заказ</span>
             <b>{ORDER_STATUS_LABELS[order.status]}</b>
           </div>
@@ -65,7 +78,32 @@ export default async function AccountOrderDetailPage({
             <span>Платеж</span>
             <b>{PAYMENT_STATUS_LABELS[order.paymentStatus]}</b>
           </div>
+          <p className="muted stack-top">
+            Онлайн-оплата пока не подключена. После подтверждения заказа администратор отправит реквизиты
+            отдельно, а статус обновится в этом кабинете.
+          </p>
         </aside>
+      </div>
+
+      <div className="dashboard-grid stack-top">
+        {order.customerComment ? (
+          <article className="form-card">
+            <h3>Комментарий к заказу</h3>
+            <p>{order.customerComment}</p>
+          </article>
+        ) : null}
+        {order.deliveryRequired && deliveryLines.length > 0 ? (
+          <article className="form-card">
+            <h3>Доставка</h3>
+            <div className="account-order-list">
+              {deliveryLines.map((line) => (
+                <div key={line} className="summary-line">
+                  <span>{line}</span>
+                </div>
+              ))}
+            </div>
+          </article>
+        ) : null}
       </div>
 
       <div className="dashboard-grid stack-top">
@@ -84,7 +122,7 @@ export default async function AccountOrderDetailPage({
           </div>
         </article>
         <article className="cart-summary">
-          <h3>PDF и вложения</h3>
+          <h3>PDF и вложения ({order.files.length})</h3>
           {order.files.length === 0 ? (
             <p className="muted">Вложений нет.</p>
           ) : (

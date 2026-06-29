@@ -2,13 +2,13 @@
 
 Date: 2026-06-29
 Repository: `Vedma`
-Current branch: `main`
-Main branch status: Package 3 and 3.1 are merged; current focus is Package 3.2 server demo readiness
+Current branch: `cursor/package-3-3-customer-journey-cleanup`
+Main branch status: Package 3.3 customer journey cleanup ready for review; server deploy pending owner approval
 
 ## Instruction Sources
 
 - Global repo-independent rules from `~/.codex/AGENTS.md`
-- Current Package 3.2 server demo readiness task
+- Package 3.3 customer journey and catalog cleanup task
 
 ## Current Snapshot
 
@@ -18,7 +18,8 @@ The repository now runs a merged public site, admin panel, and manual-commerce b
 - The public site is suitable for client-facing previews.
 - Managers can configure catalog items through the admin panel.
 - Payments remain manual placeholders.
-- Package 3.2 is the next implementation step before any Package 4 work begins.
+- Package 3.2 server demo readiness is on `main`.
+- Package 3.3 on review branch cleans up public customer journey, VK/admin artifacts, account dashboard, and checkout UX.
 
 Untracked local files such as `.env`, `.tmp/`, screenshots, uploaded admin assets, and zip backups remain local-only and must not be committed.
 
@@ -30,7 +31,7 @@ Untracked local files such as `.env`, `.tmp/`, screenshots, uploaded admin asset
 - Prisma-backed catalog repository for products and services
 - cart resolution through `/api/cart/resolve`
 - real checkout submission with account creation / login reuse
-- customer account area for orders and profile data
+- customer account dashboard at `/account` with orders, profile, and help nav
 - static catalog fallback retained only for explicitly enabled no-DB scenarios
 
 ### Admin stack
@@ -100,14 +101,22 @@ Implemented on `main`:
 
 ### Package 3.2
 
-Status: `IN_PROGRESS`
+Status: `MERGED` / demo readiness on `main`
 
-Current goal:
+### Package 3.3
 
-- prepare `main` for server demo readiness
-- add a read-only demo admin account flow
-- keep manual payment mode explicit and understandable
-- document deployment and operational checklist for a server demo
+Status: `IN_REVIEW` on `cursor/package-3-3-customer-journey-cleanup`
+
+Implemented:
+
+- removed public VK/import UI and orphan preview routes
+- checkout cart resolve error and stale-cart messaging
+- `/account` dashboard and improved order detail
+- admin catalog form CMS cleanup (upload-first image, no source URL field)
+- `metadataBase` → `NEXT_PUBLIC_SITE_URL` / `https://bajena.it`
+- `.env` gitignore protection
+
+See [docs/packages/package-3-3-customer-journey-cleanup.md](docs/packages/package-3-3-customer-journey-cleanup.md).
 
 ## DB And Fallback Behavior
 
@@ -118,37 +127,32 @@ Current goal:
 
 ## Current Validation Status
 
-Verified on 2026-06-29 on `main`:
+Verified on 2026-06-29 on `cursor/package-3-3-customer-journey-cleanup`:
 
 - `pnpm lint`: passed
-- `pnpm build`: passed with real DB access and fallback disabled
+- `pnpm build`: passed (production DB via SSH tunnel; `staticGenerationMaxConcurrency: 1`)
 - `pnpm db:verify:catalog`: passed
-- public manual-payment copy is present in checkout and customer account flows
-- private customer PDF access remains `ADMIN`-only
+- public smoke: no `/admin` hrefs; no visible VK on contacts/product pages
+- `/api/cart/resolve`: passed with published product slug
+- server deploy: pending owner approval
 
 ## Remaining Limitations
 
 - Payments remain manual placeholders; no online provider, webhook, or invoicing automation exists
+- No real email sending yet; email is collected for future confirmations/receipts
+- No Lava integration
 - Customers cannot self-download private PDFs
 - Customer account creation still happens through checkout, not through a separate signup funnel
-- Preview routes still exist: `/admin-preview`, `/account-preview`
-- Server deployment/demo readiness still needs completion under Package 3.2
+- Server image upload on bajena.it needs post-deploy verification (symlink/permissions checklist in audit doc)
 
 ## Merge Readiness
 
-Status: `MAIN_ACTIVE`
+Status: `REVIEW_BRANCH_READY`
 
-Package 3 and 3.1 are already merged. Current work should stay on `main` until Package 3.2 deployment/demo readiness is complete.
+Package 3.3 is on `cursor/package-3-3-customer-journey-cleanup` awaiting review and owner-approved server deploy.
 
 ## Recommended Next Package
 
-### Package 3.2 — Server Demo Readiness And Read-Only Admin Demo
+### Package 4
 
-Focus:
-
-- deployable demo/pre-production server setup
-- read-only demo admin access
-- explicit manual-payment messaging
-- operational deployment checklist and smoke verification
-
-Do not start Package 4 until Package 3.2 is complete.
+Do not start until Package 3.3 is merged and server smoke verification is complete.

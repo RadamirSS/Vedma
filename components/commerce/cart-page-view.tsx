@@ -5,10 +5,24 @@ import Link from "next/link";
 import { useCart } from "@/components/cart-context";
 import { formatPrice } from "@/lib/utils";
 
-export function CartPageView() {
-  const { resolvedItems, total, isPending, changeQty, clearCart } = useCart();
+const STALE_CART_MESSAGE =
+  "Товары из корзины больше недоступны. Обновите корзину или выберите товары заново.";
 
-  if (resolvedItems.length === 0) {
+export function CartPageView() {
+  const {
+    resolvedItems,
+    total,
+    isPending,
+    changeQty,
+    clearCart,
+    resolveError,
+    cartUnavailable,
+    items
+  } = useCart();
+
+  const cartIsEmpty = items.length === 0 && resolvedItems.length === 0 && !isPending;
+
+  if (cartIsEmpty) {
     return (
       <div className="dashboard-grid">
         <article className="form-card">
@@ -17,13 +31,40 @@ export function CartPageView() {
         </article>
         <aside className="cart-summary">
           <h3>Что дальше</h3>
-          <p className="muted">После оформления заказ уйдет администратору, а в кабинете появится история заявок и платежей.</p>
+          <p className="muted">
+            После оформления заказ появится в личном кабинете. Оплата пока подтверждается вручную.
+          </p>
           <div className="stack-top">
             <Link className="btn btn-primary btn-wide" href="/products">
               Перейти к товарам
             </Link>
+            <Link className="btn btn-ghost btn-wide" href="/services">
+              Перейти к услугам
+            </Link>
           </div>
         </aside>
+      </div>
+    );
+  }
+
+  if (cartUnavailable || resolveError) {
+    return (
+      <div className="dashboard-grid">
+        <article className="form-card">
+          <h3>Корзина недоступна</h3>
+          <p className="checkout-error">{resolveError ?? STALE_CART_MESSAGE}</p>
+          <div className="stack-top hero-actions">
+            <Link className="btn btn-primary" href="/products">
+              Выбрать товары
+            </Link>
+            <Link className="btn btn-ghost" href="/services">
+              Выбрать услуги
+            </Link>
+            <button className="btn btn-ghost" type="button" onClick={clearCart}>
+              Очистить корзину
+            </button>
+          </div>
+        </article>
       </div>
     );
   }

@@ -5,18 +5,16 @@ import type { Route } from "next";
 import { useState } from "react";
 
 import { useCart } from "@/components/cart-context";
-import type { SiteSettingsShape } from "@/lib/admin/settings";
 
 const navLinks = [
   { href: "/services", label: "Услуги" },
   { href: "/products", label: "Товары" },
   { href: "/about", label: "Обо мне" },
   { href: "/reviews", label: "Отзывы" },
-  { href: "/contacts", label: "Контакты" },
-  { href: "/legal", label: "18+ и правила" }
+  { href: "/contacts", label: "Контакты" }
 ] satisfies Array<{ href: Route; label: string }>;
 
-export function Header({ settings }: { settings: SiteSettingsShape }) {
+export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { count, openCart } = useCart();
 
@@ -40,17 +38,9 @@ export function Header({ settings }: { settings: SiteSettingsShape }) {
         </nav>
 
         <div className="nav-actions">
-          <Link className="btn btn-ghost btn-small" href="/account/orders">
+          <Link className="btn btn-ghost btn-small" href="/account">
             Кабинет
           </Link>
-          <a
-            className="btn btn-ghost btn-small"
-            href={settings.socialLinks.telegram}
-            target="_blank"
-            rel="noreferrer"
-          >
-            Telegram
-          </a>
           <Link className="btn btn-primary btn-small" href="/cart">
             Оформить
           </Link>

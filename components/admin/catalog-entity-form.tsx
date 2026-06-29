@@ -1,6 +1,7 @@
 "use client";
 
 import type { AvailabilityStatus, Currency, PublicationStatus } from "@prisma/client";
+import { useMemo, useState } from "react";
 
 import { DirtyForm } from "@/components/admin/dirty-form";
 import { SubmitButton } from "@/components/admin/submit-button";
@@ -41,12 +42,16 @@ type Props = {
     tags?: string[];
     seoTitle?: string | null;
     seoDescription?: string | null;
-    sourceUrl?: string | null;
     format?: string | null;
     duration?: string | null;
     executionTime?: string | null;
   };
 };
+
+function formatMediaLabel(item: MediaOption) {
+  const label = item.alt?.trim() || item.path.split("/").pop() || item.path;
+  return label.length > 48 ? `${label.slice(0, 45)}...` : label;
+}
 
 export function CatalogEntityForm({
   entity,
@@ -60,6 +65,16 @@ export function CatalogEntityForm({
   readOnly = false,
   initial
 }: Props) {
+  const [selectedImage, setSelectedImage] = useState(initial?.image ?? "");
+  const [uploadPreview, setUploadPreview] = useState<string | null>(null);
+
+  const previewSrc = useMemo(() => {
+    if (uploadPreview) {
+      return uploadPreview;
+    }
+    return selectedImage || initial?.image || null;
+  }, [initial?.image, selectedImage, uploadPreview]);
+
   return (
     <DirtyForm action={action} className="admin-form-grid" disabled={readOnly}>
       {initial?.id ? <input type="hidden" name="id" value={initial.id} /> : null}
@@ -217,33 +232,55 @@ export function CatalogEntityForm({
         />
       </label>
 
-      <label>
-        <span>Главное изображение</span>
-        <select className="admin-select" name="image" defaultValue={initial?.image ?? ""}>
-          <option value="">Без изображения</option>
-          {media.map((item) => (
-            <option key={item.id} value={item.path}>
-              {item.path}
-            </option>
-          ))}
-        </select>
-      </label>
+      <div className="full admin-image-section">
+        <label>
+          <span>Загрузить новое главное изображение</span>
+          <input
+            className="admin-input"
+            name="mainImageUpload"
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            onChange={(event) => {
+              const file = event.target.files?.[0];
+              if (!file) {
+                setUploadPreview(null);
+                return;
+              }
+              setUploadPreview(URL.createObjectURL(file));
+            }}
+          />
+          <small className="muted">
+            JPG, PNG или WEBP до 10 МБ. Если выбран и файл, и медиа из библиотеки, файл имеет приоритет.
+          </small>
+        </label>
 
-      <label>
-        <span>Загрузить новое главное изображение</span>
-        <input
-          className="admin-input"
-          name="mainImageUpload"
-          type="file"
-          accept="image/jpeg,image/png,image/webp"
-        />
-        <small className="muted">JPG, PNG или WEBP до 10 МБ. Если выбран и файл, и медиа из списка, файл имеет приоритет.</small>
-      </label>
+        <label>
+          <span>Или выбрать из медиатеки</span>
+          <select
+            className="admin-select"
+            name="image"
+            value={selectedImage}
+            onChange={(event) => {
+              setSelectedImage(event.target.value);
+              setUploadPreview(null);
+            }}
+          >
+            <option value="">Без изображения</option>
+            {media.map((item) => (
+              <option key={item.id} value={item.path}>
+                {formatMediaLabel(item)}
+              </option>
+            ))}
+          </select>
+        </label>
 
-      <label>
-        <span>Исходный URL</span>
-        <input className="admin-input" name="sourceUrl" defaultValue={initial?.sourceUrl ?? ""} />
-      </label>
+        {previewSrc ? (
+          <div className="admin-image-preview">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={previewSrc} alt="Превью главного изображения" />
+          </div>
+        ) : null}
+      </div>
 
       <label className="full">
         <span>Галерея</span>
@@ -290,7 +327,7 @@ export function CatalogEntityForm({
         </a>
         {previewHref ? (
           <a className="btn btn-ghost" href={previewHref} target="_blank" rel="noreferrer">
-            Preview
+            Открыть на сайте
           </a>
         ) : null}
       </div>

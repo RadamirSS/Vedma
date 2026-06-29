@@ -13,12 +13,12 @@ export default async function AccountLoginPage({
   const customerSession = await getCurrentCustomerSession();
   const adminSession = await getCurrentAdminSession();
   const params = await searchParams;
-  const next = typeof params.next === "string" ? params.next : "/account/orders";
+  const next = typeof params.next === "string" ? params.next : "/account";
   const error = typeof params.error === "string" ? params.error : undefined;
   const success = typeof params.success === "string" ? params.success : undefined;
 
   if (customerSession) {
-    redirect("/account/orders");
+    redirect("/account");
   }
 
   if (adminSession) {
@@ -31,7 +31,10 @@ export default async function AccountLoginPage({
         <div className="account-login-card">
           <span className="eyebrow">Кабинет клиента</span>
           <h1 className="account-title">Вход в заказы и заявки</h1>
-          <p className="text">Аккаунт создается во время первого checkout. Здесь отображаются заказы, статусы и прикрепленные PDF.</p>
+          <p className="text">
+            Аккаунт создаётся при первом оформлении заказа. Email сохраняется для будущих подтверждений и
+            чеков. Здесь отображаются заказы, статусы и прикреплённые PDF.
+          </p>
           <AdminNotice error={error} success={success} />
           <form className="account-form" action={customerLoginAction}>
             <input type="hidden" name="next" value={next} />

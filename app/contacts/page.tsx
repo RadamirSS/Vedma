@@ -7,12 +7,11 @@ export default async function ContactsPage() {
   const settings = await getSiteSettings();
   const contacts = [
     { label: "Telegram", value: settings.contacts.telegram },
-    { label: "VK", value: settings.contacts.vk },
     { label: "Телефон", value: settings.contacts.phone },
     { label: "Email", value: settings.contacts.email },
     { label: "График ответа", value: settings.contacts.responseHours },
     { label: "Формат работы", value: settings.contacts.workFormat }
-  ];
+  ].filter((item) => item.value);
 
   return (
     <section className="section">

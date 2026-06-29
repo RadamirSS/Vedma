@@ -8,9 +8,10 @@ import "./globals.css";
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSiteSettings();
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://bajena.it";
 
   return {
-    metadataBase: new URL("https://bazhena.ru"),
+    metadataBase: new URL(siteUrl),
     title: {
       default: settings.seo.defaultTitle,
       template: settings.seo.titleTemplate
