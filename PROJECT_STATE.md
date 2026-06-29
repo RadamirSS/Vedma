@@ -147,6 +147,22 @@ Implemented:
 
 See [docs/packages/package-3-4-production-ordering-polish.md](docs/packages/package-3-4-production-ordering-polish.md).
 
+### Package 3.4.1
+
+Status: `IN_REVIEW` on `cursor/package-3-4-production-ordering-polish`
+
+Implemented:
+
+- customer register/login redirect fix; admin blocked from `/account`
+- header “Оформить” removed; cart drawer remains primary checkout entry
+- scary public disclaimers replaced with soft 18+ trust copy
+- checkout reservation copy fixed; success panel only after order creation
+- manual payment placeholder: “Я оплатил” → `PENDING` + status history (not `PAID`)
+- customer cabinet dashboard and order detail polish
+- admin order detail highlights customer payment mark
+
+See [docs/packages/package-3-4-1-release-ux-closeout.md](docs/packages/package-3-4-1-release-ux-closeout.md).
+
 ## DB And Fallback Behavior
 
 - With the active local `.env`, `DATABASE_URL` points to PostgreSQL and `ALLOW_STATIC_CATALOG_FALLBACK="false"`.
@@ -173,7 +189,7 @@ Verified on 2026-06-29 on `main` (post-merge):
 - No real email sending yet; email is collected for future confirmations/receipts
 - No Lava integration
 - Customers cannot self-download private PDFs
-- Customer account creation still happens through checkout, not through a separate signup funnel
+- Customer account creation through checkout and `/account/register`
 - Smoke-test orders from acceptance E2E remain in production DB (marked by `test+pkg33-*@bajena.it` emails)
 
 ## Merge Readiness

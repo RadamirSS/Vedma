@@ -52,10 +52,7 @@ export function Header({
           <Link className="btn btn-ghost btn-small" href="/account">
             Кабинет
           </Link>
-          <Link className="btn btn-primary btn-small" href="/cart">
-            Оформить
-          </Link>
-          <button className="btn btn-ghost btn-small cart-btn" type="button" onClick={openCart}>
+          <button className="btn btn-primary btn-small cart-btn" type="button" onClick={openCart}>
             Корзина
             <span className="cart-count">{count}</span>
           </button>

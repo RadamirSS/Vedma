@@ -86,6 +86,17 @@ export default async function AdminOrderDetailPage({
 
       <AdminNotice success={success} />
       {isReadOnly ? <AdminReadOnlyNotice text="Демо-аккаунт может просматривать заказ, но не может менять статусы, комментарии или открывать приватные PDF." /> : null}
+      {order.statusHistory.some((entry) =>
+        entry.comment?.includes("Клиент отметил оплату через временную заглушку")
+      ) ? (
+        <div className="admin-card admin-card--highlight stack-top">
+          <h3>Отметка клиента об оплате</h3>
+          <p>
+            Клиент нажал «Я оплатил» через временную заглушку. Это не подтверждение реального платежа —
+            проверьте поступление и обновите статус платежа вручную.
+          </p>
+        </div>
+      ) : null}
 
       <div className="admin-detail-grid">
         <article>

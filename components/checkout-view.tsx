@@ -1,19 +1,21 @@
 "use client";
 
 import Link from "next/link";
-import type { Route } from "next";
 import { useActionState, useEffect, useMemo } from "react";
 
 import { submitCheckoutAction, type CheckoutActionState } from "@/app/checkout/actions";
 import { AddressAutocomplete } from "@/components/address-autocomplete";
+import { CheckoutSuccessPanel } from "@/components/checkout-success-panel";
+import { SoftTrustNotice } from "@/components/soft-trust-notice";
 import { useCart } from "@/components/cart-context";
-import { LegalNotice } from "@/components/legal-notice";
 import { formatPrice } from "@/lib/utils";
 
 const initialState: CheckoutActionState = {
   success: false,
   message: null,
-  redirectTo: null
+  redirectTo: null,
+  orderId: null,
+  orderNumber: null
 };
 
 const STALE_CART_MESSAGE =
@@ -56,13 +58,15 @@ export function CheckoutView({
 
   const cartEntriesJson = useMemo(() => JSON.stringify(items), [items]);
   const cartIsEmpty = items.length === 0 && resolvedItems.length === 0 && !isPending;
-  const submitDisabled = pending || isPending || resolvedItems.length === 0;
+  const submitDisabled = pending || isPending || resolvedItems.length === 0 || state.success;
   const hasProducts = resolvedItems.some((item) => item.type === "product");
   const hasServices = resolvedItems.some((item) => item.type === "service");
   const isLoggedIn = Boolean(currentUser);
 
   let submitDisabledReason: string | null = null;
-  if (isPending) {
+  if (state.success) {
+    submitDisabledReason = null;
+  } else if (isPending) {
     submitDisabledReason = "Загружаем состав корзины...";
   } else if (resolveError) {
     submitDisabledReason = resolveError;
@@ -75,24 +79,39 @@ export function CheckoutView({
   const productCommentLabel = "Комментарий к заказу / пожелания по доставке";
   const serviceCommentLabel = "Опишите запрос или ситуацию";
 
+  if (state.success && state.orderId && state.orderNumber && state.redirectTo) {
+    return (
+      <div className="checkout-grid checkout-grid--success">
+        <CheckoutSuccessPanel
+          orderId={state.orderId}
+          orderNumber={state.orderNumber}
+          accountUrl={state.redirectTo}
+        />
+        <aside className="cart-summary">
+          <SoftTrustNotice compact />
+        </aside>
+      </div>
+    );
+  }
+
   return (
     <div className="checkout-grid">
-      <form className="form-card" action={formAction}>
+      <form className="form-card" action={formAction} noValidate={false}>
         <input type="hidden" name="cartEntries" value={cartEntriesJson} />
         <h3>Данные клиента</h3>
         {resolveError ? <p className="checkout-error">{resolveError}</p> : null}
         {cartUnavailable ? <p className="checkout-error">{STALE_CART_MESSAGE}</p> : null}
 
         {hasProducts ? (
-          <div className="checkout-note">
-            <p>Товар будет зарезервирован после оформления заказа.</p>
-            <p>Оплата пока вручную: администратор подтвердит наличие и отправит реквизиты.</p>
-            <p>Проверьте адрес доставки.</p>
+          <div className="checkout-note checkout-note--info">
+            <p>После успешного оформления заказа товар будет предварительно зарезервирован.</p>
+            <p>Администратор подтвердит наличие и отправит реквизиты.</p>
+            <p>Пожалуйста, проверьте контактные данные и адрес доставки.</p>
           </div>
         ) : null}
 
         {hasServices && !hasProducts ? (
-          <div className="checkout-note">
+          <div className="checkout-note checkout-note--info">
             <p>После оформления заявки администратор свяжется для согласования времени и формата.</p>
             <p>Оплата пока вручную после подтверждения.</p>
           </div>
@@ -125,6 +144,7 @@ export function CheckoutView({
                 name="password"
                 type="password"
                 placeholder="Минимум 8 символов"
+                minLength={8}
                 required
               />
             </div>
@@ -270,23 +290,16 @@ export function CheckoutView({
           </label>
           <label className="field full check">
             <input type="checkbox" name="legalAccepted" value="yes" required />
-            <span>Согласен с политикой конфиденциальности, офертой и дисклеймером.</span>
+            <span>Согласен с политикой конфиденциальности и офертой.</span>
           </label>
         </div>
-        {state.message ? (
-          <p className={state.success ? "checkout-success" : "checkout-error"}>{state.message}</p>
-        ) : null}
+        {state.message && !state.success ? <p className="checkout-error">{state.message}</p> : null}
         {submitDisabled && submitDisabledReason ? (
           <p className="checkout-error stack-top">{submitDisabledReason}</p>
         ) : null}
         <button className="btn btn-primary btn-wide stack-top" type="submit" disabled={submitDisabled}>
           {pending ? "Отправляем заказ..." : "Отправить заказ"}
         </button>
-        {state.success && state.redirectTo ? (
-          <Link className="btn btn-ghost btn-wide stack-top" href={state.redirectTo as Route}>
-            Перейти к заказу
-          </Link>
-        ) : null}
       </form>
 
       <aside className="cart-summary">
@@ -333,11 +346,7 @@ export function CheckoutView({
           <p className="muted">{isPending ? "Загружаем корзину..." : "Проверяем состав корзины..."}</p>
         )}
         <div className="stack-top">
-          <p className="muted">
-            После оформления заказ создается сразу. Онлайн-оплата пока не подключена: администратор
-            подтвердит заказ, отправит реквизиты и обновит статус в вашем кабинете.
-          </p>
-          <LegalNotice />
+          <SoftTrustNotice compact />
         </div>
       </aside>
     </div>

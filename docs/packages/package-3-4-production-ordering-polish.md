@@ -86,6 +86,7 @@ Updated `app/globals.css` and `app/admin/admin.css` for:
 ## Limitations
 
 - Manual payments only; no Lava, no online card provider
+- Package 3.4.1 adds “Я оплатил” placeholder (sets `PENDING`, not `PAID`) — see [package-3-4-1-release-ux-closeout.md](package-3-4-1-release-ux-closeout.md)
 - No email sending
 - Server deploy pending owner approval
 - Homepage direction/product images still use VK fallbacks until manager replaces slots in admin

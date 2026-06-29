@@ -9,6 +9,8 @@ export type CheckoutActionState = {
   success: boolean;
   message: string | null;
   redirectTo: string | null;
+  orderId: string | null;
+  orderNumber: string | null;
 };
 
 function toNullableString(value: FormDataEntryValue | null) {
@@ -86,14 +88,18 @@ export async function submitCheckoutAction(
 
     return {
       success: true,
-      message: `Заказ ${order.orderNumber} создан. Оплата пока подтверждается вручную: администратор свяжется с вами и пришлет реквизиты, а статус будет виден в кабинете.`,
-      redirectTo: `/account/orders/${order.orderId}`
+      message: null,
+      redirectTo: `/account/orders/${order.orderId}`,
+      orderId: order.orderId,
+      orderNumber: order.orderNumber
     };
   } catch (error) {
     return {
       success: false,
       message: error instanceof Error ? error.message : "Не удалось оформить заказ.",
-      redirectTo: null
+      redirectTo: null,
+      orderId: null,
+      orderNumber: null
     };
   }
 }

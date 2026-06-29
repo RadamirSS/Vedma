@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import { AddToCartButton } from "@/components/commerce/add-to-cart-button";
 import { CatalogCard } from "@/components/catalog-card";
 import { CatalogVisual } from "@/components/catalog-visual";
-import { LegalNotice } from "@/components/legal-notice";
+import { SoftTrustNotice } from "@/components/soft-trust-notice";
 import {
   getPublishedServices,
   getServiceBySlug
@@ -87,8 +87,8 @@ export default async function ServiceDetailPage({
             </ul>
           </article>
           <article className="cart-summary">
-            <h3>Важно перед заказом</h3>
-            <LegalNotice />
+            <h3>Перед заказом</h3>
+            <SoftTrustNotice />
           </article>
         </div>
 

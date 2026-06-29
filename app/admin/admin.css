@@ -392,6 +392,15 @@
   margin-left: 8px;
 }
 
+.admin-card--highlight {
+  border-color: rgba(212, 175, 106, 0.45);
+  background: rgba(212, 175, 106, 0.08);
+}
+
+.admin-card--highlight h3 {
+  margin: 0 0 8px;
+}
+
 .admin-table {
   overflow-x: auto;
 }

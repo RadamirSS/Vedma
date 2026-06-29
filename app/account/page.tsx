@@ -2,18 +2,32 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { AccountShell } from "@/components/account/account-shell";
+import { AdminNotice } from "@/components/admin/admin-notice";
 import { ORDER_STATUS_LABELS, PAYMENT_STATUS_LABELS } from "@/lib/admin/constants";
 import { formatAdminDate } from "@/lib/admin/format";
-import { getCurrentCustomerSession } from "@/lib/auth/session";
+import { getCurrentAdminSession, getCurrentCustomerSession } from "@/lib/auth/session";
+import { getSiteSettings } from "@/lib/admin/settings";
 import { formatPrice } from "@/lib/utils";
 import { prisma } from "@/lib/db/prisma";
 
-export default async function AccountPage() {
+export default async function AccountPage({
+  searchParams
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const params = await searchParams;
+  const success = typeof params.success === "string" ? params.success : undefined;
+  const adminSession = await getCurrentAdminSession();
+  if (adminSession) {
+    redirect("/admin/dashboard?error=Кабинет+клиента+недоступен+для+администратора.");
+  }
+
   const session = await getCurrentCustomerSession();
   if (!session) {
     redirect("/account/login");
   }
 
+  const settings = await getSiteSettings();
   const orders = await prisma.order.findMany({
     where: { customerId: session.user.id },
     orderBy: { createdAt: "desc" },
@@ -40,12 +54,36 @@ export default async function AccountPage() {
   return (
     <AccountShell
       title="Обзор"
-      description="Здесь собраны ваши заказы, статусы и быстрые переходы в каталог."
+      description="Ваши заказы, статусы оплаты и быстрые переходы в каталог."
       user={session.user}
       activeHref="/account"
     >
+      <AdminNotice success={success} />
+
       <div className="dashboard-grid">
         <article className="form-card">
+          <h3>Профиль</h3>
+          <div className="account-order-list">
+            <div className="summary-line">
+              <span>Имя</span>
+              <b>{session.user.name ?? "Не указано"}</b>
+            </div>
+            <div className="summary-line">
+              <span>Email</span>
+              <b>{session.user.email}</b>
+            </div>
+            <div className="summary-line">
+              <span>Телефон</span>
+              <b>{session.user.phone ?? "—"}</b>
+            </div>
+          </div>
+          <div className="account-card-foot stack-top">
+            <Link className="btn btn-ghost btn-small" href="/account/profile">
+              Редактировать профиль
+            </Link>
+          </div>
+        </article>
+        <aside className="cart-summary">
           <h3>Сводка</h3>
           <div className="account-order-list">
             <div className="summary-line">
@@ -62,24 +100,30 @@ export default async function AccountPage() {
             </div>
           </div>
           <p className="muted stack-top">
-            Онлайн-оплата пока не подключена. После оформления администратор подтвердит заказ и отправит
-            реквизиты вручную, а статус обновится здесь.
+            Онлайн-оплата пока подключается. После оформления администратор подтвердит заказ и отправит
+            реквизиты вручную.
           </p>
-        </article>
-        <aside className="cart-summary">
+        </aside>
+      </div>
+
+      <div className="dashboard-grid stack-top">
+        <article className="form-card">
           <h3>Быстрые действия</h3>
-          <div className="stack-top hero-actions">
-            <Link className="btn btn-primary btn-wide" href="/services">
-              Каталог услуг
+          <div className="hero-actions">
+            <Link className="btn btn-primary btn-wide" href="/products">
+              Перейти в магазин
             </Link>
-            <Link className="btn btn-ghost btn-wide" href="/products">
-              Каталог товаров
+            <Link className="btn btn-ghost btn-wide" href="/services">
+              Выбрать услугу
             </Link>
+            <a className="btn btn-ghost btn-wide" href={settings.socialLinks.telegram} target="_blank" rel="noreferrer">
+              Связаться
+            </a>
             <Link className="btn btn-ghost btn-wide" href="/account/orders">
               Все заказы
             </Link>
           </div>
-        </aside>
+        </article>
       </div>
 
       <div className="account-grid stack-top">
@@ -87,11 +131,14 @@ export default async function AccountPage() {
           <article className="form-card">
             <h3>Заказов пока нет</h3>
             <p className="muted">
-              После оформления корзины здесь появятся номера заказов, статусы и состав.
+              После оформления корзины здесь появятся номера заказов, статусы оплаты и состав.
             </p>
-            <div className="stack-top">
+            <div className="stack-top hero-actions">
               <Link className="btn btn-primary" href="/products">
-                Выбрать товары
+                Перейти в магазин
+              </Link>
+              <Link className="btn btn-ghost" href="/services">
+                Выбрать услугу
               </Link>
             </div>
           </article>

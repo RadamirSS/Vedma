@@ -46,17 +46,19 @@ export function Footer({ settings }: { settings: SiteSettingsShape }) {
               Telegram
             </a>
             <Link href="/contacts">Контакты</Link>
-            <Link href="/checkout">Форма заказа</Link>
+            <Link href="/cart">Корзина</Link>
           </div>
         </div>
         <div>
-          <h4>Дисклеймер</h4>
+          <h4>О сервисе</h4>
           <p>{settings.footer.disclaimer}</p>
         </div>
       </div>
       <div className="container footer-bottom">
         <p>{settings.footer.copyright}</p>
-        <p>Политика конфиденциальности · Публичная оферта · Дисклеймер</p>
+        <p>
+          <Link href="/legal">Политика конфиденциальности</Link> · Публичная оферта
+        </p>
       </div>
     </footer>
   );

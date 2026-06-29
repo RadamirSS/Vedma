@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { PaymentStatus } from "@prisma/client";
 
 import {
   clearCustomerSession,
@@ -22,6 +23,8 @@ function toNullableString(value: FormDataEntryValue | null) {
   return typeof value === "string" && value.trim() ? value.trim() : null;
 }
 
+const MARKABLE_PAYMENT_STATUSES: PaymentStatus[] = ["NOT_ISSUED", "INVOICE_SENT"];
+
 export async function customerLoginAction(formData: FormData) {
   const email = toNullableString(formData.get("email"))?.toLowerCase();
   const password = toNullableString(formData.get("password"));
@@ -37,7 +40,9 @@ export async function customerLoginAction(formData: FormData) {
   }
 
   if (user.role !== Role.CUSTOMER) {
-    redirect(`/account/login?error=${encodeNotice("Для входа в кабинет клиента используйте учетную запись клиента.")}`);
+    redirect(
+      `/account/login?error=${encodeNotice("Для входа в кабинет клиента используйте учетную запись клиента.")}`
+    );
   }
 
   await createCustomerSession(user.id);
@@ -59,20 +64,106 @@ export async function customerRegisterAction(formData: FormData) {
     redirect(`/account/register?error=${encodeNotice("Укажите имя и email.")}`);
   }
 
+  let userId: string;
   try {
     const user = await createCustomerAccount({ email, password, name, phone, telegram });
-    await createCustomerSession(user.id);
-    redirect("/account?success=" + encodeNotice("Регистрация завершена. Добро пожаловать в кабинет."));
+    userId = user.id;
   } catch (error) {
     redirect(
       `/account/register?error=${encodeNotice(error instanceof Error ? error.message : "Не удалось зарегистрироваться.")}`
     );
   }
+
+  await createCustomerSession(userId);
+  redirect("/account?success=" + encodeNotice("Регистрация завершена. Добро пожаловать в кабинет."));
 }
 
 export async function customerLogoutAction() {
   await clearCustomerSession();
   redirect("/account/login?success=" + encodeNotice("Вы вышли из кабинета."));
+}
+
+export type CustomerMarkPaidState = {
+  success: boolean;
+  message: string | null;
+};
+
+async function markOrderPaidCore(formData: FormData, sessionUserId: string) {
+  const orderId = toNullableString(formData.get("orderId"));
+
+  if (!orderId) {
+    return { success: false, message: "Не указан заказ." };
+  }
+
+  const order = await prisma.order.findFirst({
+    where: { id: orderId, customerId: sessionUserId },
+    include: { payments: true }
+  });
+
+  if (!order) {
+    return { success: false, message: "Заказ не найден." };
+  }
+
+  if (!MARKABLE_PAYMENT_STATUSES.includes(order.paymentStatus)) {
+    return {
+      success: true,
+      message: "Отметка об оплате уже отправлена. Администратор проверит и обновит статус."
+    };
+  }
+
+  await prisma.$transaction([
+    prisma.order.update({
+      where: { id: order.id },
+      data: { paymentStatus: PaymentStatus.PENDING }
+    }),
+    prisma.payment.updateMany({
+      where: { orderId: order.id },
+      data: { status: PaymentStatus.PENDING }
+    }),
+    prisma.statusHistory.create({
+      data: {
+        entityType: "ORDER",
+        entityId: order.id,
+        orderId: order.id,
+        changedById: sessionUserId,
+        newStatus: order.status,
+        comment: "Клиент отметил оплату через временную заглушку."
+      }
+    })
+  ]);
+
+  revalidatePath("/account");
+  revalidatePath("/account/orders");
+  revalidatePath(`/account/orders/${order.id}`);
+  revalidatePath("/admin/orders");
+  revalidatePath(`/admin/orders/${order.id}`);
+  revalidatePath("/admin/payments");
+  revalidatePath("/checkout");
+
+  return {
+    success: true,
+    message: "Отметка об оплате отправлена. Администратор проверит и обновит статус."
+  };
+}
+
+export async function customerMarkOrderPaidFormAction(formData: FormData) {
+  const session = await requireCustomerSession("/account/login");
+  const returnTo = getSafeCustomerRedirectPath(toNullableString(formData.get("returnTo")));
+  const result = await markOrderPaidCore(formData, session.user.id);
+
+  if (!result.success) {
+    redirect(`${returnTo}?error=${encodeNotice(result.message ?? "Не удалось отметить оплату.")}`);
+  }
+
+  redirect(`${returnTo}?success=${encodeNotice(result.message ?? "Отметка отправлена.")}`);
+}
+
+export async function customerMarkOrderPaidAction(
+  _prevState: CustomerMarkPaidState,
+  formData: FormData
+): Promise<CustomerMarkPaidState> {
+  const session = await requireCustomerSession("/account/login");
+  return markOrderPaidCore(formData, session.user.id);
 }
 
 export async function updateCustomerProfileAction(formData: FormData) {

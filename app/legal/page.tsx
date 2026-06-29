@@ -5,8 +5,7 @@ export default async function LegalPage() {
   const settings = await getSiteSettings();
   const legalCards = [
     { title: settings.legalPages.privacyTitle, text: settings.legalPages.privacyText },
-    { title: settings.legalPages.offerTitle, text: settings.legalPages.offerText },
-    { title: settings.legalPages.disclaimerTitle, text: settings.legalPages.disclaimerText }
+    { title: settings.legalPages.offerTitle, text: settings.legalPages.offerText }
   ];
 
   return (
@@ -14,8 +13,8 @@ export default async function LegalPage() {
       <div className="container">
         <SectionHeading
           eyebrow="Юридические блоки"
-          title="18+ · политика · оферта · дисклеймер"
-          text="Актуальные юридические блоки публикуются на этой странице без изменения структуры сайта."
+          title="18+ · политика · оферта"
+          text="Актуальные юридические блоки публикуются на этой странице."
         />
         <div className="legal-grid">
           {legalCards.map((card) => (
@@ -25,6 +24,7 @@ export default async function LegalPage() {
             </article>
           ))}
         </div>
+        <p className="muted stack-top">{settings.legalPages.disclaimerText}</p>
       </div>
     </section>
   );

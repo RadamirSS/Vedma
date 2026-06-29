@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
 
 import { AccountShell } from "@/components/account/account-shell";
+import { AdminNotice } from "@/components/admin/admin-notice";
+import { OrderPaymentBlock } from "@/components/account/order-payment-block";
 import { requireCustomerSession } from "@/lib/auth/session";
 import { formatAdminDate } from "@/lib/admin/format";
 import { ORDER_STATUS_LABELS, PAYMENT_STATUS_LABELS } from "@/lib/admin/constants";
@@ -8,11 +10,16 @@ import { formatPrice } from "@/lib/utils";
 import { prisma } from "@/lib/db/prisma";
 
 export default async function AccountOrderDetailPage({
-  params
+  params,
+  searchParams
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const session = await requireCustomerSession("/account/orders");
+  const query = await searchParams;
+  const success = typeof query.success === "string" ? query.success : undefined;
+  const error = typeof query.error === "string" ? query.error : undefined;
   const { id } = await params;
   const order = await prisma.order.findFirst({
     where: {
@@ -32,20 +39,25 @@ export default async function AccountOrderDetailPage({
   }
 
   const deliveryLines = [
-    order.deliveryCountry ? `Страна: ${order.deliveryCountry}` : null,
-    order.deliveryCity ? `Город: ${order.deliveryCity}` : null,
-    order.deliveryAddress1 ? `Адрес: ${order.deliveryAddress1}` : null,
-    order.deliveryAddress2 ? `Дополнение: ${order.deliveryAddress2}` : null,
+    order.deliveryAddressFull,
+    [order.deliveryCountry, order.deliveryRegion, order.deliveryCity].filter(Boolean).join(", "),
+    [order.deliveryStreet, order.deliveryHouse, order.deliveryFlat].filter(Boolean).join(", "),
+    order.deliveryAddress1,
+    order.deliveryAddress2,
     order.deliveryPostalCode ? `Индекс: ${order.deliveryPostalCode}` : null
   ].filter(Boolean);
+
+  const hasServiceItems = order.items.some((item) => item.itemType === "SERVICE");
 
   return (
     <AccountShell
       title={order.orderNumber}
-      description="Детали заказа, статусы и вложения. Оплата пока подтверждается вручную — реквизиты пришлёт администратор после проверки заказа."
+      description="Детали заказа, оплата и следующие шаги."
       user={session.user}
       activeHref="/account/orders"
     >
+      <AdminNotice success={success} error={error} />
+
       <div className="dashboard-grid">
         <article className="form-card">
           <h3>Состав заказа</h3>
@@ -78,65 +90,68 @@ export default async function AccountOrderDetailPage({
             <span>Платеж</span>
             <b>{PAYMENT_STATUS_LABELS[order.paymentStatus]}</b>
           </div>
-          <p className="muted stack-top">
-            Онлайн-оплата пока не подключена. После подтверждения заказа администратор отправит реквизиты
-            отдельно, а статус обновится в этом кабинете.
-          </p>
         </aside>
       </div>
 
       <div className="dashboard-grid stack-top">
+        <OrderPaymentBlock orderId={order.id} paymentStatus={order.paymentStatus} />
         {order.customerComment ? (
           <article className="form-card">
-            <h3>Комментарий к заказу</h3>
+            <h3>{hasServiceItems ? "Запрос / комментарий" : "Комментарий к заказу"}</h3>
             <p>{order.customerComment}</p>
+            {order.preferredContactAt ? (
+              <p className="muted stack-top">Удобное время связи: {order.preferredContactAt}</p>
+            ) : null}
           </article>
-        ) : null}
-        {order.deliveryRequired && deliveryLines.length > 0 ? (
+        ) : order.preferredContactAt ? (
           <article className="form-card">
-            <h3>Доставка</h3>
-            <div className="account-order-list">
-              {deliveryLines.map((line) => (
-                <div key={line} className="summary-line">
-                  <span>{line}</span>
-                </div>
-              ))}
-            </div>
+            <h3>Удобное время связи</h3>
+            <p>{order.preferredContactAt}</p>
           </article>
         ) : null}
       </div>
 
-      <div className="dashboard-grid stack-top">
-        <article className="form-card">
-          <h3>История обработки</h3>
+      {order.deliveryRequired && deliveryLines.length > 0 ? (
+        <article className="form-card stack-top">
+          <h3>Доставка</h3>
           <div className="account-order-list">
-            {order.statusHistory.map((entry) => (
-              <div key={entry.id} className="summary-line">
-                <span>
-                  {entry.newStatus}
-                  {entry.comment ? ` · ${entry.comment}` : ""}
-                </span>
-                <b>{formatAdminDate(entry.createdAt)}</b>
+            {deliveryLines.map((line) => (
+              <div key={line} className="summary-line">
+                <span>{line}</span>
               </div>
             ))}
           </div>
         </article>
-        <article className="cart-summary">
-          <h3>PDF и вложения ({order.files.length})</h3>
-          {order.files.length === 0 ? (
-            <p className="muted">Вложений нет.</p>
-          ) : (
-            <div className="account-order-list">
-              {order.files.map((file) => (
-                <div key={file.id} className="summary-line">
-                  <span>{file.originalName}</span>
-                  <b>{Math.round(file.size / 1024)} KB</b>
-                </div>
-              ))}
+      ) : null}
+
+      <article className="form-card stack-top">
+        <h3>История обработки</h3>
+        <div className="account-order-list">
+          {order.statusHistory.map((entry) => (
+            <div key={entry.id} className="summary-line">
+              <span>
+                {entry.newStatus}
+                {entry.comment ? ` · ${entry.comment}` : ""}
+              </span>
+              <b>{formatAdminDate(entry.createdAt)}</b>
             </div>
-          )}
+          ))}
+        </div>
+      </article>
+
+      {order.files.length > 0 ? (
+        <article className="form-card stack-top">
+          <h3>Вложения ({order.files.length})</h3>
+          <div className="account-order-list">
+            {order.files.map((file) => (
+              <div key={file.id} className="summary-line">
+                <span>{file.originalName}</span>
+                <b>{Math.round(file.size / 1024)} KB</b>
+              </div>
+            ))}
+          </div>
         </article>
-      </div>
+      ) : null}
     </AccountShell>
   );
 }
