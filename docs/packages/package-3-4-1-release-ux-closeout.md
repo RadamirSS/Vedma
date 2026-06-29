@@ -74,10 +74,10 @@ No slot rebuild. Existing `/admin/media/site` slots and `lib/site-media.ts` fall
 
 | Check | Result |
 |-------|--------|
-| `pnpm lint` | See commit verification |
-| `pnpm build` | See commit verification |
-| `pnpm db:verify:catalog` | See commit verification |
-| Public grep: medical/professional disclaimer strings | None |
+| `pnpm lint` | Passed (2026-06-29) |
+| `pnpm build` | Passed (2026-06-29, Next.js 15.3.4, 110 routes) |
+| `pnpm db:verify:catalog` | Passed (0 errors; 2 warnings for missing service images locally) |
+| Public grep: medical/professional disclaimer strings | None in app/components |
 | Header “Оформить” | Removed |
 
 ## Remaining limitations
