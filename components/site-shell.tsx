@@ -24,7 +24,7 @@ export function SiteShell({
 
   return (
     <>
-      <Header />
+      <Header logoImage={settings.mediaSlots.logoImage} logoAlt={settings.mediaSlots.logoAlt} />
       <main>{children}</main>
       <Footer settings={settings} />
       <CartDrawer />

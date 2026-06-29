@@ -73,6 +73,13 @@ export default async function AdminMediaPage({
           <div className="full admin-actions-row"><SubmitButton className="btn btn-primary">Загрузить</SubmitButton></div>
         </form>
       ) : null}
+      <div className="admin-card">
+        <h3>Медиа сайта</h3>
+        <p>Логотип, hero-портрет, галерея главной и изображения направлений.</p>
+        <Link className="btn btn-primary btn-small" href="/admin/media/site">
+          Открыть медиа сайта
+        </Link>
+      </div>
       <div className="admin-grid">
         {items.map((item) => (
           <Link key={item.id} href={`/admin/media/${item.id}`} className="admin-media-card">

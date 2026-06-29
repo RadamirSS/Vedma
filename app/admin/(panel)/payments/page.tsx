@@ -1,7 +1,13 @@
 import { updatePaymentStatusAction } from "@/app/admin/actions";
 import { AdminNotice } from "@/components/admin/admin-notice";
 import { AdminReadOnlyNotice } from "@/components/admin/admin-read-only-notice";
+import { CommerceScopeTabs } from "@/components/admin/commerce-scope-tabs";
 import { SubmitButton } from "@/components/admin/submit-button";
+import {
+  commerceScopeTabs,
+  paymentListWhere,
+  resolveCommerceScope
+} from "@/lib/admin/commerce-filters";
 import { PAYMENT_STATUS_LABELS, PAYMENT_STATUS_OPTIONS } from "@/lib/admin/constants";
 import { formatAdminDate } from "@/lib/admin/format";
 import { isReadOnlyAdminRole, requireAdminSession } from "@/lib/auth/session";
@@ -16,9 +22,12 @@ export default async function AdminPaymentsPage({
   const params = await searchParams;
   const session = await requireAdminSession("/admin/payments");
   const isReadOnly = isReadOnlyAdminRole(session.user.role);
+  const scopeParam = typeof params.scope === "string" ? params.scope : undefined;
+  const currentScope = resolveCommerceScope(session.user.role, scopeParam);
   const success = typeof params.success === "string" ? params.success : undefined;
   const error = typeof params.error === "string" ? params.error : undefined;
   const payments = await prisma.payment.findMany({
+    where: paymentListWhere(session.user.role, scopeParam),
     include: {
       order: {
         include: { customer: true }
@@ -40,6 +49,12 @@ export default async function AdminPaymentsPage({
 
       <AdminNotice success={success} error={error} />
       {isReadOnly ? <AdminReadOnlyNotice text="Демо-аккаунт видит историю ручных платежей, но не может менять статусы или комментарии." /> : null}
+
+      <CommerceScopeTabs
+        basePath="/admin/payments"
+        currentScope={currentScope}
+        tabs={commerceScopeTabs(session.user.role)}
+      />
 
       <div className="admin-side-list">
         {payments.map((payment) => (

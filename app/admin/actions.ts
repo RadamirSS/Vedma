@@ -7,7 +7,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { deleteMediaFileIfUnlinked, replaceStoredFile, storeUploadedFile } from "@/lib/admin/media";
-import { getSiteSettings } from "@/lib/admin/settings";
+import { getSiteSettings, type SiteMediaSlotsShape } from "@/lib/admin/settings";
 import {
   validateProductForm,
   validateReviewForm,
@@ -728,7 +728,8 @@ export async function saveSettingsAction(formData: FormData) {
       primary: toNullableString(formData.get("currencies.primary")) ?? current.currencies.primary,
       secondary:
         toNullableString(formData.get("currencies.secondary")) ?? current.currencies.secondary
-    }
+    },
+    mediaSlots: current.mediaSlots
   };
 
   await prisma.siteSetting.upsert({
@@ -742,6 +743,102 @@ export async function saveSettingsAction(formData: FormData) {
   revalidatePath("/legal");
   revalidatePath("/admin/settings");
   redirect(`/admin/settings?success=${encodeNotice("Настройки сохранены.")}`);
+}
+
+async function resolveMediaPathFromForm(
+  formData: FormData,
+  uploadField: string,
+  selectField: string,
+  currentValue: string | null
+) {
+  const upload = formData.get(uploadField);
+  if (upload instanceof File && upload.size > 0) {
+    return storeCatalogMainImage(upload, null);
+  }
+
+  const selected = toNullableString(formData.get(selectField));
+  return selected ?? currentValue;
+}
+
+export async function saveSiteMediaSlotsAction(formData: FormData) {
+  await requireWritableManagerOrAdmin("/admin/media/site");
+  const current = await getSiteSettings();
+  const media = current.mediaSlots;
+
+  const homeGallery = await Promise.all(
+    media.homeGallery.map(async (slot, index) => ({
+      label: slot.label,
+      alt: toNullableString(formData.get(`gallery.${index}.alt`)) ?? slot.alt,
+      src:
+        (await resolveMediaPathFromForm(
+          formData,
+          `gallery.${index}.upload`,
+          `gallery.${index}.image`,
+          slot.src
+        )) ?? slot.src
+    }))
+  );
+
+  const homeDirections = await Promise.all(
+    media.homeDirections.map(async (slot) => ({
+      id: slot.id,
+      alt: toNullableString(formData.get(`direction.${slot.id}.alt`)) ?? slot.alt,
+      image:
+        (await resolveMediaPathFromForm(
+          formData,
+          `direction.${slot.id}.upload`,
+          `direction.${slot.id}.image`,
+          slot.image
+        )) ?? slot.image
+    }))
+  );
+
+  const nextMediaSlots: SiteMediaSlotsShape = {
+    logoImage: await resolveMediaPathFromForm(
+      formData,
+      "logo.upload",
+      "logo.image",
+      media.logoImage
+    ),
+    logoAlt: toNullableString(formData.get("logo.alt")) ?? media.logoAlt,
+    heroPortrait: await resolveMediaPathFromForm(
+      formData,
+      "hero.upload",
+      "hero.image",
+      media.heroPortrait
+    ),
+    heroPortraitAlt: toNullableString(formData.get("hero.alt")) ?? media.heroPortraitAlt,
+    homeGallery,
+    homeDirections,
+    footerBrandImage: await resolveMediaPathFromForm(
+      formData,
+      "footer.upload",
+      "footer.image",
+      media.footerBrandImage
+    ),
+    aboutImage: await resolveMediaPathFromForm(
+      formData,
+      "about.upload",
+      "about.image",
+      media.aboutImage
+    )
+  };
+
+  const next = {
+    ...current,
+    mediaSlots: nextMediaSlots
+  };
+
+  await prisma.siteSetting.upsert({
+    where: { key: "site_settings" },
+    update: { value: next },
+    create: { key: "site_settings", value: next }
+  });
+
+  revalidatePath("/");
+  revalidatePath("/about");
+  revalidatePath("/admin/media/site");
+  redirect(`/admin/media/site?success=${encodeNotice("Медиа сайта обновлены.")}`);
 }
 
 export async function saveUserAction(formData: FormData) {

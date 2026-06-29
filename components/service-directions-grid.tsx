@@ -1,10 +1,14 @@
 import { ServiceDirectionCard } from "@/components/service-direction-card";
-import { serviceDirections } from "@/lib/service-directions";
+import { getSiteSettings } from "@/lib/admin/settings";
+import { getResolvedServiceDirections } from "@/lib/resolved-directions";
 
-export function ServiceDirectionsGrid({ id }: { id?: string }) {
+export async function ServiceDirectionsGrid({ id }: { id?: string }) {
+  const settings = await getSiteSettings();
+  const directions = getResolvedServiceDirections(settings.mediaSlots);
+
   return (
     <div className="directions-grid" id={id}>
-      {serviceDirections.map((direction) => (
+      {directions.map((direction) => (
         <ServiceDirectionCard key={direction.id} direction={direction} />
       ))}
     </div>

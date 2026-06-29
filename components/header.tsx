@@ -14,7 +14,13 @@ const navLinks = [
   { href: "/contacts", label: "Контакты" }
 ] satisfies Array<{ href: Route; label: string }>;
 
-export function Header() {
+export function Header({
+  logoImage,
+  logoAlt
+}: {
+  logoImage?: string | null;
+  logoAlt?: string;
+}) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { count, openCart } = useCart();
 
@@ -22,7 +28,12 @@ export function Header() {
     <header className="nav">
       <div className="container nav-inner">
         <Link href="/" className="brand" aria-label="Бажена — на главную">
-          <span className="sigil">Б</span>
+          {logoImage ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img className="brand-logo" src={logoImage} alt={logoAlt ?? "Бажена — Магия жизни"} />
+          ) : (
+            <span className="sigil">Б</span>
+          )}
           <span>
             <span className="brand-name">Бажена</span>
             <span className="brand-sub">Магия жизни</span>

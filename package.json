@@ -16,7 +16,8 @@
     "db:seed:demo": "tsx prisma/seed-demo.ts",
     "db:studio": "prisma studio",
     "db:import:catalog": "tsx scripts/import-catalog-to-db.ts",
-    "db:verify:catalog": "tsx scripts/verify-catalog-db.ts"
+    "db:verify:catalog": "tsx scripts/verify-catalog-db.ts",
+    "db:mark-test-orders": "tsx scripts/mark-test-orders.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.11.0",

@@ -1,4 +1,16 @@
 import { prisma } from "@/lib/db/prisma";
+import { mergeMediaSlots } from "@/lib/site-media";
+
+export type SiteMediaSlotsShape = {
+  logoImage: string | null;
+  logoAlt: string;
+  heroPortrait: string | null;
+  heroPortraitAlt: string;
+  homeGallery: Array<{ src: string; alt: string; label: string }>;
+  homeDirections: Array<{ id: string; image: string; alt: string }>;
+  footerBrandImage: string | null;
+  aboutImage: string | null;
+};
 
 export type SiteSettingsShape = {
   contacts: {
@@ -47,6 +59,7 @@ export type SiteSettingsShape = {
     primary: string;
     secondary: string;
   };
+  mediaSlots: SiteMediaSlotsShape;
 };
 
 export const DEFAULT_SITE_SETTINGS: SiteSettingsShape = {
@@ -100,7 +113,8 @@ export const DEFAULT_SITE_SETTINGS: SiteSettingsShape = {
   currencies: {
     primary: "RUB",
     secondary: "USD"
-  }
+  },
+  mediaSlots: mergeMediaSlots()
 };
 
 function isObject(value: unknown): value is Record<string, unknown> {
@@ -136,7 +150,12 @@ export async function getSiteSettings() {
       where: { key: "site_settings" }
     });
 
-    return deepMerge(DEFAULT_SITE_SETTINGS, record?.value);
+    return {
+      ...deepMerge(DEFAULT_SITE_SETTINGS, record?.value),
+      mediaSlots: mergeMediaSlots(
+        isObject(record?.value) ? (record.value as { mediaSlots?: Partial<SiteMediaSlotsShape> }).mediaSlots : undefined
+      )
+    };
   } catch {
     return DEFAULT_SITE_SETTINGS;
   }

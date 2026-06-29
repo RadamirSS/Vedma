@@ -2,7 +2,9 @@ import Link from "next/link";
 
 import { SectionHeading } from "@/components/section-heading";
 import { aboutDirections, benefits } from "@/lib/mock-data";
+import { getSiteSettings } from "@/lib/admin/settings";
 import { PORTRAIT_IMAGE } from "@/lib/site-images";
+import { resolveSiteImage } from "@/lib/site-media";
 
 export const metadata = {
   title: "О Бажене",
@@ -10,7 +12,10 @@ export const metadata = {
     "Бажена — таролог, психолог и проводник в трансформационных практиках. Таро, свечная магия, родовые практики и индивидуальный подход."
 };
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const settings = await getSiteSettings();
+  const aboutImage = resolveSiteImage(settings.mediaSlots.aboutImage, PORTRAIT_IMAGE);
+
   return (
     <section className="section">
       <div className="container">
@@ -22,7 +27,7 @@ export default function AboutPage() {
         <div className="about-block">
           <div className="portrait portrait--image">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={PORTRAIT_IMAGE} alt="Бажена — Магия Жизни" />
+            <img src={aboutImage} alt="Бажена — Магия Жизни" />
           </div>
           <div className="about-text">
             <h3>Глубокая работа на стыке интуиции, символов и внутренней трансформации</h3>

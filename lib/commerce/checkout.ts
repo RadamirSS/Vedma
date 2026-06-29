@@ -1,10 +1,10 @@
-import { ContactMethod, Currency, PaymentProvider, PaymentStatus, RequestStatus, Role } from "@prisma/client";
+import { ContactMethod, Currency, PaymentProvider, PaymentStatus, Prisma, RequestStatus, Role } from "@prisma/client";
 
 import { hashPassword } from "@/lib/auth/password";
 import { createCustomerSession } from "@/lib/auth/session";
 import { verifyPassword } from "@/lib/auth/password";
+import { resolveCheckoutTestFlags } from "@/lib/admin/commerce-filters";
 import { resolveCartEntries, getCartTotals, type CartEntry } from "@/lib/commerce/cart";
-import { storePrivatePdf } from "@/lib/commerce/files";
 import { prisma } from "@/lib/db/prisma";
 
 export type CheckoutPayload = {
@@ -17,13 +17,20 @@ export type CheckoutPayload = {
   contactMethod: ContactMethod | null;
   city: string | null;
   country: string | null;
+  region: string | null;
+  street: string | null;
+  house: string | null;
+  flat: string | null;
   addressLine1: string | null;
   addressLine2: string | null;
   postalCode: string | null;
+  addressFull: string | null;
+  addressProvider: string | null;
+  addressMeta: Record<string, unknown> | null;
+  preferredContactAt: string | null;
+  serviceComment: string | null;
   birthDate: Date | null;
   comment: string | null;
-  uploadedFileIds: string[];
-  uploadedFiles?: File[];
   currentSessionUserId?: string | null;
 };
 
@@ -33,8 +40,31 @@ function nextNumber(prefix: string) {
   return `${prefix}-${stamp}-${suffix}`;
 }
 
-function requireDeliveryDetails(payload: CheckoutPayload, deliveryRequired: boolean) {
+function buildComment(payload: CheckoutPayload, hasServices: boolean) {
+  const parts: string[] = [];
+  if (payload.comment?.trim()) {
+    parts.push(payload.comment.trim());
+  }
+  if (hasServices && payload.serviceComment?.trim()) {
+    parts.push(`Запрос по услуге: ${payload.serviceComment.trim()}`);
+  }
+  return parts.join("\n\n") || null;
+}
+
+function requireDeliveryDetails(payload: CheckoutPayload, deliveryRequired: boolean, hasServices: boolean) {
   if (!deliveryRequired) {
+    if (hasServices) {
+      const missing: string[] = [];
+      if (!payload.phone && !payload.telegram) {
+        missing.push("телефон или Telegram");
+      }
+      if (!payload.contactMethod) {
+        missing.push("способ связи");
+      }
+      if (missing.length > 0) {
+        throw new Error(`Для заявки на услугу укажите ${missing.join(" и ")}.`);
+      }
+    }
     return;
   }
 
@@ -46,11 +76,11 @@ function requireDeliveryDetails(payload: CheckoutPayload, deliveryRequired: bool
   if (!payload.city) {
     missing.push("город");
   }
-  if (!payload.addressLine1) {
-    missing.push("адрес доставки");
+  if (!payload.phone) {
+    missing.push("телефон");
   }
-  if (!payload.phone && !payload.telegram) {
-    missing.push("телефон или Telegram");
+  if (!payload.addressLine1 && !payload.addressFull && !(payload.street && payload.house)) {
+    missing.push("адрес доставки");
   }
 
   if (missing.length > 0) {
@@ -65,7 +95,7 @@ export async function createCheckoutOrder(payload: CheckoutPayload) {
   }
 
   const totals = getCartTotals(items);
-  requireDeliveryDetails(payload, totals.deliveryRequired);
+  requireDeliveryDetails(payload, totals.deliveryRequired, totals.hasServices);
 
   if (!payload.email) {
     throw new Error("Email обязателен для оформления заказа.");
@@ -84,12 +114,16 @@ export async function createCheckoutOrder(payload: CheckoutPayload) {
     throw new Error("Активная сессия не совпадает с email заказа.");
   }
 
-  if (payload.password.length < 8) {
-    throw new Error("Пароль должен содержать минимум 8 символов.");
-  }
+  const isLoggedIn = Boolean(payload.currentSessionUserId && existing);
 
-  if (existing && !verifyPassword(payload.password, existing.passwordHash)) {
-    throw new Error("Неверный пароль для существующего аккаунта.");
+  if (!isLoggedIn) {
+    if (payload.password.length < 8) {
+      throw new Error("Пароль должен содержать минимум 8 символов.");
+    }
+
+    if (existing && !verifyPassword(payload.password, existing.passwordHash)) {
+      throw new Error("Неверный пароль для существующего аккаунта.");
+    }
   }
 
   const user =
@@ -116,30 +150,31 @@ export async function createCheckoutOrder(payload: CheckoutPayload) {
     });
   }
 
-  await prisma.customerProfile.upsert({
-    where: { userId: user.id },
-    update: {
-      city: payload.city,
-      country: payload.country,
-      addressLine1: payload.addressLine1,
-      addressLine2: payload.addressLine2,
-      postalCode: payload.postalCode,
-      birthDate: payload.birthDate
-    },
-    create: {
-      userId: user.id,
-      city: payload.city,
-      country: payload.country,
-      addressLine1: payload.addressLine1,
-      addressLine2: payload.addressLine2,
-      postalCode: payload.postalCode,
-      birthDate: payload.birthDate
-    }
-  });
+  if (totals.deliveryRequired) {
+    await prisma.customerProfile.upsert({
+      where: { userId: user.id },
+      update: {
+        city: payload.city,
+        country: payload.country,
+        addressLine1: payload.addressLine1 ?? payload.addressFull,
+        addressLine2: payload.addressLine2,
+        postalCode: payload.postalCode,
+        birthDate: payload.birthDate
+      },
+      create: {
+        userId: user.id,
+        city: payload.city,
+        country: payload.country,
+        addressLine1: payload.addressLine1 ?? payload.addressFull,
+        addressLine2: payload.addressLine2,
+        postalCode: payload.postalCode,
+        birthDate: payload.birthDate
+      }
+    });
+  }
 
-  const uploadedFiles = payload.uploadedFiles?.length
-    ? await Promise.all(payload.uploadedFiles.map((file) => storePrivatePdf(file, user.id)))
-    : [];
+  const testFlags = resolveCheckoutTestFlags(payload.email);
+  const customerComment = buildComment(payload, totals.hasServices);
 
   const order = await prisma.order.create({
     data: {
@@ -155,14 +190,27 @@ export async function createCheckoutOrder(payload: CheckoutPayload) {
       customerEmail: payload.email,
       customerPhone: payload.phone,
       customerTelegram: payload.telegram,
-      customerComment: payload.comment,
+      customerComment,
       contactMethod: payload.contactMethod,
       deliveryRequired: totals.deliveryRequired,
       deliveryCity: totals.deliveryRequired ? payload.city : null,
       deliveryCountry: totals.deliveryRequired ? payload.country : null,
-      deliveryAddress1: totals.deliveryRequired ? payload.addressLine1 : null,
+      deliveryRegion: totals.deliveryRequired ? payload.region : null,
+      deliveryStreet: totals.deliveryRequired ? payload.street : null,
+      deliveryHouse: totals.deliveryRequired ? payload.house : null,
+      deliveryFlat: totals.deliveryRequired ? payload.flat : null,
+      deliveryAddress1: totals.deliveryRequired ? (payload.addressLine1 ?? payload.addressFull) : null,
       deliveryAddress2: totals.deliveryRequired ? payload.addressLine2 : null,
       deliveryPostalCode: totals.deliveryRequired ? payload.postalCode : null,
+      deliveryAddressFull: totals.deliveryRequired ? payload.addressFull : null,
+      deliveryAddressProvider: totals.deliveryRequired ? payload.addressProvider : null,
+      deliveryAddressMeta:
+        totals.deliveryRequired && payload.addressMeta
+          ? (payload.addressMeta as Prisma.InputJsonValue)
+          : undefined,
+      preferredContactAt: totals.hasServices ? payload.preferredContactAt : null,
+      isTest: testFlags.isTest,
+      testLabel: testFlags.testLabel,
       items: {
         create: items.map((item) => ({
           itemType: item.type === "product" ? "PRODUCT" : "SERVICE",
@@ -181,7 +229,8 @@ export async function createCheckoutOrder(payload: CheckoutPayload) {
           provider: PaymentProvider.MANUAL,
           status: PaymentStatus.NOT_ISSUED,
           amount: totals.totalAmount,
-          currency: items[0]?.currency ?? Currency.RUB
+          currency: items[0]?.currency ?? Currency.RUB,
+          isTest: testFlags.isTest
         }
       }
     }
@@ -198,8 +247,10 @@ export async function createCheckoutOrder(payload: CheckoutPayload) {
       telegram: payload.telegram,
       selectedProductId: items.find((item) => item.type === "product")?.catalogId ?? null,
       selectedServiceId: items.find((item) => item.type === "service")?.catalogId ?? null,
-      comment: payload.comment,
-      status: RequestStatus.NEW
+      comment: customerComment,
+      status: RequestStatus.NEW,
+      isTest: testFlags.isTest,
+      testLabel: testFlags.testLabel
     }
   });
 
@@ -213,27 +264,6 @@ export async function createCheckoutOrder(payload: CheckoutPayload) {
       comment: "Заказ создан через checkout."
     }
   });
-
-  if (payload.uploadedFileIds.length > 0) {
-    await prisma.customerFile.updateMany({
-      where: {
-        id: { in: payload.uploadedFileIds },
-        customerId: user.id,
-        orderId: null
-      },
-      data: { orderId: order.id }
-    });
-  }
-
-  if (uploadedFiles.length > 0) {
-    await prisma.customerFile.updateMany({
-      where: {
-        id: { in: uploadedFiles.map((file) => file.id) },
-        customerId: user.id
-      },
-      data: { orderId: order.id }
-    });
-  }
 
   await createCustomerSession(user.id);
 

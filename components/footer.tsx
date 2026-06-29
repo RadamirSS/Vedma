@@ -10,11 +10,22 @@ export function Footer({ settings }: { settings: SiteSettingsShape }) {
       <div className="container footer-grid">
         <div>
           <Link href="/" className="brand">
-            <span className="sigil">Б</span>
-            <span>
-              <span className="brand-name">Бажена</span>
-              <span className="brand-sub">Магия жизни</span>
-            </span>
+            {settings.mediaSlots.footerBrandImage ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                className="brand-logo brand-logo--footer"
+                src={settings.mediaSlots.footerBrandImage}
+                alt={settings.mediaSlots.logoAlt}
+              />
+            ) : (
+              <>
+                <span className="sigil">Б</span>
+                <span>
+                  <span className="brand-name">Бажена</span>
+                  <span className="brand-sub">Магия жизни</span>
+                </span>
+              </>
+            )}
           </Link>
           <p className="footer-lead">{settings.footer.description}</p>
           <span className="age">18+</span>

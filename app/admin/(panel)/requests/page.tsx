@@ -1,8 +1,15 @@
 import Link from "next/link";
 
 import { AdminNotice } from "@/components/admin/admin-notice";
+import { CommerceScopeTabs } from "@/components/admin/commerce-scope-tabs";
+import {
+  commerceScopeTabs,
+  requestListWhere,
+  resolveCommerceScope
+} from "@/lib/admin/commerce-filters";
 import { REQUEST_STATUS_LABELS } from "@/lib/admin/constants";
 import { formatAdminDate, parseSearchParam } from "@/lib/admin/format";
+import { requireAdminSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db/prisma";
 
 export default async function AdminRequestsPage({
@@ -11,20 +18,25 @@ export default async function AdminRequestsPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const params = await searchParams;
+  const session = await requireAdminSession("/admin/requests");
   const q = parseSearchParam(params.q);
+  const scopeParam = typeof params.scope === "string" ? params.scope : undefined;
+  const currentScope = resolveCommerceScope(session.user.role, scopeParam);
   const success = typeof params.success === "string" ? params.success : undefined;
   const error = typeof params.error === "string" ? params.error : undefined;
 
+  const searchWhere = q
+    ? {
+        OR: [
+          { requestNumber: { contains: q, mode: "insensitive" as const } },
+          { email: { contains: q, mode: "insensitive" as const } },
+          { name: { contains: q, mode: "insensitive" as const } }
+        ]
+      }
+    : undefined;
+
   const requests = await prisma.request.findMany({
-    where: q
-      ? {
-          OR: [
-            { requestNumber: { contains: q, mode: "insensitive" } },
-            { email: { contains: q, mode: "insensitive" } },
-            { name: { contains: q, mode: "insensitive" } }
-          ]
-        }
-      : undefined,
+    where: requestListWhere(session.user.role, scopeParam, searchWhere),
     include: {
       selectedProduct: true,
       selectedService: true,
@@ -46,8 +58,16 @@ export default async function AdminRequestsPage({
 
       <AdminNotice success={success} error={error} />
 
+      <CommerceScopeTabs
+        basePath="/admin/requests"
+        currentScope={currentScope}
+        tabs={commerceScopeTabs(session.user.role)}
+        query={q}
+      />
+
       <div className="admin-toolbar">
         <form>
+          {scopeParam ? <input type="hidden" name="scope" value={scopeParam} /> : null}
           <input className="admin-input" name="q" placeholder="Номер, email или имя" defaultValue={q} />
           <div />
           <div />
@@ -75,6 +95,7 @@ export default async function AdminRequestsPage({
               <tr key={request.id}>
                 <td>
                   <strong>{request.requestNumber}</strong>
+                  {request.isTest ? <span className="admin-badge admin-badge-test">Тест</span> : null}
                   <div className="muted">{request.email ?? "—"}</div>
                 </td>
                 <td>{request.name ?? "Без имени"}</td>

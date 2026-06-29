@@ -232,7 +232,17 @@ model Order {
   deliveryAddress1   String?
   deliveryAddress2   String?
   deliveryPostalCode String?
+  deliveryRegion     String?
+  deliveryStreet     String?
+  deliveryHouse      String?
+  deliveryFlat       String?
+  deliveryAddressFull String?
+  deliveryAddressProvider String?
+  deliveryAddressMeta Json?
+  preferredContactAt String?
   requestSource      String?
+  isTest             Boolean         @default(false)
+  testLabel          String?
   items              OrderItem[]
   payments           Payment[]
   files              CustomerFile[]
@@ -243,6 +253,7 @@ model Order {
   @@index([customerId])
   @@index([status])
   @@index([paymentStatus])
+  @@index([isTest])
 }
 
 model Request {
@@ -264,6 +275,8 @@ model Request {
   responsibleUserId String?
   responsibleUser   User?           @relation("AssignedRequests", fields: [responsibleUserId], references: [id], onDelete: SetNull)
   adminComment      String?
+  isTest            Boolean         @default(false)
+  testLabel         String?
   statusHistory     StatusHistory[] @relation("RequestStatusHistory")
   createdAt         DateTime        @default(now())
   updatedAt         DateTime        @updatedAt
@@ -271,6 +284,7 @@ model Request {
   @@index([customerId])
   @@index([status])
   @@index([responsibleUserId])
+  @@index([isTest])
 }
 
 model Payment {
@@ -283,11 +297,13 @@ model Payment {
   adminComment String?
   orderId      String?
   order        Order?          @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  isTest       Boolean         @default(false)
   createdAt    DateTime        @default(now())
   updatedAt    DateTime        @updatedAt
 
   @@index([orderId])
   @@index([status])
+  @@index([isTest])
 }
 
 model Review {

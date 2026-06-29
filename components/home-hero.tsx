@@ -1,10 +1,13 @@
 import Link from "next/link";
 
 import { getSiteSettings } from "@/lib/admin/settings";
+import { resolveSiteImage } from "@/lib/site-media";
 import { PORTRAIT_IMAGE } from "@/lib/site-images";
 
 export async function HomeHero() {
   const settings = await getSiteSettings();
+  const heroImage = resolveSiteImage(settings.mediaSlots.heroPortrait, PORTRAIT_IMAGE);
+  const heroAlt = settings.mediaSlots.heroPortraitAlt || "Атмосфера практик Бажены";
   const [titleTop, ...titleRest] = settings.homepage.title.split("—");
 
   return (
@@ -45,7 +48,7 @@ export async function HomeHero() {
 
         <div className="hero-card hero-card--image" aria-label="Атмосферный визуальный блок">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img className="hero-card__photo" src={PORTRAIT_IMAGE} alt="Атмосфера практик Бажены" />
+          <img className="hero-card__photo" src={heroImage} alt={heroAlt} />
           <div className="hero-card__glow" />
           <div className="floating-note">
             <b>

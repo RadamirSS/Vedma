@@ -12,6 +12,7 @@ import {
   PAYMENT_STATUS_LABELS,
   PAYMENT_STATUS_OPTIONS
 } from "@/lib/admin/constants";
+import { resolveCommerceScope } from "@/lib/admin/commerce-filters";
 import { formatAdminDate } from "@/lib/admin/format";
 import { isReadOnlyAdminRole, requireAdminSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db/prisma";
@@ -52,6 +53,23 @@ export default async function AdminOrderDetailPage({
     notFound();
   }
 
+  const commerceScope = resolveCommerceScope(session.user.role);
+  if (commerceScope === "production" && order.isTest) {
+    notFound();
+  }
+  if (commerceScope === "test" && !order.isTest) {
+    notFound();
+  }
+
+  const deliveryLines = [
+    order.deliveryAddressFull,
+    [order.deliveryCountry, order.deliveryRegion, order.deliveryCity].filter(Boolean).join(", "),
+    [order.deliveryStreet, order.deliveryHouse, order.deliveryFlat].filter(Boolean).join(", "),
+    order.deliveryAddress1,
+    order.deliveryAddress2,
+    order.deliveryPostalCode ? `Индекс: ${order.deliveryPostalCode}` : null
+  ].filter(Boolean);
+
   return (
     <div className="admin-page">
       <div className="admin-header">
@@ -59,6 +77,7 @@ export default async function AdminOrderDetailPage({
           <span className="eyebrow">Заказ</span>
           <h1>{order.orderNumber}</h1>
           <p>Клиент: {order.customerName ?? order.customer.name ?? order.customer.email}</p>
+          {order.isTest ? <span className="admin-badge admin-badge-test">Тестовый заказ</span> : null}
         </div>
         <Link className="btn btn-ghost" href="/admin/orders">
           Назад к списку
@@ -113,6 +132,28 @@ export default async function AdminOrderDetailPage({
               {order.contactMethod ? CONTACT_METHOD_LABELS[order.contactMethod] : "Не выбран"}
             </p>
           </div>
+          {order.deliveryRequired ? (
+            <div className="admin-card">
+              <h3>Доставка</h3>
+              {deliveryLines.length > 0 ? (
+                deliveryLines.map((line) => <p key={line}>{line}</p>)
+              ) : (
+                <p className="muted">Адрес не указан.</p>
+              )}
+              {order.preferredContactAt ? <p>Желаемое время: {order.preferredContactAt}</p> : null}
+            </div>
+          ) : order.preferredContactAt ? (
+            <div className="admin-card">
+              <h3>Желаемое время</h3>
+              <p>{order.preferredContactAt}</p>
+            </div>
+          ) : null}
+          {order.customerComment ? (
+            <div className="admin-card">
+              <h3>Комментарий клиента</h3>
+              <p>{order.customerComment}</p>
+            </div>
+          ) : null}
           <div className="admin-card">
             <h3>Файлы</h3>
             {order.files.length === 0 ? (

@@ -1,10 +1,16 @@
 import Link from "next/link";
 
 import { AdminNotice } from "@/components/admin/admin-notice";
-import { parseSearchParam } from "@/lib/admin/format";
+import { CommerceScopeTabs } from "@/components/admin/commerce-scope-tabs";
+import {
+  commerceScopeTabs,
+  orderListWhere,
+  resolveCommerceScope
+} from "@/lib/admin/commerce-filters";
 import { ORDER_STATUS_LABELS, PAYMENT_STATUS_LABELS } from "@/lib/admin/constants";
+import { formatAdminDate, parseSearchParam } from "@/lib/admin/format";
+import { requireAdminSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db/prisma";
-import { formatAdminDate } from "@/lib/admin/format";
 import { formatPrice } from "@/lib/utils";
 
 export default async function AdminOrdersPage({
@@ -13,20 +19,25 @@ export default async function AdminOrdersPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const params = await searchParams;
+  const session = await requireAdminSession("/admin/orders");
   const q = parseSearchParam(params.q);
+  const scopeParam = typeof params.scope === "string" ? params.scope : undefined;
+  const currentScope = resolveCommerceScope(session.user.role, scopeParam);
   const success = typeof params.success === "string" ? params.success : undefined;
   const error = typeof params.error === "string" ? params.error : undefined;
 
+  const searchWhere = q
+    ? {
+        OR: [
+          { orderNumber: { contains: q, mode: "insensitive" as const } },
+          { customerEmail: { contains: q, mode: "insensitive" as const } },
+          { customerName: { contains: q, mode: "insensitive" as const } }
+        ]
+      }
+    : undefined;
+
   const orders = await prisma.order.findMany({
-    where: q
-      ? {
-          OR: [
-            { orderNumber: { contains: q, mode: "insensitive" } },
-            { customerEmail: { contains: q, mode: "insensitive" } },
-            { customerName: { contains: q, mode: "insensitive" } }
-          ]
-        }
-      : undefined,
+    where: orderListWhere(session.user.role, scopeParam, searchWhere),
     include: {
       customer: true,
       items: true
@@ -47,8 +58,16 @@ export default async function AdminOrdersPage({
 
       <AdminNotice success={success} error={error} />
 
+      <CommerceScopeTabs
+        basePath="/admin/orders"
+        currentScope={currentScope}
+        tabs={commerceScopeTabs(session.user.role)}
+        query={q}
+      />
+
       <div className="admin-toolbar">
         <form>
+          {scopeParam ? <input type="hidden" name="scope" value={scopeParam} /> : null}
           <input className="admin-input" name="q" placeholder="Номер, email или имя клиента" defaultValue={q} />
           <div />
           <div />
@@ -76,6 +95,7 @@ export default async function AdminOrdersPage({
               <tr key={order.id}>
                 <td>
                   <strong>{order.orderNumber}</strong>
+                  {order.isTest ? <span className="admin-badge admin-badge-test">Тест</span> : null}
                   <div className="muted">{order.customerEmail ?? "—"}</div>
                 </td>
                 <td>

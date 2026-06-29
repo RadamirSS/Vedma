@@ -1,15 +1,38 @@
 import Link from "next/link";
 
 import { formatAdminDate } from "@/lib/admin/format";
+import { requireAdminSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db/prisma";
 
 export default async function AdminCustomersPage() {
+  const session = await requireAdminSession("/admin/customers");
+  const isDemo = session.user.role === "DEMO";
+
   const customers = await prisma.user.findMany({
-    where: { role: "CUSTOMER" },
+    where: isDemo
+      ? {
+          role: "CUSTOMER",
+          OR: [
+            { customerOrders: { some: { isTest: true } } },
+            { customerRequests: { some: { isTest: true } } }
+          ]
+        }
+      : {
+          role: "CUSTOMER",
+          OR: [
+            { customerOrders: { some: { isTest: false } } },
+            { customerRequests: { some: { isTest: false } } },
+            { customerOrders: { none: {} }, customerRequests: { none: {} } }
+          ]
+        },
     include: {
       customerProfile: true,
-      customerOrders: true,
-      customerRequests: true,
+      customerOrders: {
+        where: isDemo ? { isTest: true } : { isTest: false }
+      },
+      customerRequests: {
+        where: isDemo ? { isTest: true } : { isTest: false }
+      },
       customerFiles: true
     },
     orderBy: { createdAt: "desc" },
@@ -22,7 +45,7 @@ export default async function AdminCustomersPage() {
         <div className="admin-title">
           <span className="eyebrow">Клиенты</span>
           <h1>Customer accounts</h1>
-          <p>Аккаунты создаются прямо в checkout и используют ту же систему сессий, что и админка.</p>
+          <p>Аккаунты создаются в checkout или через регистрацию и используют ту же систему сессий.</p>
         </div>
       </div>
 

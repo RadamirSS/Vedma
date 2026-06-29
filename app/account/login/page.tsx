@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { customerLoginAction } from "@/app/account/actions";
@@ -32,8 +33,11 @@ export default async function AccountLoginPage({
           <span className="eyebrow">Кабинет клиента</span>
           <h1 className="account-title">Вход в заказы и заявки</h1>
           <p className="text">
-            Аккаунт создаётся при первом оформлении заказа. Email сохраняется для будущих подтверждений и
-            чеков. Здесь отображаются заказы, статусы и прикреплённые PDF.
+            Войдите в кабинет, чтобы видеть заказы и статусы. Если аккаунта ещё нет,{" "}
+            <Link className="text-link" href="/account/register">
+              зарегистрируйтесь
+            </Link>{" "}
+            или оформите первый заказ — аккаунт создастся автоматически.
           </p>
           <AdminNotice error={error} success={success} />
           <form className="account-form" action={customerLoginAction}>

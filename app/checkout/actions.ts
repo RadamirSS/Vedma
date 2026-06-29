@@ -29,6 +29,18 @@ function parseCartEntries(value: string | null) {
   );
 }
 
+function parseAddressMeta(value: string | null) {
+  if (!value) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(value) as Record<string, unknown>;
+  } catch {
+    return null;
+  }
+}
+
 export async function submitCheckoutAction(
   _prevState: CheckoutActionState,
   formData: FormData
@@ -44,9 +56,6 @@ export async function submitCheckoutAction(
     }
 
     const session = await getCurrentCustomerSession();
-    const files = formData
-      .getAll("files")
-      .filter((value): value is File => value instanceof File && value.size > 0);
 
     const order = await createCheckoutOrder({
       cartEntries,
@@ -58,13 +67,20 @@ export async function submitCheckoutAction(
       contactMethod: (toNullableString(formData.get("contactMethod")) as ContactMethod | null) ?? ContactMethod.TELEGRAM,
       city: toNullableString(formData.get("city")),
       country: toNullableString(formData.get("country")),
+      region: toNullableString(formData.get("region")),
+      street: toNullableString(formData.get("street")),
+      house: toNullableString(formData.get("house")),
+      flat: toNullableString(formData.get("flat")),
       addressLine1: toNullableString(formData.get("addressLine1")),
       addressLine2: toNullableString(formData.get("addressLine2")),
       postalCode: toNullableString(formData.get("postalCode")),
+      addressFull: toNullableString(formData.get("addressFull")),
+      addressProvider: toNullableString(formData.get("addressProvider")),
+      addressMeta: parseAddressMeta(toNullableString(formData.get("addressMeta"))),
+      preferredContactAt: toNullableString(formData.get("preferredContactAt")),
+      serviceComment: toNullableString(formData.get("serviceComment")),
       birthDate: null,
       comment: toNullableString(formData.get("comment")),
-      uploadedFileIds: [],
-      uploadedFiles: files,
       currentSessionUserId: session?.user.id ?? null
     });
 

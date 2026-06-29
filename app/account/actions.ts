@@ -9,6 +9,7 @@ import {
   authenticateUser,
   requireCustomerSession
 } from "@/lib/auth/session";
+import { createCustomerAccount } from "@/lib/auth/customer-account";
 import { getSafeCustomerRedirectPath } from "@/lib/auth/safe-redirect";
 import { prisma } from "@/lib/db/prisma";
 import { Role } from "@prisma/client";
@@ -41,6 +42,32 @@ export async function customerLoginAction(formData: FormData) {
 
   await createCustomerSession(user.id);
   redirect(next);
+}
+
+export async function customerRegisterAction(formData: FormData) {
+  const name = toNullableString(formData.get("name"));
+  const email = toNullableString(formData.get("email"))?.toLowerCase();
+  const password = toNullableString(formData.get("password")) ?? "";
+  const phone = toNullableString(formData.get("phone"));
+  const telegram = toNullableString(formData.get("telegram"));
+
+  if (formData.get("legalAccepted") !== "yes") {
+    redirect(`/account/register?error=${encodeNotice("Нужно согласие с политикой конфиденциальности и офертой.")}`);
+  }
+
+  if (!name || !email) {
+    redirect(`/account/register?error=${encodeNotice("Укажите имя и email.")}`);
+  }
+
+  try {
+    const user = await createCustomerAccount({ email, password, name, phone, telegram });
+    await createCustomerSession(user.id);
+    redirect("/account?success=" + encodeNotice("Регистрация завершена. Добро пожаловать в кабинет."));
+  } catch (error) {
+    redirect(
+      `/account/register?error=${encodeNotice(error instanceof Error ? error.message : "Не удалось зарегистрироваться.")}`
+    );
+  }
 }
 
 export async function customerLogoutAction() {

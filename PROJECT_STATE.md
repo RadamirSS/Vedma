@@ -2,14 +2,15 @@
 
 Date: 2026-06-29
 Repository: `Vedma`
-Current branch: `main`
-Main branch status: Package 3.3 customer journey cleanup merged and deployed to https://bajena.it
+Current branch: `cursor/package-3-4-production-ordering-polish`
+Main branch status: Package 3.3 deployed on https://bajena.it; Package 3.4 in review
 
 ## Instruction Sources
 
 - Global repo-independent rules from `~/.codex/AGENTS.md`
 - Package 3.3 customer journey and catalog cleanup task
 - Package 3.3 acceptance closeout and live verification
+- Package 3.4 production ordering and media polish (in review)
 
 ## Current Snapshot
 
@@ -54,6 +55,7 @@ Untracked local files such as `.env`, `.tmp/`, screenshots, uploaded admin asset
   - `20260625122538_package_1_init`
   - `20260627120000_package_2_admin_auth`
   - `20260628153000_package_3_commerce_intake`
+  - `20260629120000_package_3_4_test_order_flags`
 
 ## Package Status
 
@@ -128,6 +130,23 @@ Acceptance proof (2026-06-29):
 
 See [docs/packages/package-3-3-customer-journey-cleanup.md](docs/packages/package-3-3-customer-journey-cleanup.md).
 
+### Package 3.4
+
+Status: `IN_REVIEW` on `cursor/package-3-4-production-ordering-polish`
+
+Implemented:
+
+- test/real order filtering in admin (ADMIN/MANAGER/DEMO scopes)
+- site media slots at `/admin/media/site`
+- customer registration at `/account/register`
+- product/service/mixed checkout UX; PDF removed from checkout
+- DaData address autocomplete via `/api/address/suggest`
+- expanded delivery address fields on orders
+- responsive CSS polish for public and admin UI
+- `pnpm db:mark-test-orders` maintenance script
+
+See [docs/packages/package-3-4-production-ordering-polish.md](docs/packages/package-3-4-production-ordering-polish.md).
+
 ## DB And Fallback Behavior
 
 - With the active local `.env`, `DATABASE_URL` points to PostgreSQL and `ALLOW_STATIC_CATALOG_FALLBACK="false"`.
@@ -167,4 +186,4 @@ Package 3.3 is merged to `main` and deployed to bajena.it.
 
 ### Package 4
 
-Do not start until explicitly requested. Package 3.3 acceptance closeout is complete.
+Do not start until Package 3.4 is merged and server verification is complete.

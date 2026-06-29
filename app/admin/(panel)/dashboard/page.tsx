@@ -1,6 +1,11 @@
 import Link from "next/link";
 
 import { AdminReadOnlyNotice } from "@/components/admin/admin-read-only-notice";
+import {
+  orderListWhere,
+  paymentListWhere,
+  requestListWhere
+} from "@/lib/admin/commerce-filters";
 import { requireAdminSession } from "@/lib/auth/session";
 import { isReadOnlyAdminRole } from "@/lib/auth/session";
 import { prisma } from "@/lib/db/prisma";
@@ -9,14 +14,18 @@ import { formatAdminDate } from "@/lib/admin/format";
 export default async function AdminDashboardPage() {
   const session = await requireAdminSession("/admin/dashboard");
   const isReadOnly = isReadOnlyAdminRole(session.user.role);
+  const orderWhere = orderListWhere(session.user.role);
+  const requestWhere = requestListWhere(session.user.role);
+  const paymentWhere = paymentListWhere(session.user.role);
+
   const [products, services, media, orders, requests, payments, recentProducts, recentServices] =
     await Promise.all([
       prisma.product.count(),
       prisma.service.count(),
       prisma.media.count(),
-      prisma.order.count(),
-      prisma.request.count(),
-      prisma.payment.count(),
+      prisma.order.count({ where: orderWhere }),
+      prisma.request.count({ where: requestWhere }),
+      prisma.payment.count({ where: paymentWhere }),
       prisma.product.findMany({ orderBy: { updatedAt: "desc" }, take: 5 }),
       prisma.service.findMany({ orderBy: { updatedAt: "desc" }, take: 5 })
     ]);

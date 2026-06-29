@@ -126,6 +126,10 @@ export function getCartTotals(items: ResolvedCartItem[]) {
       }
       if (item.type === "product") {
         acc.deliveryRequired = true;
+        acc.hasProducts = true;
+      }
+      if (item.type === "service") {
+        acc.hasServices = true;
       }
       return acc;
     },
@@ -133,7 +137,9 @@ export function getCartTotals(items: ResolvedCartItem[]) {
       totalAmount: 0,
       totalAmountRub: 0,
       totalAmountUsd: 0,
-      deliveryRequired: false
+      deliveryRequired: false,
+      hasProducts: false,
+      hasServices: false
     }
   );
 }

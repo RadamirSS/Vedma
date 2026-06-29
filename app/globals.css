@@ -2033,3 +2033,117 @@ main {
     gap: 10px;
   }
 }
+
+.brand-logo {
+  height: 44px;
+  width: auto;
+  max-width: 160px;
+  object-fit: contain;
+}
+
+.brand-logo--footer {
+  height: 40px;
+  margin-bottom: 12px;
+}
+
+.checkout-note {
+  margin-bottom: 18px;
+  padding: 14px 16px;
+  border: 1px solid rgba(212, 175, 106, 0.25);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.checkout-note p {
+  margin: 0 0 8px;
+}
+
+.checkout-section {
+  padding-top: 8px;
+}
+
+.checkout-section h4 {
+  margin: 0 0 12px;
+}
+
+.address-suggestions {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  border: 1px solid rgba(212, 175, 106, 0.2);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.address-suggestions button {
+  width: 100%;
+  text-align: left;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  color: inherit;
+  cursor: pointer;
+}
+
+.address-suggestions li:last-child button {
+  border-bottom: 0;
+}
+
+.text-link {
+  color: var(--gold);
+  text-decoration: underline;
+}
+
+.summary-line span:first-child {
+  min-width: 0;
+  word-break: break-word;
+}
+
+@media (max-width: 768px) {
+  .account-header {
+    grid-template-columns: 1fr;
+  }
+
+  .account-nav {
+    grid-auto-flow: row;
+    gap: 8px;
+  }
+
+  .cart-item--page {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .cart-item {
+    grid-template-columns: 48px minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .cart-item .qty,
+  .cart-item .total {
+    grid-column: 2;
+  }
+
+  .brand {
+    min-width: 0;
+  }
+
+  .nav-actions {
+    gap: 8px;
+  }
+
+  .form-grid .field input,
+  .form-grid .field select,
+  .form-grid .field textarea {
+    width: 100%;
+  }
+
+  .drawer {
+    z-index: 60;
+  }
+
+  .floating-social {
+    z-index: 40;
+  }
+}

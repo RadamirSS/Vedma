@@ -5,6 +5,7 @@ import type { Route } from "next";
 import { useActionState, useEffect, useMemo } from "react";
 
 import { submitCheckoutAction, type CheckoutActionState } from "@/app/checkout/actions";
+import { AddressAutocomplete } from "@/components/address-autocomplete";
 import { useCart } from "@/components/cart-context";
 import { LegalNotice } from "@/components/legal-notice";
 import { formatPrice } from "@/lib/utils";
@@ -56,6 +57,9 @@ export function CheckoutView({
   const cartEntriesJson = useMemo(() => JSON.stringify(items), [items]);
   const cartIsEmpty = items.length === 0 && resolvedItems.length === 0 && !isPending;
   const submitDisabled = pending || isPending || resolvedItems.length === 0;
+  const hasProducts = resolvedItems.some((item) => item.type === "product");
+  const hasServices = resolvedItems.some((item) => item.type === "service");
+  const isLoggedIn = Boolean(currentUser);
 
   let submitDisabledReason: string | null = null;
   if (isPending) {
@@ -68,6 +72,9 @@ export function CheckoutView({
     submitDisabledReason = "Добавьте товары или услуги из каталога, чтобы оформить заказ.";
   }
 
+  const productCommentLabel = "Комментарий к заказу / пожелания по доставке";
+  const serviceCommentLabel = "Опишите запрос или ситуацию";
+
   return (
     <div className="checkout-grid">
       <form className="form-card" action={formAction}>
@@ -75,19 +82,26 @@ export function CheckoutView({
         <h3>Данные клиента</h3>
         {resolveError ? <p className="checkout-error">{resolveError}</p> : null}
         {cartUnavailable ? <p className="checkout-error">{STALE_CART_MESSAGE}</p> : null}
+
+        {hasProducts ? (
+          <div className="checkout-note">
+            <p>Товар будет зарезервирован после оформления заказа.</p>
+            <p>Оплата пока вручную: администратор подтвердит наличие и отправит реквизиты.</p>
+            <p>Проверьте адрес доставки.</p>
+          </div>
+        ) : null}
+
+        {hasServices && !hasProducts ? (
+          <div className="checkout-note">
+            <p>После оформления заявки администратор свяжется для согласования времени и формата.</p>
+            <p>Оплата пока вручную после подтверждения.</p>
+          </div>
+        ) : null}
+
         <div className="form-grid">
           <div className="field">
             <label htmlFor="name">Имя</label>
             <input id="name" name="name" placeholder="Ваше имя" defaultValue={currentUser?.name ?? ""} required />
-          </div>
-          <div className="field">
-            <label htmlFor="phone">Телефон</label>
-            <input
-              id="phone"
-              name="phone"
-              placeholder="+7 / +995 ..."
-              defaultValue={currentUser?.phone ?? ""}
-            />
           </div>
           <div className="field">
             <label htmlFor="email">Email</label>
@@ -103,14 +117,26 @@ export function CheckoutView({
               Email нужен для подтверждения заказа и будущих чеков/уведомлений.
             </small>
           </div>
+          {!isLoggedIn ? (
+            <div className="field">
+              <label htmlFor="password">Пароль кабинета</label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                placeholder="Минимум 8 символов"
+                required
+              />
+            </div>
+          ) : null}
           <div className="field">
-            <label htmlFor="password">Пароль кабинета</label>
+            <label htmlFor="phone">Телефон{hasProducts ? " *" : ""}</label>
             <input
-              id="password"
-              name="password"
-              type="password"
-              placeholder={currentUser ? "Введите пароль для подтверждения" : "Минимум 8 символов"}
-              required
+              id="phone"
+              name="phone"
+              placeholder="+7 / +995 ..."
+              defaultValue={currentUser?.phone ?? ""}
+              required={hasProducts}
             />
           </div>
           <div className="field">
@@ -131,59 +157,113 @@ export function CheckoutView({
               <option value="EMAIL">Email</option>
             </select>
           </div>
-          <div className="field">
-            <label htmlFor="city">Город</label>
-            <input id="city" name="city" placeholder="Москва / Тбилиси / другое" defaultValue={currentUser?.city ?? ""} />
-          </div>
-          <div className="field">
-            <label htmlFor="country">Страна</label>
-            <input id="country" name="country" placeholder="Россия / Грузия / другое" defaultValue={currentUser?.country ?? ""} />
-          </div>
+
           {deliveryRequired ? (
-            <>
-              <div className="field full">
-                <label htmlFor="addressLine1">Адрес доставки</label>
-                <input
-                  id="addressLine1"
-                  name="addressLine1"
-                  placeholder="Улица, дом, квартира"
-                  defaultValue={currentUser?.addressLine1 ?? ""}
-                  required={deliveryRequired}
-                />
+            <div className="field full checkout-section">
+              <h4>Доставка</h4>
+              <AddressAutocomplete />
+              <div className="form-grid">
+                <div className="field">
+                  <label htmlFor="country">Страна</label>
+                  <input
+                    id="country"
+                    name="country"
+                    placeholder="Россия / Грузия"
+                    defaultValue={currentUser?.country ?? ""}
+                    required
+                  />
+                </div>
+                <div className="field">
+                  <label htmlFor="region">Регион</label>
+                  <input id="region" name="region" placeholder="Область / край" />
+                </div>
+                <div className="field">
+                  <label htmlFor="city">Город</label>
+                  <input
+                    id="city"
+                    name="city"
+                    placeholder="Москва / Тбилиси"
+                    defaultValue={currentUser?.city ?? ""}
+                    required
+                  />
+                </div>
+                <div className="field">
+                  <label htmlFor="street">Улица</label>
+                  <input id="street" name="street" placeholder="Улица" />
+                </div>
+                <div className="field">
+                  <label htmlFor="house">Дом</label>
+                  <input id="house" name="house" placeholder="Дом" />
+                </div>
+                <div className="field">
+                  <label htmlFor="flat">Квартира / офис</label>
+                  <input id="flat" name="flat" placeholder="Квартира" />
+                </div>
+                <div className="field full">
+                  <label htmlFor="addressLine1">Адрес доставки</label>
+                  <input
+                    id="addressLine1"
+                    name="addressLine1"
+                    placeholder="Улица, дом, квартира"
+                    defaultValue={currentUser?.addressLine1 ?? ""}
+                    required
+                  />
+                </div>
+                <div className="field">
+                  <label htmlFor="addressLine2">Дополнение к адресу</label>
+                  <input
+                    id="addressLine2"
+                    name="addressLine2"
+                    placeholder="Подъезд, ориентир"
+                    defaultValue={currentUser?.addressLine2 ?? ""}
+                  />
+                </div>
+                <div className="field">
+                  <label htmlFor="postalCode">Индекс</label>
+                  <input
+                    id="postalCode"
+                    name="postalCode"
+                    placeholder="101000"
+                    defaultValue={currentUser?.postalCode ?? ""}
+                  />
+                </div>
               </div>
-              <div className="field">
-                <label htmlFor="addressLine2">Дополнение к адресу</label>
-                <input
-                  id="addressLine2"
-                  name="addressLine2"
-                  placeholder="Подъезд, ориентир"
-                  defaultValue={currentUser?.addressLine2 ?? ""}
-                />
-              </div>
-              <div className="field">
-                <label htmlFor="postalCode">Индекс</label>
-                <input
-                  id="postalCode"
-                  name="postalCode"
-                  placeholder="101000"
-                  defaultValue={currentUser?.postalCode ?? ""}
-                />
-              </div>
-            </>
+            </div>
           ) : null}
-          <div className="field full">
-            <label htmlFor="files">PDF для разбора или анкеты</label>
-            <input id="files" name="files" type="file" accept="application/pdf,.pdf" multiple />
-            <small className="muted">Только PDF, до 10 МБ на файл. Файлы хранятся приватно и доступны только администратору.</small>
-          </div>
-          <div className="field full">
-            <label htmlFor="comment">Комментарий к заказу</label>
-            <textarea
-              id="comment"
-              name="comment"
-              placeholder="Опишите ситуацию, пожелание к товару или важные детали заявки."
-            />
-          </div>
+
+          {hasServices ? (
+            <div className="field full checkout-section">
+              <h4>Запрос по услуге</h4>
+              <div className="field full">
+                <label htmlFor="serviceComment">{serviceCommentLabel}</label>
+                <textarea
+                  id="serviceComment"
+                  name="serviceComment"
+                  placeholder="Опишите ситуацию, запрос или ожидания от работы."
+                />
+              </div>
+              <div className="field full">
+                <label htmlFor="preferredContactAt">Удобное время связи</label>
+                <input
+                  id="preferredContactAt"
+                  name="preferredContactAt"
+                  placeholder="Например: будни после 18:00 или суббота утром"
+                />
+              </div>
+            </div>
+          ) : null}
+
+          {hasProducts ? (
+            <div className="field full">
+              <label htmlFor="comment">{productCommentLabel}</label>
+              <textarea
+                id="comment"
+                name="comment"
+                placeholder="Пожелания по доставке, упаковке или составу заказа."
+              />
+            </div>
+          ) : null}
+
           <label className="field full check">
             <input type="checkbox" name="ageConfirmed" value="yes" required />
             <span>Подтверждаю, что мне исполнилось 18 лет.</span>
@@ -254,7 +334,8 @@ export function CheckoutView({
         )}
         <div className="stack-top">
           <p className="muted">
-            После оформления заказ создается сразу. Онлайн-оплата пока не подключена: администратор подтвердит заказ, отправит реквизиты и обновит статус в вашем кабинете.
+            После оформления заказ создается сразу. Онлайн-оплата пока не подключена: администратор
+            подтвердит заказ, отправит реквизиты и обновит статус в вашем кабинете.
           </p>
           <LegalNotice />
         </div>
