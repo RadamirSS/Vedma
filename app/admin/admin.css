@@ -359,6 +359,20 @@
   background: rgba(13, 11, 11, 0.92);
 }
 
+.admin-login-card__top {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 12px;
+}
+
+.admin-locale-switcher {
+  margin-bottom: 12px;
+}
+
+.admin-sidebar .admin-locale-switcher {
+  margin: 0 16px 16px;
+}
+
 .admin-login-card form {
   display: grid;
   gap: 14px;

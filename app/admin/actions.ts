@@ -24,7 +24,14 @@ import {
 } from "@/lib/auth/session";
 import { getSafeAdminRedirectPath } from "@/lib/auth/safe-redirect";
 import { prisma } from "@/lib/db/prisma";
-import { ORDER_STATUS_LABELS, PAYMENT_STATUS_LABELS, REQUEST_STATUS_LABELS } from "@/lib/admin/constants";
+import {
+  getOrderStatusLabels,
+  getPaymentStatusLabels,
+  getRequestStatusLabels
+} from "@/lib/i18n/admin/constants";
+import { getAdminLocaleFromCookies, getAdminLocaleFromForm } from "@/lib/i18n/admin/detect-locale";
+import type { AdminDictionary } from "@/lib/i18n/admin/dictionaries/ru";
+import { getAdminDictionarySync } from "@/lib/i18n/admin/get-admin-dictionary";
 
 function encodeNotice(message: string) {
   return encodeURIComponent(message);
@@ -74,8 +81,12 @@ async function syncServiceMedia(serviceId: string, paths: string[]) {
   }
 }
 
-async function storeCatalogMainImage(file: File, alt: string | null) {
-  const stored = await storeUploadedFile(file);
+async function storeCatalogMainImage(
+  file: File,
+  alt: string | null,
+  mediaErrors?: AdminDictionary["mediaErrors"]
+) {
+  const stored = await storeUploadedFile(file, mediaErrors);
   const media = await prisma.media.create({
     data: {
       path: stored.publicPath,
@@ -89,32 +100,38 @@ async function storeCatalogMainImage(file: File, alt: string | null) {
   return media.path;
 }
 
-function requirePasswordLength(password: string | null, required = false) {
+function requirePasswordLength(
+  password: string | null,
+  dict: AdminDictionary,
+  required = false
+) {
   if (!password && !required) {
     return null;
   }
   if (!password || password.length < 8) {
-    throw new Error("Пароль должен содержать минимум 8 символов.");
+    throw new Error(dict.actions.users.passwordRequired);
   }
   return password;
 }
 
 export async function loginAction(formData: FormData) {
+  const locale = await getAdminLocaleFromForm(formData);
+  const dict = getAdminDictionarySync(locale);
   const email = toNullableString(formData.get("email"))?.toLowerCase();
   const password = toNullableString(formData.get("password"));
   const next = getSafeAdminRedirectPath(toNullableString(formData.get("next")));
 
   if (!email || !password) {
-    redirect(`/admin/login?error=${encodeNotice("Введите email и пароль.")}`);
+    redirect(`/admin/login?error=${encodeNotice(dict.actions.auth.enterEmailPassword)}`);
   }
 
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user || !user.isActive || !verifyPassword(password, user.passwordHash)) {
-    redirect(`/admin/login?error=${encodeNotice("Неверные учетные данные.")}`);
+    redirect(`/admin/login?error=${encodeNotice(dict.actions.auth.invalidCredentials)}`);
   }
 
   if (user.role !== Role.ADMIN && user.role !== Role.MANAGER && user.role !== Role.DEMO) {
-    redirect(`/admin/login?error=${encodeNotice("Доступ запрещен.")}`);
+    redirect(`/admin/login?error=${encodeNotice(dict.actions.auth.accessDenied)}`);
   }
 
   await prisma.user.update({
@@ -127,11 +144,15 @@ export async function loginAction(formData: FormData) {
 }
 
 export async function logoutAction() {
+  const locale = await getAdminLocaleFromCookies();
+  const dict = getAdminDictionarySync(locale);
   await clearAdminSession();
-  redirect("/admin/login?success=" + encodeNotice("Вы вышли из системы."));
+  redirect("/admin/login?success=" + encodeNotice(dict.actions.auth.loggedOut));
 }
 
 export async function saveProductAction(formData: FormData) {
+  const locale = await getAdminLocaleFromForm(formData);
+  const dict = getAdminDictionarySync(locale);
   await requireWritableManagerOrAdmin("/admin/products");
   const validation = validateProductForm(formData);
   const id = toNullableString(formData.get("id"));
@@ -171,16 +192,16 @@ export async function saveProductAction(formData: FormData) {
   });
 
   if (existing) {
-    redirect(`/admin/products${id ? `/${id}` : "/new"}?error=${encodeNotice("Slug уже используется.")}`);
+    redirect(`/admin/products${id ? `/${id}` : "/new"}?error=${encodeNotice(dict.actions.products.slugInUse)}`);
   }
 
   let imagePath = data.image;
   if (mainImageUpload instanceof File && mainImageUpload.size > 0) {
     try {
-      imagePath = await storeCatalogMainImage(mainImageUpload, data.title);
+      imagePath = await storeCatalogMainImage(mainImageUpload, data.title, dict.mediaErrors);
     } catch (error) {
       redirect(
-        `/admin/products${id ? `/${id}` : "/new"}?error=${encodeNotice(formatMediaStorageError(error))}`
+        `/admin/products${id ? `/${id}` : "/new"}?error=${encodeNotice(formatMediaStorageError(error, dict.mediaErrors))}`
       );
     }
   }
@@ -215,19 +236,21 @@ export async function saveProductAction(formData: FormData) {
   revalidatePath("/");
   revalidatePath("/admin/products");
   revalidatePath("/admin/media");
-  redirect(`/admin/products/${product.id}?success=${encodeNotice("Товар сохранен.")}`);
+  redirect(`/admin/products/${product.id}?success=${encodeNotice(dict.actions.products.saved)}`);
 }
 
 export async function deleteProductAction(formData: FormData) {
+  const locale = await getAdminLocaleFromForm(formData);
+  const dict = getAdminDictionarySync(locale);
   await requireWritableManagerOrAdmin("/admin/products");
   const id = toNullableString(formData.get("id"));
   if (!id) {
-    redirect(`/admin/products?error=${encodeNotice("Не выбран товар.")}`);
+    redirect(`/admin/products?error=${encodeNotice(dict.actions.products.notSelected)}`);
   }
 
   const product = await prisma.product.findUnique({ where: { id } });
   if (!product) {
-    redirect(`/admin/products?error=${encodeNotice("Товар не найден.")}`);
+    redirect(`/admin/products?error=${encodeNotice(dict.actions.products.notFound)}`);
   }
 
   await prisma.media.updateMany({
@@ -240,16 +263,18 @@ export async function deleteProductAction(formData: FormData) {
   revalidatePath(`/products/${product.slug}`);
   revalidatePath("/");
   revalidatePath("/admin/products");
-  redirect(`/admin/products?success=${encodeNotice("Товар удален.")}`);
+  redirect(`/admin/products?success=${encodeNotice(dict.actions.products.deleted)}`);
 }
 
 export async function bulkProductsAction(formData: FormData) {
+  const locale = await getAdminLocaleFromForm(formData);
+  const dict = getAdminDictionarySync(locale);
   await requireWritableManagerOrAdmin("/admin/products");
   const ids = formData.getAll("ids").filter((value): value is string => typeof value === "string");
   const action = toNullableString(formData.get("bulkAction"));
 
   if (ids.length === 0 || !action) {
-    redirect(`/admin/products?error=${encodeNotice("Выберите элементы и действие.")}`);
+    redirect(`/admin/products?error=${encodeNotice(dict.actions.products.selectItemsAndAction)}`);
   }
 
   const publicationStatus =
@@ -271,10 +296,12 @@ export async function bulkProductsAction(formData: FormData) {
   }
   revalidatePath("/");
   revalidatePath("/admin/products");
-  redirect(`/admin/products?success=${encodeNotice("Массовое действие выполнено.")}`);
+  redirect(`/admin/products?success=${encodeNotice(dict.actions.products.bulkDone)}`);
 }
 
 export async function saveServiceAction(formData: FormData) {
+  const locale = await getAdminLocaleFromForm(formData);
+  const dict = getAdminDictionarySync(locale);
   await requireWritableManagerOrAdmin("/admin/services");
   const validation = validateServiceForm(formData);
   const id = toNullableString(formData.get("id"));
@@ -314,16 +341,16 @@ export async function saveServiceAction(formData: FormData) {
   });
 
   if (existing) {
-    redirect(`/admin/services${id ? `/${id}` : "/new"}?error=${encodeNotice("Slug уже используется.")}`);
+    redirect(`/admin/services${id ? `/${id}` : "/new"}?error=${encodeNotice(dict.actions.services.slugInUse)}`);
   }
 
   let imagePath = data.image;
   if (mainImageUpload instanceof File && mainImageUpload.size > 0) {
     try {
-      imagePath = await storeCatalogMainImage(mainImageUpload, data.title);
+      imagePath = await storeCatalogMainImage(mainImageUpload, data.title, dict.mediaErrors);
     } catch (error) {
       redirect(
-        `/admin/services${id ? `/${id}` : "/new"}?error=${encodeNotice(formatMediaStorageError(error))}`
+        `/admin/services${id ? `/${id}` : "/new"}?error=${encodeNotice(formatMediaStorageError(error, dict.mediaErrors))}`
       );
     }
   }
@@ -333,7 +360,7 @@ export async function saveServiceAction(formData: FormData) {
     image: imagePath,
     gallery: Array.isArray(data.gallery) ? data.gallery : [],
     tags: Array.isArray(data.tags) ? data.tags : [],
-    priceLabel: data.priceLabel || (data.priceRub ? `от ${data.priceRub} ₽` : null)
+    priceLabel: data.priceLabel || (data.priceRub ? `${dict.common.fromPrice} ${data.priceRub} ₽` : null)
   };
 
   const service = id
@@ -358,7 +385,7 @@ export async function saveServiceAction(formData: FormData) {
   revalidatePath("/");
   revalidatePath("/admin/services");
   revalidatePath("/admin/media");
-  redirect(`/admin/services/${service.id}?success=${encodeNotice("Услуга сохранена.")}`);
+  redirect(`/admin/services/${service.id}?success=${encodeNotice(dict.actions.services.saved)}`);
 }
 
 function requireEnumValue<T extends string>(value: string | null, allowed: readonly T[], message: string) {
@@ -370,27 +397,29 @@ function requireEnumValue<T extends string>(value: string | null, allowed: reado
 }
 
 export async function updateOrderStatusAction(formData: FormData) {
+  const locale = await getAdminLocaleFromForm(formData);
+  const dict = getAdminDictionarySync(locale);
   await requireWritableManagerOrAdmin("/admin/orders");
   const id = toNullableString(formData.get("id"));
   const status = requireEnumValue(
     toNullableString(formData.get("status")),
-    Object.keys(ORDER_STATUS_LABELS) as OrderStatus[],
-    "Не выбран статус заказа."
+    Object.keys(getOrderStatusLabels(dict)) as OrderStatus[],
+    dict.validation.requiredField.replace("{field}", dict.common.status)
   );
   const paymentStatus = requireEnumValue(
     toNullableString(formData.get("paymentStatus")),
-    Object.keys(PAYMENT_STATUS_LABELS) as PaymentStatus[],
-    "Не выбран статус платежа."
+    Object.keys(getPaymentStatusLabels(dict)) as PaymentStatus[],
+    dict.validation.requiredField.replace("{field}", dict.common.status)
   );
   const adminComment = toNullableString(formData.get("adminComment"));
 
   if (!id) {
-    redirect(`/admin/orders?error=${encodeNotice("Заказ не найден.")}`);
+    redirect(`/admin/orders?error=${encodeNotice(dict.actions.orders.notFound)}`);
   }
 
   const existing = await prisma.order.findUnique({ where: { id } });
   if (!existing) {
-    redirect(`/admin/orders?error=${encodeNotice("Заказ не найден.")}`);
+    redirect(`/admin/orders?error=${encodeNotice(dict.actions.orders.notFound)}`);
   }
 
   await prisma.order.update({
@@ -419,27 +448,29 @@ export async function updateOrderStatusAction(formData: FormData) {
   revalidatePath("/admin/orders");
   revalidatePath(`/admin/orders/${id}`);
   revalidatePath("/account/orders");
-  redirect(`/admin/orders/${id}?success=${encodeNotice("Заказ обновлен.")}`);
+  redirect(`/admin/orders/${id}?success=${encodeNotice(dict.actions.orders.updated)}`);
 }
 
 export async function updateRequestStatusAction(formData: FormData) {
+  const locale = await getAdminLocaleFromForm(formData);
+  const dict = getAdminDictionarySync(locale);
   await requireWritableManagerOrAdmin("/admin/requests");
   const id = toNullableString(formData.get("id"));
   const status = requireEnumValue(
     toNullableString(formData.get("status")),
-    Object.keys(REQUEST_STATUS_LABELS) as RequestStatus[],
-    "Не выбран статус заявки."
+    Object.keys(getRequestStatusLabels(dict)) as RequestStatus[],
+    dict.validation.requiredField.replace("{field}", dict.common.status)
   );
   const adminComment = toNullableString(formData.get("adminComment"));
 
   if (!id) {
-    redirect(`/admin/requests?error=${encodeNotice("Заявка не найдена.")}`);
+    redirect(`/admin/requests?error=${encodeNotice(dict.actions.requests.notFound)}`);
   }
 
   const session = await requireWritableManagerOrAdmin("/admin/requests");
   const existing = await prisma.request.findUnique({ where: { id } });
   if (!existing) {
-    redirect(`/admin/requests?error=${encodeNotice("Заявка не найдена.")}`);
+    redirect(`/admin/requests?error=${encodeNotice(dict.actions.requests.notFound)}`);
   }
 
   await prisma.request.update({
@@ -467,21 +498,23 @@ export async function updateRequestStatusAction(formData: FormData) {
 
   revalidatePath("/admin/requests");
   revalidatePath(`/admin/requests/${id}`);
-  redirect(`/admin/requests/${id}?success=${encodeNotice("Заявка обновлена.")}`);
+  redirect(`/admin/requests/${id}?success=${encodeNotice(dict.actions.requests.updated)}`);
 }
 
 export async function updatePaymentStatusAction(formData: FormData) {
+  const locale = await getAdminLocaleFromForm(formData);
+  const dict = getAdminDictionarySync(locale);
   await requireWritableManagerOrAdmin("/admin/payments");
   const id = toNullableString(formData.get("id"));
   const status = requireEnumValue(
     toNullableString(formData.get("status")),
-    Object.keys(PAYMENT_STATUS_LABELS) as PaymentStatus[],
-    "Не выбран статус платежа."
+    Object.keys(getPaymentStatusLabels(dict)) as PaymentStatus[],
+    dict.validation.requiredField.replace("{field}", dict.common.status)
   );
   const adminComment = toNullableString(formData.get("adminComment"));
 
   if (!id) {
-    redirect(`/admin/payments?error=${encodeNotice("Платеж не найден.")}`);
+    redirect(`/admin/payments?error=${encodeNotice(dict.actions.payments.notFound)}`);
   }
 
   const payment = await prisma.payment.findUnique({
@@ -490,7 +523,7 @@ export async function updatePaymentStatusAction(formData: FormData) {
   });
 
   if (!payment) {
-    redirect(`/admin/payments?error=${encodeNotice("Платеж не найден.")}`);
+    redirect(`/admin/payments?error=${encodeNotice(dict.actions.payments.notFound)}`);
   }
 
   await prisma.payment.update({
@@ -526,16 +559,18 @@ export async function updatePaymentStatusAction(formData: FormData) {
   }
 
   revalidatePath("/admin/payments");
-  redirect(`/admin/payments?success=${encodeNotice("Статус платежа обновлен.")}`);
+  redirect(`/admin/payments?success=${encodeNotice(dict.actions.payments.updated)}`);
 }
 
 export async function updateCustomerNotesAction(formData: FormData) {
+  const locale = await getAdminLocaleFromForm(formData);
+  const dict = getAdminDictionarySync(locale);
   await requireWritableManagerOrAdmin("/admin/customers");
   const userId = toNullableString(formData.get("userId"));
   const adminNotes = toNullableString(formData.get("adminNotes"));
 
   if (!userId) {
-    redirect(`/admin/customers?error=${encodeNotice("Клиент не найден.")}`);
+    redirect(`/admin/customers?error=${encodeNotice(dict.actions.customers.notFound)}`);
   }
 
   await prisma.customerProfile.upsert({
@@ -546,19 +581,21 @@ export async function updateCustomerNotesAction(formData: FormData) {
 
   revalidatePath("/admin/customers");
   revalidatePath(`/admin/customers/${userId}`);
-  redirect(`/admin/customers/${userId}?success=${encodeNotice("Заметка сохранена.")}`);
+  redirect(`/admin/customers/${userId}?success=${encodeNotice(dict.actions.customers.noteSaved)}`);
 }
 
 export async function deleteServiceAction(formData: FormData) {
+  const locale = await getAdminLocaleFromForm(formData);
+  const dict = getAdminDictionarySync(locale);
   await requireWritableManagerOrAdmin("/admin/services");
   const id = toNullableString(formData.get("id"));
   if (!id) {
-    redirect(`/admin/services?error=${encodeNotice("Не выбрана услуга.")}`);
+    redirect(`/admin/services?error=${encodeNotice(dict.actions.services.notSelected)}`);
   }
 
   const service = await prisma.service.findUnique({ where: { id } });
   if (!service) {
-    redirect(`/admin/services?error=${encodeNotice("Услуга не найдена.")}`);
+    redirect(`/admin/services?error=${encodeNotice(dict.actions.services.notFound)}`);
   }
 
   await prisma.media.updateMany({
@@ -571,16 +608,18 @@ export async function deleteServiceAction(formData: FormData) {
   revalidatePath(`/services/${service.slug}`);
   revalidatePath("/");
   revalidatePath("/admin/services");
-  redirect(`/admin/services?success=${encodeNotice("Услуга удалена.")}`);
+  redirect(`/admin/services?success=${encodeNotice(dict.actions.services.deleted)}`);
 }
 
 export async function bulkServicesAction(formData: FormData) {
+  const locale = await getAdminLocaleFromForm(formData);
+  const dict = getAdminDictionarySync(locale);
   await requireWritableManagerOrAdmin("/admin/services");
   const ids = formData.getAll("ids").filter((value): value is string => typeof value === "string");
   const action = toNullableString(formData.get("bulkAction"));
 
   if (ids.length === 0 || !action) {
-    redirect(`/admin/services?error=${encodeNotice("Выберите элементы и действие.")}`);
+    redirect(`/admin/services?error=${encodeNotice(dict.actions.services.selectItemsAndAction)}`);
   }
 
   const publicationStatus =
@@ -602,10 +641,12 @@ export async function bulkServicesAction(formData: FormData) {
   }
   revalidatePath("/");
   revalidatePath("/admin/services");
-  redirect(`/admin/services?success=${encodeNotice("Массовое действие выполнено.")}`);
+  redirect(`/admin/services?success=${encodeNotice(dict.actions.services.bulkDone)}`);
 }
 
 export async function saveReviewAction(formData: FormData) {
+  const locale = await getAdminLocaleFromForm(formData);
+  const dict = getAdminDictionarySync(locale);
   await requireWritableManagerOrAdmin("/admin/reviews");
   const validation = validateReviewForm(formData);
   const id = toNullableString(formData.get("id"));
@@ -629,24 +670,28 @@ export async function saveReviewAction(formData: FormData) {
   revalidatePath("/reviews");
   revalidatePath("/");
   revalidatePath("/admin/reviews");
-  redirect(`/admin/reviews/${review.id}?success=${encodeNotice("Отзыв сохранен.")}`);
+  redirect(`/admin/reviews/${review.id}?success=${encodeNotice(dict.actions.reviews.saved)}`);
 }
 
 export async function deleteReviewAction(formData: FormData) {
+  const locale = await getAdminLocaleFromForm(formData);
+  const dict = getAdminDictionarySync(locale);
   await requireWritableManagerOrAdmin("/admin/reviews");
   const id = toNullableString(formData.get("id"));
   if (!id) {
-    redirect(`/admin/reviews?error=${encodeNotice("Не выбран отзыв.")}`);
+    redirect(`/admin/reviews?error=${encodeNotice(dict.actions.reviews.notSelected)}`);
   }
 
   await prisma.review.delete({ where: { id } });
   revalidatePath("/reviews");
   revalidatePath("/");
   revalidatePath("/admin/reviews");
-  redirect(`/admin/reviews?success=${encodeNotice("Отзыв удален.")}`);
+  redirect(`/admin/reviews?success=${encodeNotice(dict.actions.reviews.deleted)}`);
 }
 
 export async function saveSettingsAction(formData: FormData) {
+  const locale = await getAdminLocaleFromForm(formData);
+  const dict = getAdminDictionarySync(locale);
   await requireWritableAdmin("/admin/settings");
   const current = await getSiteSettings();
 
@@ -739,21 +784,22 @@ export async function saveSettingsAction(formData: FormData) {
   revalidatePath("/contacts");
   revalidatePath("/legal");
   revalidatePath("/admin/settings");
-  redirect(`/admin/settings?success=${encodeNotice("Настройки сохранены.")}`);
+  redirect(`/admin/settings?success=${encodeNotice(dict.actions.settings.saved)}`);
 }
 
 async function resolveMediaPathFromForm(
   formData: FormData,
   uploadField: string,
   selectField: string,
-  currentValue: string | null
+  currentValue: string | null,
+  dict: AdminDictionary
 ) {
   const upload = formData.get(uploadField);
   if (upload instanceof File && upload.size > 0) {
     try {
-      return await storeCatalogMainImage(upload, null);
+      return await storeCatalogMainImage(upload, null, dict.mediaErrors);
     } catch (error) {
-      throw new Error(formatMediaStorageError(error));
+      throw new Error(formatMediaStorageError(error, dict.mediaErrors));
     }
   }
 
@@ -762,6 +808,8 @@ async function resolveMediaPathFromForm(
 }
 
 export async function saveSiteMediaSlotsAction(formData: FormData) {
+  const locale = await getAdminLocaleFromForm(formData);
+  const dict = getAdminDictionarySync(locale);
   await requireWritableManagerOrAdmin("/admin/media/site");
 
   try {
@@ -777,7 +825,8 @@ export async function saveSiteMediaSlotsAction(formData: FormData) {
             formData,
             `gallery.${index}.upload`,
             `gallery.${index}.image`,
-            slot.src
+            slot.src,
+            dict
           )) ?? slot.src
       }))
     );
@@ -791,7 +840,8 @@ export async function saveSiteMediaSlotsAction(formData: FormData) {
             formData,
             `direction.${slot.id}.upload`,
             `direction.${slot.id}.image`,
-            slot.image
+            slot.image,
+            dict
           )) ?? slot.image
       }))
     );
@@ -801,14 +851,16 @@ export async function saveSiteMediaSlotsAction(formData: FormData) {
         formData,
         "logo.upload",
         "logo.image",
-        media.logoImage
+        media.logoImage,
+        dict
       ),
       logoAlt: toNullableString(formData.get("logo.alt")) ?? media.logoAlt,
       heroPortrait: await resolveMediaPathFromForm(
         formData,
         "hero.upload",
         "hero.image",
-        media.heroPortrait
+        media.heroPortrait,
+        dict
       ),
       heroPortraitAlt: toNullableString(formData.get("hero.alt")) ?? media.heroPortraitAlt,
       homeGallery,
@@ -817,13 +869,15 @@ export async function saveSiteMediaSlotsAction(formData: FormData) {
         formData,
         "footer.upload",
         "footer.image",
-        media.footerBrandImage
+        media.footerBrandImage,
+        dict
       ),
       aboutImage: await resolveMediaPathFromForm(
         formData,
         "about.upload",
         "about.image",
-        media.aboutImage
+        media.aboutImage,
+        dict
       )
     };
 
@@ -841,17 +895,19 @@ export async function saveSiteMediaSlotsAction(formData: FormData) {
     revalidatePath("/");
     revalidatePath("/about");
     revalidatePath("/admin/media/site");
-    redirect(`/admin/media/site?success=${encodeNotice("Медиа сайта обновлены.")}`);
+    redirect(`/admin/media/site?success=${encodeNotice(dict.actions.media.siteUpdated)}`);
   } catch (error) {
     redirect(
       `/admin/media/site?error=${encodeNotice(
-        error instanceof Error ? error.message : "Не удалось сохранить медиа сайта."
+        error instanceof Error ? error.message : dict.actions.media.siteSaveFailed
       )}`
     );
   }
 }
 
 export async function saveUserAction(formData: FormData) {
+  const locale = await getAdminLocaleFromForm(formData);
+  const dict = getAdminDictionarySync(locale);
   const session = await requireWritableAdmin("/admin/users");
   const validation = validateUserForm(formData);
   const id = toNullableString(formData.get("id"));
@@ -875,10 +931,10 @@ export async function saveUserAction(formData: FormData) {
     }
   });
   if (existing) {
-    redirect(`/admin/users${id ? `/${id}` : "/new"}?error=${encodeNotice("Email уже используется.")}`);
+    redirect(`/admin/users${id ? `/${id}` : "/new"}?error=${encodeNotice(dict.actions.users.emailInUse)}`);
   }
 
-  const password = requirePasswordLength(data.password, !id);
+  const password = requirePasswordLength(data.password, dict, !id);
   const passwordHash = password ? hashPassword(password) : undefined;
 
   const user = id
@@ -906,25 +962,27 @@ export async function saveUserAction(formData: FormData) {
     await prisma.session.deleteMany({ where: { userId: id } });
     if (session.user.id === id) {
       await clearAdminSession();
-      redirect(`/admin/login?success=${encodeNotice("Пароль обновлен. Войдите снова.")}`);
+      redirect(`/admin/login?success=${encodeNotice(dict.actions.auth.passwordUpdatedLoginAgain)}`);
     }
   }
 
   revalidatePath("/admin/users");
-  redirect(`/admin/users/${user.id}?success=${encodeNotice("Пользователь сохранен.")}`);
+  redirect(`/admin/users/${user.id}?success=${encodeNotice(dict.actions.users.saved)}`);
 }
 
 export async function saveMediaUploadAction(formData: FormData) {
+  const locale = await getAdminLocaleFromForm(formData);
+  const dict = getAdminDictionarySync(locale);
   await requireWritableManagerOrAdmin("/admin/media");
   const file = formData.get("file");
   const alt = toNullableString(formData.get("alt"));
 
   if (!(file instanceof File) || file.size === 0) {
-    redirect(`/admin/media?error=${encodeNotice("Выберите файл для загрузки.")}`);
+    redirect(`/admin/media?error=${encodeNotice(dict.actions.media.selectFile)}`);
   }
 
   try {
-    const stored = await storeUploadedFile(file);
+    const stored = await storeUploadedFile(file, dict.mediaErrors);
     await prisma.media.create({
       data: {
         path: stored.publicPath,
@@ -937,25 +995,27 @@ export async function saveMediaUploadAction(formData: FormData) {
   } catch (error) {
     redirect(
       `/admin/media?error=${encodeNotice(
-        formatMediaStorageError(error)
+        formatMediaStorageError(error, dict.mediaErrors)
       )}`
     );
   }
 
   revalidatePath("/admin/media");
-  redirect(`/admin/media?success=${encodeNotice("Изображение загружено.")}`);
+  redirect(`/admin/media?success=${encodeNotice(dict.actions.media.uploaded)}`);
 }
 
 export async function updateMediaAction(formData: FormData) {
+  const locale = await getAdminLocaleFromForm(formData);
+  const dict = getAdminDictionarySync(locale);
   await requireWritableManagerOrAdmin("/admin/media");
   const id = toNullableString(formData.get("id"));
   if (!id) {
-    redirect(`/admin/media?error=${encodeNotice("Не выбран медиафайл.")}`);
+    redirect(`/admin/media?error=${encodeNotice(dict.actions.media.notSelected)}`);
   }
 
   const media = await prisma.media.findUnique({ where: { id } });
   if (!media) {
-    redirect(`/admin/media?error=${encodeNotice("Файл не найден.")}`);
+    redirect(`/admin/media?error=${encodeNotice(dict.actions.media.notFound)}`);
   }
 
   const replacement = formData.get("replacement");
@@ -966,14 +1026,14 @@ export async function updateMediaAction(formData: FormData) {
 
   if (replacement instanceof File && replacement.size > 0) {
     try {
-      const replaced = await replaceStoredFile(media.path, replacement);
+      const replaced = await replaceStoredFile(media.path, replacement, dict.mediaErrors);
       nextPath = replaced.path;
       nextFilename = replaced.filename;
       nextMimeType = replaced.mimeType;
       nextSize = replaced.size;
     } catch (error) {
       redirect(
-        `/admin/media/${id}?error=${encodeNotice(formatMediaStorageError(error))}`
+        `/admin/media/${id}?error=${encodeNotice(formatMediaStorageError(error, dict.mediaErrors))}`
       );
     }
   }
@@ -997,35 +1057,41 @@ export async function updateMediaAction(formData: FormData) {
 
   revalidatePath("/admin/media");
   revalidatePath(`/admin/media/${id}`);
-  redirect(`/admin/media/${id}?success=${encodeNotice("Файл обновлен.")}`);
+  redirect(`/admin/media/${id}?success=${encodeNotice(dict.actions.media.updated)}`);
 }
 
 export async function deleteMediaAction(formData: FormData) {
+  const locale = await getAdminLocaleFromForm(formData);
+  const dict = getAdminDictionarySync(locale);
   await requireWritableManagerOrAdmin("/admin/media");
   const id = toNullableString(formData.get("id"));
   if (!id) {
-    redirect(`/admin/media?error=${encodeNotice("Не выбран медиафайл.")}`);
+    redirect(`/admin/media?error=${encodeNotice(dict.actions.media.notSelected)}`);
   }
 
   try {
-    await deleteMediaFileIfUnlinked(id);
+    await deleteMediaFileIfUnlinked(id, dict.mediaErrors);
   } catch (error) {
     redirect(
       `/admin/media/${id}?error=${encodeNotice(
-        error instanceof Error ? error.message : "Не удалось удалить файл."
+        error instanceof Error
+          ? formatMediaStorageError(error, dict.mediaErrors)
+          : dict.actions.media.deleteFailed
       )}`
     );
   }
   revalidatePath("/admin/media");
-  redirect(`/admin/media?success=${encodeNotice("Файл удален.")}`);
+  redirect(`/admin/media?success=${encodeNotice(dict.actions.media.deleted)}`);
 }
 
 export async function saveUserDeactivateAction(formData: FormData) {
+  const locale = await getAdminLocaleFromForm(formData);
+  const dict = getAdminDictionarySync(locale);
   await requireWritableAdmin("/admin/users");
   const id = toNullableString(formData.get("id"));
 
   if (!id) {
-    redirect(`/admin/users?error=${encodeNotice("Не выбран пользователь.")}`);
+    redirect(`/admin/users?error=${encodeNotice(dict.actions.users.notSelected)}`);
   }
 
   await prisma.user.update({
@@ -1035,38 +1101,42 @@ export async function saveUserDeactivateAction(formData: FormData) {
   await prisma.session.deleteMany({ where: { userId: id } });
 
   revalidatePath("/admin/users");
-  redirect(`/admin/users?success=${encodeNotice("Пользователь деактивирован.")}`);
+  redirect(`/admin/users?success=${encodeNotice(dict.actions.users.deactivated)}`);
 }
 
 export async function deleteUserAction(formData: FormData) {
+  const locale = await getAdminLocaleFromForm(formData);
+  const dict = getAdminDictionarySync(locale);
   const session = await requireWritableAdmin("/admin/users");
   const id = toNullableString(formData.get("id"));
 
   if (!id) {
-    redirect(`/admin/users?error=${encodeNotice("Не выбран пользователь.")}`);
+    redirect(`/admin/users?error=${encodeNotice(dict.actions.users.notSelected)}`);
   }
 
   if (session.user.id === id) {
-    redirect(`/admin/users/${id}?error=${encodeNotice("Нельзя удалить текущего администратора.")}`);
+    redirect(`/admin/users/${id}?error=${encodeNotice(dict.actions.users.cannotDeleteSelf)}`);
   }
 
   await prisma.session.deleteMany({ where: { userId: id } });
   await prisma.user.delete({ where: { id } });
 
   revalidatePath("/admin/users");
-  redirect(`/admin/users?success=${encodeNotice("Пользователь удален.")}`);
+  redirect(`/admin/users?success=${encodeNotice(dict.actions.users.deleted)}`);
 }
 
 export async function savePasswordResetAction(formData: FormData) {
+  const locale = await getAdminLocaleFromForm(formData);
+  const dict = getAdminDictionarySync(locale);
   await requireWritableAdmin("/admin/users");
   const id = toNullableString(formData.get("id"));
-  const password = requirePasswordLength(toNullableString(formData.get("password")), true);
+  const password = requirePasswordLength(toNullableString(formData.get("password")), dict, true);
 
   if (!id) {
-    redirect(`/admin/users?error=${encodeNotice("Не выбран пользователь.")}`);
+    redirect(`/admin/users?error=${encodeNotice(dict.actions.users.notSelected)}`);
   }
   if (!password) {
-    redirect(`/admin/users/${id}?error=${encodeNotice("Новый пароль обязателен.")}`);
+    redirect(`/admin/users/${id}?error=${encodeNotice(dict.actions.users.passwordRequired)}`);
   }
 
   await prisma.user.update({
@@ -1076,10 +1146,12 @@ export async function savePasswordResetAction(formData: FormData) {
   await prisma.session.deleteMany({ where: { userId: id } });
 
   revalidatePath("/admin/users");
-  redirect(`/admin/users/${id}?success=${encodeNotice("Пароль обновлен.")}`);
+  redirect(`/admin/users/${id}?success=${encodeNotice(dict.actions.users.passwordUpdated)}`);
 }
 
 export async function seedSettingsAction() {
+  const locale = await getAdminLocaleFromCookies();
+  const dict = getAdminDictionarySync(locale);
   await requireWritableAdmin("/admin/settings");
   const settings = await getSiteSettings();
 
@@ -1089,5 +1161,5 @@ export async function seedSettingsAction() {
     create: { key: "site_settings", value: settings }
   });
 
-  redirect(`/admin/settings?success=${encodeNotice("Базовые настройки инициализированы.")}`);
+  redirect(`/admin/settings?success=${encodeNotice(dict.actions.settings.seeded)}`);
 }

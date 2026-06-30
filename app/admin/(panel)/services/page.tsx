@@ -10,6 +10,9 @@ import { buildPagination, formatAdminDate, parseSearchParam } from "@/lib/admin/
 import { isReadOnlyAdminRole, requireAdminSession } from "@/lib/auth/session";
 import { formatPrice } from "@/lib/utils";
 import { prisma } from "@/lib/db/prisma";
+import { getAdminLocaleFromCookies } from "@/lib/i18n/admin/detect-locale";
+import { getCategoryDisplayLabel, getPublicationOptions } from "@/lib/i18n/admin/constants";
+import { getAdminDictionary } from "@/lib/i18n/admin/get-admin-dictionary";
 
 const PAGE_SIZE = 12;
 
@@ -18,6 +21,10 @@ export default async function AdminServicesPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  const locale = await getAdminLocaleFromCookies();
+  const dict = await getAdminDictionary(locale);
+  const t = dict.services;
+  const publicationOptions = getPublicationOptions(dict);
   const params = await searchParams;
   const q = parseSearchParam(params.q);
   const status = parseSearchParam(params.status);
@@ -58,13 +65,13 @@ export default async function AdminServicesPage({
     <div className="admin-page">
       <div className="admin-header">
         <div className="admin-title">
-          <span className="eyebrow">Услуги</span>
-          <h1>Управление услугами</h1>
-          <p>Редактирование всех текущих форматов работы с поиском, сортировкой и массовыми действиями.</p>
+          <span className="eyebrow">{t.eyebrow}</span>
+          <h1>{t.title}</h1>
+          <p>{t.description}</p>
         </div>
         {!isReadOnly ? (
           <Link className="btn btn-primary" href="/admin/services/new">
-            Новая услуга
+            {t.new}
           </Link>
         ) : null}
       </div>
@@ -72,47 +79,50 @@ export default async function AdminServicesPage({
       {isReadOnly ? <AdminReadOnlyNotice /> : null}
       <div className="admin-toolbar">
         <form>
-          <input className="admin-input" name="q" placeholder="Поиск по названию" defaultValue={q} />
+          <input className="admin-input" name="q" placeholder={dict.filters.searchByTitle} defaultValue={q} />
           <select className="admin-select" name="status" defaultValue={status}>
-            <option value="">Все статусы</option>
-            <option value="DRAFT">Черновик</option>
-            <option value="PUBLISHED">Опубликовано</option>
-            <option value="ARCHIVED">Скрыто</option>
+            <option value="">{dict.filters.allStatuses}</option>
+            {publicationOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
           </select>
           <select className="admin-select" name="sort" defaultValue={sort}>
-            <option value="updatedAt-desc">Сначала обновленные</option>
-            <option value="updatedAt-asc">Сначала старые</option>
-            <option value="title-asc">Название А-Я</option>
-            <option value="title-desc">Название Я-А</option>
-            <option value="priceRub-desc">Цена по убыванию</option>
-            <option value="priceRub-asc">Цена по возрастанию</option>
+            <option value="updatedAt-desc">{dict.filters.sortUpdatedDesc}</option>
+            <option value="updatedAt-asc">{dict.filters.sortUpdatedAsc}</option>
+            <option value="title-asc">{dict.filters.sortTitleAsc}</option>
+            <option value="title-desc">{dict.filters.sortTitleDesc}</option>
+            <option value="priceRub-desc">{dict.filters.sortPriceDesc}</option>
+            <option value="priceRub-asc">{dict.filters.sortPriceAsc}</option>
           </select>
-          <SubmitButton className="btn btn-ghost" pendingLabel="Фильтр...">
-            Применить
+          <SubmitButton className="btn btn-ghost" pendingLabel={dict.common.filtering}>
+            {dict.common.apply}
           </SubmitButton>
         </form>
       </div>
 
       {items.length === 0 ? (
         <AdminEmptyState
-          title="Услуги не найдены"
-          text="Измените фильтры или добавьте новую услугу."
+          title={t.empty.title}
+          text={t.empty.text}
           href={isReadOnly ? "/admin/services" : "/admin/services/new"}
-          cta={isReadOnly ? "Сбросить фильтры" : "Добавить услугу"}
+          cta={isReadOnly ? dict.filters.resetFilters : t.empty.cta}
         />
       ) : (
         <form action={bulkServicesAction} className="admin-table admin-table--with-bulk">
+          <input type="hidden" name="adminLocale" value={locale} />
           <table>
             <thead>
               <tr>
-                <th>{isReadOnly ? "Просмотр" : ""}</th>
-                <th>Изображение</th>
-                <th>Название</th>
-                <th>Категория</th>
-                <th>Цена</th>
-                <th>Статус</th>
-                <th>Обновлено</th>
-                <th>Действия</th>
+                <th>{isReadOnly ? dict.common.view : ""}</th>
+                <th>{dict.common.image}</th>
+                <th>{dict.common.name}</th>
+                <th>{dict.common.category}</th>
+                <th>{dict.common.price}</th>
+                <th>{dict.common.status}</th>
+                <th>{dict.common.updated}</th>
+                <th>{dict.common.actions}</th>
               </tr>
             </thead>
             <tbody>
@@ -126,28 +136,28 @@ export default async function AdminServicesPage({
                       // eslint-disable-next-line @next/next/no-img-element
                       <img className="admin-thumb" src={item.image} alt="" loading="lazy" decoding="async" />
                     ) : (
-                      <span>—</span>
+                      <span>{dict.common.emDash}</span>
                     )}
                   </td>
                   <td className="admin-cell-name">
                     <strong>{item.title}</strong>
                     <div className="muted">{item.slug}</div>
                   </td>
-                  <td>{item.normalizedCategory ?? item.category ?? "—"}</td>
-                  <td className="admin-cell-price">{item.priceRub ? formatPrice(item.priceRub, "от") : "—"}</td>
+                  <td>{getCategoryDisplayLabel(item.normalizedCategory ?? item.category, dict)}</td>
+                  <td className="admin-cell-price">{item.priceRub ? formatPrice(item.priceRub, dict.common.fromPrice) : dict.common.emDash}</td>
                   <td>
                     <span className={`admin-badge admin-badge--${item.publicationStatus.toLowerCase()}`}>
-                      {item.publicationStatus}
+                      {dict.enums.publication[item.publicationStatus]}
                     </span>
                   </td>
-                  <td>{formatAdminDate(item.updatedAt)}</td>
+                  <td>{formatAdminDate(item.updatedAt, locale)}</td>
                   <td className="admin-cell-actions">
                     <div className="admin-actions-row">
                       <Link className="btn btn-ghost btn-small" href={`/admin/services/${item.id}`}>
-                        {isReadOnly ? "Открыть" : "Редактировать"}
+                        {isReadOnly ? dict.common.open : dict.common.edit}
                       </Link>
                       <Link className="btn btn-ghost btn-small" href={`/ru/services/${item.slug}`} target="_blank">
-                        Preview
+                        {dict.common.preview}
                       </Link>
                     </div>
                   </td>
@@ -158,13 +168,13 @@ export default async function AdminServicesPage({
           {!isReadOnly ? (
             <div className="admin-bulk-bar">
               <select className="admin-select" name="bulkAction" defaultValue="publish">
-                <option value="publish">Опубликовать</option>
-                <option value="hide">Скрыть</option>
-                <option value="draft">В черновик</option>
+                <option value="publish">{dict.filters.bulkPublish}</option>
+                <option value="hide">{dict.filters.bulkHide}</option>
+                <option value="draft">{dict.filters.bulkDraft}</option>
               </select>
               <div />
-              <SubmitButton className="btn btn-primary btn-small" pendingLabel="Применение...">
-                Применить к выбранным
+              <SubmitButton className="btn btn-primary btn-small" pendingLabel={dict.common.applying}>
+                {dict.filters.applyToSelected}
               </SubmitButton>
             </div>
           ) : null}

@@ -2,6 +2,8 @@
 
 import { useFormStatus } from "react-dom";
 
+import { useAdminI18n } from "@/components/admin/admin-i18n-provider";
+
 export function SubmitButton({
   children,
   className,
@@ -12,10 +14,11 @@ export function SubmitButton({
   pendingLabel?: string;
 }) {
   const { pending } = useFormStatus();
+  const { dict } = useAdminI18n();
 
   return (
     <button className={className} type="submit" disabled={pending}>
-      {pending ? pendingLabel ?? "Сохранение..." : children}
+      {pending ? pendingLabel ?? dict.common.pendingDefault : children}
     </button>
   );
 }

@@ -8,6 +8,8 @@ import { SubmitButton } from "@/components/admin/submit-button";
 import { buildPagination, parseSearchParam } from "@/lib/admin/format";
 import { isReadOnlyAdminRole, requireAdminSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db/prisma";
+import { getAdminLocaleFromCookies } from "@/lib/i18n/admin/detect-locale";
+import { getAdminDictionary } from "@/lib/i18n/admin/get-admin-dictionary";
 
 const PAGE_SIZE = 20;
 
@@ -16,6 +18,9 @@ export default async function AdminMediaPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  const locale = await getAdminLocaleFromCookies();
+  const dict = await getAdminDictionary(locale);
+  const t = dict.media;
   const params = await searchParams;
   const session = await requireAdminSession("/admin/media");
   const isReadOnly = isReadOnlyAdminRole(session.user.role);
@@ -49,35 +54,46 @@ export default async function AdminMediaPage({
     <div className="admin-page">
       <div className="admin-header">
         <div className="admin-title">
-          <span className="eyebrow">Медиатека</span>
-          <h1>Управление медиа</h1>
-          <p>Загруженные изображения, alt-тексты и замена файлов без потери публичных ссылок.</p>
+          <span className="eyebrow">{t.eyebrow}</span>
+          <h1>{t.title}</h1>
+          <p>{t.description}</p>
         </div>
       </div>
       <AdminNotice success={success} error={error} />
-      {isReadOnly ? <AdminReadOnlyNotice text="Демо-аккаунт может просматривать медиатеку, но не может загружать, заменять или удалять файлы." /> : null}
+      {isReadOnly ? <AdminReadOnlyNotice text={dict.demoMode.media} /> : null}
       <div className="admin-toolbar">
         <form>
-          <input className="admin-input" name="q" placeholder="Поиск по имени, alt или пути" defaultValue={q} />
+          <input className="admin-input" name="q" placeholder={dict.filters.searchMedia} defaultValue={q} />
           <div />
           <div />
           <button className="btn btn-ghost" type="submit">
-            Поиск
+            {dict.common.search}
           </button>
         </form>
       </div>
       {!isReadOnly ? (
         <form action={saveMediaUploadAction} className="admin-card admin-form-grid">
-          <label><span>Файл</span><input className="admin-input" type="file" name="file" accept="image/jpeg,image/png,image/webp" required /></label>
-          <label><span>Alt text</span><input className="admin-input" name="alt" /></label>
-          <div className="full admin-actions-row"><SubmitButton className="btn btn-primary">Загрузить</SubmitButton></div>
+          <input type="hidden" name="adminLocale" value={locale} />
+          <label>
+            <span>{t.file}</span>
+            <input className="admin-input" type="file" name="file" accept="image/jpeg,image/png,image/webp" required />
+          </label>
+          <label>
+            <span>{t.altText}</span>
+            <input className="admin-input" name="alt" />
+          </label>
+          <div className="full admin-actions-row">
+            <SubmitButton className="btn btn-primary" pendingLabel={dict.common.uploading}>
+              {t.upload}
+            </SubmitButton>
+          </div>
         </form>
       ) : null}
       <div className="admin-card">
-        <h3>Медиа сайта</h3>
-        <p>Логотип, hero-портрет, галерея главной и изображения направлений.</p>
+        <h3>{t.siteMediaCard.title}</h3>
+        <p>{t.siteMediaCard.description}</p>
         <Link className="btn btn-primary btn-small" href="/admin/media/site">
-          Открыть медиа сайта
+          {t.siteMediaCard.open}
         </Link>
       </div>
       <div className="admin-grid">
@@ -86,7 +102,7 @@ export default async function AdminMediaPage({
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={item.path} alt={item.alt ?? ""} loading="lazy" decoding="async" />
             <strong>{item.filename}</strong>
-            <span>{item.alt ?? "Без alt"}</span>
+            <span>{item.alt ?? t.noAlt}</span>
             <small>{item.path}</small>
           </Link>
         ))}

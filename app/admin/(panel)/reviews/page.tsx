@@ -6,12 +6,17 @@ import { AdminEmptyState } from "@/components/admin/admin-empty-state";
 import { AdminNotice } from "@/components/admin/admin-notice";
 import { AdminReadOnlyNotice } from "@/components/admin/admin-read-only-notice";
 import { isReadOnlyAdminRole, requireAdminSession } from "@/lib/auth/session";
+import { getAdminLocaleFromCookies } from "@/lib/i18n/admin/detect-locale";
+import { getAdminDictionary } from "@/lib/i18n/admin/get-admin-dictionary";
 
 export default async function AdminReviewsPage({
   searchParams
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  const locale = await getAdminLocaleFromCookies();
+  const dict = await getAdminDictionary(locale);
+  const t = dict.reviews;
   const params = await searchParams;
   const session = await requireAdminSession("/admin/reviews");
   const isReadOnly = isReadOnlyAdminRole(session.user.role);
@@ -36,61 +41,61 @@ export default async function AdminReviewsPage({
     <div className="admin-page">
       <div className="admin-header">
         <div className="admin-title">
-          <span className="eyebrow">Отзывы</span>
-          <h1>Управление отзывами</h1>
-          <p>Отзывы публикуются на публичной странице и на главной без редизайна существующих блоков.</p>
+          <span className="eyebrow">{t.eyebrow}</span>
+          <h1>{t.title}</h1>
+          <p>{t.description}</p>
         </div>
         {!isReadOnly ? (
           <Link className="btn btn-primary" href="/admin/reviews/new">
-            Новый отзыв
+            {t.new}
           </Link>
         ) : null}
       </div>
       <AdminNotice success={success} error={error} />
-      {isReadOnly ? <AdminReadOnlyNotice text="Демо-аккаунт может просматривать отзывы, но не может создавать, менять или удалять их." /> : null}
+      {isReadOnly ? <AdminReadOnlyNotice text={dict.demoMode.reviews} /> : null}
       <div className="admin-toolbar">
         <form>
-          <input className="admin-input" name="q" placeholder="Поиск по автору, заголовку или тексту" defaultValue={q} />
+          <input className="admin-input" name="q" placeholder={dict.filters.searchReviews} defaultValue={q} />
           <div />
           <div />
           <button className="btn btn-ghost" type="submit">
-            Поиск
+            {dict.common.search}
           </button>
         </form>
       </div>
       {reviews.length === 0 ? (
         <AdminEmptyState
-          title="Отзывы не найдены"
-          text="Создайте первый отзыв или очистите строку поиска."
+          title={t.empty.title}
+          text={t.empty.text}
           href={isReadOnly ? "/admin/reviews" : "/admin/reviews/new"}
-          cta={isReadOnly ? "Сбросить поиск" : "Добавить отзыв"}
+          cta={isReadOnly ? dict.filters.resetSearch : t.empty.cta}
         />
       ) : (
         <div className="admin-table">
           <table>
             <thead>
               <tr>
-                <th>Автор</th>
-                <th>Заголовок</th>
-                <th>Статус</th>
-                <th>Обновлено</th>
-                <th>Действия</th>
+                <th>{t.table.author}</th>
+                <th>{t.table.title}</th>
+                <th>{t.table.status}</th>
+                <th>{t.table.updated}</th>
+                <th>{t.table.actions}</th>
               </tr>
             </thead>
             <tbody>
               {reviews.map((review) => (
                 <tr key={review.id}>
-                  <td>{review.authorName ?? "Клиент"}</td>
+                  <td>{review.authorName ?? t.defaultAuthor}</td>
                   <td>{review.title ?? review.text.slice(0, 80)}</td>
                   <td>
                     <span className={`admin-badge admin-badge--${review.publicationStatus.toLowerCase()}`}>
-                      {review.publicationStatus}
+                      {dict.enums.publication[review.publicationStatus]}
                     </span>
                   </td>
-                  <td>{formatAdminDate(review.updatedAt)}</td>
+                  <td>{formatAdminDate(review.updatedAt, locale)}</td>
                   <td>
                     <Link className="btn btn-ghost btn-small" href={`/admin/reviews/${review.id}`}>
-                      {isReadOnly ? "Открыть" : "Редактировать"}
+                      {isReadOnly ? dict.common.open : dict.common.edit}
                     </Link>
                   </td>
                 </tr>

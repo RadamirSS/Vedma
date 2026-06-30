@@ -1,6 +1,11 @@
+"use client";
+
+"use client";
+
 import type { Media } from "@prisma/client";
 
 import { saveSiteMediaSlotsAction } from "@/app/admin/actions";
+import { useAdminI18n } from "@/components/admin/admin-i18n-provider";
 import { SubmitButton } from "@/components/admin/submit-button";
 import type { SiteMediaSlotsShape } from "@/lib/admin/settings";
 
@@ -13,7 +18,8 @@ function MediaSlotPicker({
   altName,
   altValue,
   media,
-  currentPath
+  currentPath,
+  formLabels
 }: {
   label: string;
   help: string;
@@ -24,6 +30,13 @@ function MediaSlotPicker({
   altValue?: string;
   media: Media[];
   currentPath?: string | null;
+  formLabels: {
+    uploadNew: string;
+    selectFromLibrary: string;
+    keepCurrent: string;
+    altText: string;
+    noImageSelected: string;
+  };
 }) {
   return (
     <article className="admin-card site-media-slot">
@@ -35,17 +48,17 @@ function MediaSlotPicker({
         // eslint-disable-next-line @next/next/no-img-element
         <img className="site-media-preview" src={preview} alt={altValue ?? label} />
       ) : (
-        <p className="muted">Изображение не выбрано — используется запасной вариант.</p>
+        <p className="muted">{formLabels.noImageSelected}</p>
       )}
       <div className="admin-form-grid">
         <label className="admin-field full">
-          <span>Загрузить новое изображение</span>
+          <span>{formLabels.uploadNew}</span>
           <input className="admin-input" type="file" name={uploadName} accept="image/jpeg,image/png,image/webp" />
         </label>
         <label className="admin-field full">
-          <span>Или выбрать из медиатеки</span>
+          <span>{formLabels.selectFromLibrary}</span>
           <select className="admin-select" name={selectName} defaultValue={currentPath ?? ""}>
-            <option value="">Оставить текущее</option>
+            <option value="">{formLabels.keepCurrent}</option>
             {media.map((item) => (
               <option key={item.id} value={item.path}>
                 {item.alt || item.filename} ({item.path})
@@ -55,7 +68,7 @@ function MediaSlotPicker({
         </label>
         {altName ? (
           <label className="admin-field full">
-            <span>Alt-текст</span>
+            <span>{formLabels.altText}</span>
             <input className="admin-input" name={altName} defaultValue={altValue ?? ""} />
           </label>
         ) : null}
@@ -73,11 +86,15 @@ export function SiteMediaForm({
   media: Media[];
   readOnly?: boolean;
 }) {
+  const { locale, dict } = useAdminI18n();
+  const t = dict.forms.siteMedia;
+
   return (
     <form className="admin-form-grid site-media-form" action={readOnly ? undefined : saveSiteMediaSlotsAction}>
+      <input type="hidden" name="adminLocale" value={locale} />
       <MediaSlotPicker
-        label="Логотип в шапке"
-        help="Показывается вместо буквы «Б» в шапке сайта."
+        label={t.logo.label}
+        help={t.logo.help}
         preview={mediaSlots.logoImage}
         uploadName="logo.upload"
         selectName="logo.image"
@@ -85,10 +102,11 @@ export function SiteMediaForm({
         altValue={mediaSlots.logoAlt}
         media={media}
         currentPath={mediaSlots.logoImage}
+        formLabels={t}
       />
       <MediaSlotPicker
-        label="Главное фото на первом экране"
-        help="Портрет/главный визуал в hero-блоке на главной странице."
+        label={t.hero.label}
+        help={t.hero.help}
         preview={mediaSlots.heroPortrait}
         uploadName="hero.upload"
         selectName="hero.image"
@@ -96,12 +114,13 @@ export function SiteMediaForm({
         altValue={mediaSlots.heroPortraitAlt}
         media={media}
         currentPath={mediaSlots.heroPortrait}
+        formLabels={t}
       />
       {mediaSlots.homeGallery.map((slot, index) => (
         <MediaSlotPicker
           key={slot.label}
           label={slot.label}
-          help="Изображение в галерее на главной странице."
+          help={t.gallery.help}
           preview={slot.src}
           uploadName={`gallery.${index}.upload`}
           selectName={`gallery.${index}.image`}
@@ -109,13 +128,14 @@ export function SiteMediaForm({
           altValue={slot.alt}
           media={media}
           currentPath={slot.src}
+          formLabels={t}
         />
       ))}
       {mediaSlots.homeDirections.map((slot) => (
         <MediaSlotPicker
           key={slot.id}
-          label={`Направление: ${slot.id}`}
-          help="Карточка направления на главной странице."
+          label={t.direction.label.replace("{id}", slot.id)}
+          help={t.direction.help}
           preview={slot.image}
           uploadName={`direction.${slot.id}.upload`}
           selectName={`direction.${slot.id}.image`}
@@ -123,30 +143,33 @@ export function SiteMediaForm({
           altValue={slot.alt}
           media={media}
           currentPath={slot.image}
+          formLabels={t}
         />
       ))}
       <MediaSlotPicker
-        label="Изображение в подвале"
-        help="Необязательный брендовый визуал в footer."
+        label={t.footer.label}
+        help={t.footer.help}
         preview={mediaSlots.footerBrandImage}
         uploadName="footer.upload"
         selectName="footer.image"
         media={media}
         currentPath={mediaSlots.footerBrandImage}
+        formLabels={t}
       />
       <MediaSlotPicker
-        label="Фото на странице «Обо мне»"
-        help="Портрет на странице /about."
+        label={t.about.label}
+        help={t.about.help}
         preview={mediaSlots.aboutImage}
         uploadName="about.upload"
         selectName="about.image"
         media={media}
         currentPath={mediaSlots.aboutImage}
+        formLabels={t}
       />
       {!readOnly ? (
         <div className="full admin-actions-row">
-          <SubmitButton className="btn btn-primary" pendingLabel="Сохранение...">
-            Сохранить медиа сайта
+          <SubmitButton className="btn btn-primary" pendingLabel={t.saving}>
+            {t.save}
           </SubmitButton>
         </div>
       ) : null}

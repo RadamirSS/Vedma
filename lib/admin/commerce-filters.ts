@@ -98,18 +98,6 @@ export function canAccessTestScope(role: Role) {
   return role === "ADMIN";
 }
 
-export function commerceScopeTabs(role: Role): Array<{ value: CommerceScope; label: string }> {
-  if (role !== "ADMIN") {
-    return [];
-  }
-
-  return [
-    { value: "production", label: "Рабочие" },
-    { value: "test", label: "Тестовые" },
-    { value: "all", label: "Все" }
-  ];
-}
-
 export function isTestOrderEmail(email: string | null | undefined) {
   if (!email) {
     return false;

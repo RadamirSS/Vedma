@@ -6,10 +6,16 @@ import { AdminReadOnlyNotice } from "@/components/admin/admin-read-only-notice";
 import { ConfirmSubmitButton } from "@/components/admin/confirm-submit-button";
 import { AdminNotice } from "@/components/admin/admin-notice";
 import { CatalogEntityForm } from "@/components/admin/catalog-entity-form";
-import { AVAILABILITY_OPTIONS, PRODUCT_CATEGORY_OPTIONS, PUBLICATION_OPTIONS } from "@/lib/admin/constants";
 import { formatAdminDate } from "@/lib/admin/format";
 import { isReadOnlyAdminRole, requireAdminSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db/prisma";
+import { getAdminLocaleFromCookies } from "@/lib/i18n/admin/detect-locale";
+import {
+  getAvailabilityOptions,
+  getProductCategoryOptions,
+  getPublicationOptions
+} from "@/lib/i18n/admin/constants";
+import { getAdminDictionary } from "@/lib/i18n/admin/get-admin-dictionary";
 
 export default async function AdminProductDetailPage({
   params,
@@ -18,6 +24,9 @@ export default async function AdminProductDetailPage({
   params: Promise<{ id: string }>;
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  const locale = await getAdminLocaleFromCookies();
+  const dict = await getAdminDictionary(locale);
+  const t = dict.products.detail;
   const { id } = await params;
   const query = await searchParams;
   const session = await requireAdminSession(`/admin/products/${id}`);
@@ -37,16 +46,16 @@ export default async function AdminProductDetailPage({
     <div className="admin-page">
       <div className="admin-header">
         <div className="admin-title">
-          <span className="eyebrow">Редактирование товара</span>
+          <span className="eyebrow">{t.eyebrow}</span>
           <h1>{product.title}</h1>
-          <p>Обновлено {formatAdminDate(product.updatedAt)}</p>
+          <p>{t.updatedAt.replace("{date}", formatAdminDate(product.updatedAt, locale))}</p>
         </div>
         <div className="admin-actions-row">
           <Link className="btn btn-ghost" href={`/ru/products/${product.slug}`} target="_blank">
-            Preview
+            {dict.common.preview}
           </Link>
           <Link className="btn btn-ghost" href="/admin/products">
-            К списку
+            {dict.common.backToList}
           </Link>
         </div>
       </div>
@@ -54,7 +63,7 @@ export default async function AdminProductDetailPage({
         success={typeof query.success === "string" ? query.success : undefined}
         error={typeof query.error === "string" ? query.error : undefined}
       />
-      {isReadOnly ? <AdminReadOnlyNotice text="Демо-аккаунт может просматривать карточки товаров, но не может менять, публиковать или удалять их." /> : null}
+      {isReadOnly ? <AdminReadOnlyNotice text={dict.demoMode.products} /> : null}
       <div className="admin-detail-grid">
         <CatalogEntityForm
           entity="product"
@@ -63,9 +72,9 @@ export default async function AdminProductDetailPage({
           previewHref={`/products/${product.slug}`}
           readOnly={isReadOnly}
           media={media}
-          categoryOptions={PRODUCT_CATEGORY_OPTIONS}
-          publicationOptions={PUBLICATION_OPTIONS}
-          availabilityOptions={AVAILABILITY_OPTIONS}
+          categoryOptions={getProductCategoryOptions(dict)}
+          publicationOptions={getPublicationOptions(dict)}
+          availabilityOptions={getAvailabilityOptions(dict)}
           initial={{
             ...product,
             image: product.image ?? undefined,
@@ -76,17 +85,18 @@ export default async function AdminProductDetailPage({
         {!isReadOnly ? (
           <aside>
             <div className="admin-section-head">
-              <h2>Опасная зона</h2>
-              <p>Удаление не затрагивает саму базу Package 1 и отвязывает медиа от карточки.</p>
+              <h2>{dict.common.dangerousZone}</h2>
+              <p>{t.dangerousZoneDescription}</p>
             </div>
             <form action={deleteProductAction}>
               <input type="hidden" name="id" value={product.id} />
+              <input type="hidden" name="adminLocale" value={locale} />
               <ConfirmSubmitButton
                 className="btn btn-wine"
-                message="Удалить товар? Это действие нельзя отменить."
-                pendingLabel="Удаление..."
+                message={t.deleteConfirm}
+                pendingLabel={t.deleting}
               >
-                Удалить товар
+                {t.delete}
               </ConfirmSubmitButton>
             </form>
           </aside>
