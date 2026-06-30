@@ -331,10 +331,10 @@ export function CheckoutView({
               <div className="field">
                 <label htmlFor="contactMethod">{t.contactMethod}</label>
                 <select id="contactMethod" name="contactMethod" defaultValue="TELEGRAM">
-                  <option value="TELEGRAM">Telegram</option>
-                  <option value="WHATSAPP">WhatsApp</option>
-                  <option value="PHONE">Телефон</option>
-                  <option value="EMAIL">Email</option>
+                  <option value="TELEGRAM">{t.contactMethods.telegram}</option>
+                  <option value="WHATSAPP">{t.contactMethods.whatsapp}</option>
+                  <option value="PHONE">{t.contactMethods.phone}</option>
+                  <option value="EMAIL">{t.contactMethods.email}</option>
                 </select>
               </div>
 
@@ -342,6 +342,7 @@ export function CheckoutView({
                 <div className="field full checkout-section">
                   <h4>{t.delivery}</h4>
                   <AddressAutocomplete
+                    dict={dict}
                     fieldErrors={fieldErrors}
                     defaultValues={{
                       country: currentUser?.country ?? undefined,

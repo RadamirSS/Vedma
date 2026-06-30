@@ -48,7 +48,9 @@ export function middleware(request: NextRequest) {
   const firstSegment = segments[0];
 
   if (firstSegment && isLocale(firstSegment)) {
-    return NextResponse.next();
+    const response = NextResponse.next();
+    response.headers.set("x-bajena-locale", firstSegment);
+    return response;
   }
 
   const cookieLocale = request.cookies.get(localeCookieName)?.value;

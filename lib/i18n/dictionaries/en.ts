@@ -5,7 +5,7 @@ export const en: Dictionary = {
     siteName: "Bajena — Magic of Life",
     defaultTitle: "Bajena — Magic of Life",
     defaultDescription:
-      "Tarot, ritual practices, transformational games, candles, amulets and deep work with life situations.",
+      "Tarot, ritual practices, transformational games, candles, amulets and deep support for personal life situations.",
     titleTemplate: "%s | Bajena"
   },
   header: {
@@ -39,7 +39,7 @@ export const en: Dictionary = {
     heroTitle: "Bajena",
     heroTitleAccent: "Magic of Life",
     heroLead:
-      "Tarot, ritual practices, transformational games, candles, amulets and deep work with life situations.",
+      "Tarot, ritual practices, transformational games, candles, amulets and deep support for personal life situations.",
     heroDescription:
       "Support for relationships, money, destiny and inner processes — gently, deeply and in confidence.",
     chooseService: "Choose a service",
@@ -52,7 +52,7 @@ export const en: Dictionary = {
     directionsEyebrow: "Directions",
     directionsTitle: "What Bajena works with",
     directionsText:
-      "Choose a direction for your request — from Tarot and diagnostics to ancestral practices and transformation.",
+      "Choose a direction for your request — from Tarot and insight work to ancestral practices and transformation.",
     allDirections: "All directions and services",
     featuredServicesEyebrow: "Popular",
     featuredServicesTitle: "Popular services",
@@ -103,7 +103,7 @@ export const en: Dictionary = {
       linkLabel: "Book"
     },
     diagnostics: {
-      title: "Diagnostics",
+      title: "Insight work",
       description:
         "Reading negative influences, field state and hidden causes. Understand what is happening and where to begin.",
       linkLabel: "Learn more"
@@ -208,7 +208,11 @@ export const en: Dictionary = {
     lineItems: "Cart items",
     productType: "Product",
     serviceType: "Service",
-    orderTotal: "Order total"
+    orderTotal: "Order total",
+    resolveFailed: "Could not load the cart. Refresh the page and try again.",
+    resolveConnectionFailed:
+      "Could not load the cart. Check your connection and refresh the page.",
+    resolveServerFailed: "Could not verify cart contents. Try refreshing the page."
   },
   checkout: {
     title: "Checkout",
@@ -271,7 +275,69 @@ export const en: Dictionary = {
     continueShopping: "Continue shopping",
     paymentManual:
       "Payment is currently handled manually. The administrator will confirm the order and send payment details.",
-    iHavePaid: "I have paid"
+    iHavePaid: "I have paid",
+    contactMethods: {
+      telegram: "Telegram",
+      whatsapp: "WhatsApp",
+      phone: "Phone",
+      email: "Email"
+    },
+    validation: {
+      cartEmpty: "Your cart is empty.",
+      addItems: "Add products or services from the catalog.",
+      enterEmailPassword: "Enter your email and password to sign in.",
+      invalidCustomerLogin: "Invalid credentials or this is not a customer account.",
+      nameRequired: "Please enter your name.",
+      emailRequired: "Please enter your email.",
+      emailConfirmRequired: "Please confirm your email.",
+      emailMismatch: "Email addresses do not match.",
+      passwordRequired: "Please enter a password.",
+      passwordTooShort: "Password must be at least 8 characters.",
+      passwordConfirmRequired: "Please confirm your password.",
+      passwordMismatch: "Passwords do not match.",
+      phoneRequiredForDelivery: "Please enter a phone number for delivery.",
+      phoneOrTelegramRequired: "Please enter a phone number or Telegram for contact.",
+      addressRequired: "Please enter a delivery address or choose a suggestion.",
+      countryRequired: "Please enter a country.",
+      cityRequired: "Please enter a city.",
+      ageRequired: "Please confirm that you are 18 years or older.",
+      legalRequired: "Please agree to the privacy policy and terms of service.",
+      checkHighlightedFields: "Please check the highlighted fields.",
+      checkoutFailed: "Could not place the order.",
+      existingEmailError:
+        "This email is already registered. Choose “I already have an account” and sign in.",
+      accountNotFoundError: "No account found for this email. Choose “I am a new customer”.",
+      wrongPasswordError:
+        "Incorrect password. Check your details or sign in through your account page.",
+      cartUnavailable: "Your cart is empty or items are no longer available."
+    }
+  },
+  address: {
+    deliveryAddress: "Delivery address",
+    placeholder: "Start typing city, street and house number",
+    searching: "Searching address...",
+    providerUnavailable:
+      "Address suggestions are temporarily unavailable. Please fill in the address manually.",
+    addressNotFound: "Address not found. Try a more specific query or fill in manually.",
+    suggestionsAria: "Address suggestions",
+    selectedPrefix: "Selected address:",
+    editManually: "Edit manually",
+    change: "Change",
+    country: "Country",
+    region: "Region",
+    city: "City",
+    street: "Street",
+    house: "House number",
+    apartment: "Apartment / office",
+    postalCode: "Postal code",
+    addressDetails: "Address details",
+    countryPlaceholder: "Russia / Georgia",
+    regionPlaceholder: "Region / state",
+    cityPlaceholder: "Moscow / Tbilisi",
+    streetPlaceholder: "Street",
+    housePlaceholder: "House number",
+    apartmentPlaceholder: "Apartment",
+    entrancePlaceholder: "Entrance, intercom, landmark"
   },
   account: {
     eyebrow: "Customer account",
@@ -372,7 +438,33 @@ export const en: Dictionary = {
     helpPrefix: "Need help? Message on Telegram or visit the",
     helpContactsLink: "contacts page",
     saveProfileButton: "Save profile",
-    emailHint: "Email is needed to confirm orders and future receipts/notifications."
+    emailHint: "Email is needed to confirm orders and future receipts/notifications.",
+    messages: {
+      enterEmailPassword: "Enter your email and password.",
+      invalidCredentials: "Invalid credentials.",
+      customerAccountRequired: "Please use a customer account to sign in here.",
+      legalRequired: "Please agree to the privacy policy and terms of service.",
+      nameEmailRequired: "Please enter your name and email.",
+      emailConfirmRequired: "Please confirm your email.",
+      emailMismatch: "Email addresses do not match.",
+      passwordConfirmRequired: "Please confirm your password.",
+      passwordMismatch: "Passwords do not match.",
+      registerFailed: "Could not complete registration.",
+      emailAlreadyExists: "An account with this email already exists. Sign in or use account recovery.",
+      emailReserved: "This email is reserved. Use a different address or contact the administrator.",
+      passwordTooShort: "Password must be at least 8 characters.",
+      registerSuccess: "Registration complete. Welcome to your account.",
+      signedOut: "You have signed out.",
+      orderMissing: "Order is missing.",
+      orderNotFound: "Order not found.",
+      paymentMarkAlreadySubmitted:
+        "Payment mark has already been submitted. The administrator will review and update the status.",
+      paymentMarkSubmitted:
+        "Payment mark submitted. The administrator will review and update the status.",
+      paymentMarkFailed: "Could not submit payment mark.",
+      paymentMarkSent: "Mark submitted.",
+      profileUpdated: "Profile updated."
+    }
   },
   pages: {
     products: {
@@ -386,11 +478,11 @@ export const en: Dictionary = {
     services: {
       metaTitle: "Services",
       metaDescription:
-        "Tarot, diagnostics, protection, relationships, money, ancestral practices, transformation and consultations with Bajena. Book online.",
+        "Tarot, insight work, protection, relationships, money, ancestral practices, transformation and consultations with Bajena. Book online.",
       directionsEyebrow: "Work directions",
       directionsTitle: "What Bajena works with",
       directionsText:
-        "Choose a direction for your request — from Tarot and diagnostics to ancestral practices and transformation.",
+        "Choose a direction for your request — from Tarot and insight work to ancestral practices and transformation.",
       catalogEyebrow: "Service catalog",
       catalogTitle: "Available services",
       catalogText:
@@ -444,7 +536,9 @@ export const en: Dictionary = {
     error: "Error",
     back: "Back",
     readMore: "Learn more",
-    close: "Close"
+    close: "Close",
+    telegramLead: "Hello! I'm interested in: ",
+    telegramServiceLead: "Hello! I'm interested in the service: "
   },
   trust: {
     softNotice:

@@ -7,8 +7,12 @@ const dictionaries: Record<Locale, Dictionary> = {
   ru
 };
 
-export async function getDictionary(locale: Locale): Promise<Dictionary> {
+export function getDictionarySync(locale: Locale): Dictionary {
   return dictionaries[locale];
+}
+
+export async function getDictionary(locale: Locale): Promise<Dictionary> {
+  return getDictionarySync(locale);
 }
 
 export type { Dictionary };

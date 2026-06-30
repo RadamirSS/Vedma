@@ -9,6 +9,7 @@ import {
   type ReactNode
 } from "react";
 import { usePathname } from "next/navigation";
+import { getDictionarySync } from "@/lib/i18n/get-dictionary";
 import { getLocaleFromPathname, localizeHref } from "@/lib/i18n/routing";
 
 type CartEntry = {
@@ -107,6 +108,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
         return;
       }
 
+      const locale = getLocaleFromPathname(pathname);
+      const dict = getDictionarySync(locale);
+
       setIsPending(true);
       setResolveError(null);
 
@@ -114,7 +118,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         const response = await fetch("/api/cart/resolve", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ entries: items })
+          body: JSON.stringify({ entries: items, locale })
         });
 
         if (aborted) {
@@ -128,9 +132,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
           setTotalRub(0);
           setTotalUsd(0);
           setDeliveryRequired(false);
-          setResolveError(
-            payload?.error ?? "Не удалось загрузить корзину. Обновите страницу и попробуйте снова."
-          );
+          setResolveError(payload?.error ?? dict.cart.resolveFailed);
           setIsPending(false);
           return;
         }
@@ -149,7 +151,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
           return;
         }
 
-        const locale = getLocaleFromPathname(pathname);
         setResolvedItems(
           data.items.map((item) => ({
             ...item,
@@ -171,7 +172,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         setTotalRub(0);
         setTotalUsd(0);
         setDeliveryRequired(false);
-        setResolveError("Не удалось загрузить корзину. Проверьте соединение и обновите страницу.");
+        setResolveError(dict.cart.resolveConnectionFailed);
         setIsPending(false);
       }
     }

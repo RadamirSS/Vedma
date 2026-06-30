@@ -8,10 +8,9 @@ import type { CatalogItem } from "@/lib/catalog-types";
 import type { Locale } from "@/lib/i18n/config";
 import type { Dictionary } from "@/lib/i18n/dictionaries/ru";
 import { localizeHref } from "@/lib/i18n/routing";
+import { buildTelegramLeadUrl } from "@/lib/i18n/telegram-lead";
 import { getProductDisplayCategory } from "@/lib/product-categories";
 import { formatPrice } from "@/lib/utils";
-
-const TELEGRAM = "https://t.me/Bazhena13witch";
 
 function getCategoryLabel(item: CatalogItem, dict: Dictionary) {
   if (item.type === "product") {
@@ -56,7 +55,9 @@ export function CatalogCard({
         <div className="card-footer">
           <div className="price-row">
             <div className="price">
-              {item.type === "service" ? formatPrice(item.price, "от") : formatPrice(item.price)}
+              {item.type === "service"
+                ? formatPrice(item.price, dict.catalog.fromPrice)
+                : formatPrice(item.price)}
             </div>
           </div>
           <div className="card-actions">
@@ -72,7 +73,7 @@ export function CatalogCard({
             {item.type === "service" ? (
               <a
                 className="btn btn-ghost btn-small"
-                href={`${TELEGRAM}?text=${encodeURIComponent(`Здравствуйте! Интересует услуга: ${item.title}`)}`}
+                href={buildTelegramLeadUrl(dict.common.telegramServiceLead, item.title)}
                 target="_blank"
                 rel="noreferrer"
               >

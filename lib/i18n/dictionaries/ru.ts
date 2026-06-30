@@ -207,7 +207,11 @@ export const ru = {
     lineItems: "Позиции в корзине",
     productType: "Товар",
     serviceType: "Услуга",
-    orderTotal: "Сумма заказа"
+    orderTotal: "Сумма заказа",
+    resolveFailed: "Не удалось загрузить корзину. Обновите страницу и попробуйте снова.",
+    resolveConnectionFailed:
+      "Не удалось загрузить корзину. Проверьте соединение и обновите страницу.",
+    resolveServerFailed: "Не удалось проверить состав корзины. Попробуйте обновить страницу."
   },
   checkout: {
     title: "Оформление заказа",
@@ -270,7 +274,68 @@ export const ru = {
     continueShopping: "Продолжить покупки",
     paymentManual:
       "Оплата пока обрабатывается вручную. Администратор подтвердит заказ и отправит реквизиты.",
-    iHavePaid: "Я оплатил"
+    iHavePaid: "Я оплатил",
+    contactMethods: {
+      telegram: "Telegram",
+      whatsapp: "WhatsApp",
+      phone: "Телефон",
+      email: "Email"
+    },
+    validation: {
+      cartEmpty: "Корзина пуста.",
+      addItems: "Добавьте товары или услуги из каталога.",
+      enterEmailPassword: "Введите email и пароль для входа.",
+      invalidCustomerLogin: "Неверные учетные данные или это не аккаунт клиента.",
+      nameRequired: "Укажите имя.",
+      emailRequired: "Укажите email.",
+      emailConfirmRequired: "Повторите email.",
+      emailMismatch: "Email и повтор не совпадают.",
+      passwordRequired: "Укажите пароль.",
+      passwordTooShort: "Пароль должен содержать минимум 8 символов.",
+      passwordConfirmRequired: "Повторите пароль.",
+      passwordMismatch: "Пароли не совпадают.",
+      phoneRequiredForDelivery: "Для доставки товара укажите телефон.",
+      phoneOrTelegramRequired: "Укажите телефон или Telegram для связи.",
+      addressRequired: "Укажите адрес доставки или выберите подсказку.",
+      countryRequired: "Укажите страну.",
+      cityRequired: "Укажите город.",
+      ageRequired: "Подтвердите, что вам исполнилось 18 лет.",
+      legalRequired: "Нужно согласие с политикой конфиденциальности и офертой.",
+      checkHighlightedFields: "Проверьте выделенные поля.",
+      checkoutFailed: "Не удалось оформить заказ.",
+      existingEmailError:
+        "Этот email уже зарегистрирован. Выберите «У меня уже есть кабинет» и войдите.",
+      accountNotFoundError: "Аккаунт с таким email не найден. Выберите «Я новый клиент».",
+      wrongPasswordError:
+        "Неверный пароль. Проверьте данные или восстановите доступ через вход в кабинет.",
+      cartUnavailable: "Корзина пуста или товары больше недоступны."
+    }
+  },
+  address: {
+    deliveryAddress: "Адрес доставки",
+    placeholder: "Начните вводить город, улицу и дом",
+    searching: "Ищем адрес...",
+    providerUnavailable: "Подсказки адреса временно недоступны. Заполните адрес вручную.",
+    addressNotFound: "Адрес не найден. Попробуйте уточнить запрос или заполните вручную.",
+    suggestionsAria: "Подсказки адреса",
+    selectedPrefix: "Выбран адрес:",
+    editManually: "Уточнить вручную",
+    change: "Изменить",
+    country: "Страна",
+    region: "Регион",
+    city: "Город",
+    street: "Улица",
+    house: "Дом",
+    apartment: "Квартира / офис",
+    postalCode: "Индекс",
+    addressDetails: "Дополнение к адресу",
+    countryPlaceholder: "Россия / Грузия",
+    regionPlaceholder: "Область / край",
+    cityPlaceholder: "Москва / Тбилиси",
+    streetPlaceholder: "Улица",
+    housePlaceholder: "Дом",
+    apartmentPlaceholder: "Квартира",
+    entrancePlaceholder: "Подъезд, домофон, ориентир"
   },
   account: {
     eyebrow: "Кабинет клиента",
@@ -371,7 +436,33 @@ export const ru = {
     helpPrefix: "Нужна помощь? Напишите в Telegram или на странице",
     helpContactsLink: "контактов",
     saveProfileButton: "Сохранить профиль",
-    emailHint: "Email нужен для подтверждения заказа и будущих чеков/уведомлений."
+    emailHint: "Email нужен для подтверждения заказа и будущих чеков/уведомлений.",
+    messages: {
+      enterEmailPassword: "Введите email и пароль.",
+      invalidCredentials: "Неверные учетные данные.",
+      customerAccountRequired: "Для входа в кабинет клиента используйте учетную запись клиента.",
+      legalRequired: "Нужно согласие с политикой конфиденциальности и офертой.",
+      nameEmailRequired: "Укажите имя и email.",
+      emailConfirmRequired: "Повторите email.",
+      emailMismatch: "Email и повтор не совпадают.",
+      passwordConfirmRequired: "Повторите пароль.",
+      passwordMismatch: "Пароли не совпадают.",
+      registerFailed: "Не удалось зарегистрироваться.",
+      emailAlreadyExists: "Аккаунт с таким email уже существует. Войдите или восстановите доступ через вход.",
+      emailReserved: "Этот email зарезервирован. Используйте другой адрес или обратитесь к администратору.",
+      passwordTooShort: "Пароль должен содержать минимум 8 символов.",
+      registerSuccess: "Регистрация завершена. Добро пожаловать в кабинет.",
+      signedOut: "Вы вышли из кабинета.",
+      orderMissing: "Не указан заказ.",
+      orderNotFound: "Заказ не найден.",
+      paymentMarkAlreadySubmitted:
+        "Отметка об оплате уже отправлена. Администратор проверит и обновит статус.",
+      paymentMarkSubmitted:
+        "Отметка об оплате отправлена. Администратор проверит и обновит статус.",
+      paymentMarkFailed: "Не удалось отметить оплату.",
+      paymentMarkSent: "Отметка отправлена.",
+      profileUpdated: "Профиль обновлен."
+    }
   },
   pages: {
     products: {
@@ -443,7 +534,9 @@ export const ru = {
     error: "Ошибка",
     back: "Назад",
     readMore: "Подробнее",
-    close: "Закрыть"
+    close: "Закрыть",
+    telegramLead: "Здравствуйте! Интересует: ",
+    telegramServiceLead: "Здравствуйте! Интересует услуга: "
   },
   trust: {
     softNotice:

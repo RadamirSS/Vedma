@@ -13,6 +13,8 @@ import {
 import { createCustomerAccount } from "@/lib/auth/customer-account";
 import { getSafeCustomerRedirectPath } from "@/lib/auth/safe-redirect";
 import { defaultLocale, isLocale, type Locale } from "@/lib/i18n/config";
+import { getDictionarySync } from "@/lib/i18n/get-dictionary";
+import { mapRegisterServerError } from "@/lib/i18n/map-checkout-error";
 import { localizeHref } from "@/lib/i18n/routing";
 import { prisma } from "@/lib/db/prisma";
 
@@ -37,23 +39,24 @@ const MARKABLE_PAYMENT_STATUSES: PaymentStatus[] = ["NOT_ISSUED", "INVOICE_SENT"
 
 export async function customerLoginAction(formData: FormData) {
   const locale = getLocaleFromForm(formData);
+  const m = getDictionarySync(locale).account.messages;
   const email = toNullableString(formData.get("email"))?.toLowerCase();
   const password = toNullableString(formData.get("password"));
   const nextRaw = getSafeCustomerRedirectPath(toNullableString(formData.get("next")));
   const next = nextRaw.startsWith(`/${locale}`) ? nextRaw : localePath(locale, nextRaw);
 
   if (!email || !password) {
-    redirect(`${localePath(locale, "/account/login")}?error=${encodeNotice("Введите email и пароль.")}`);
+    redirect(`${localePath(locale, "/account/login")}?error=${encodeNotice(m.enterEmailPassword)}`);
   }
 
   const user = await authenticateUser(email, password);
   if (!user) {
-    redirect(`${localePath(locale, "/account/login")}?error=${encodeNotice("Неверные учетные данные.")}`);
+    redirect(`${localePath(locale, "/account/login")}?error=${encodeNotice(m.invalidCredentials)}`);
   }
 
   if (user.role !== Role.CUSTOMER) {
     redirect(
-      `${localePath(locale, "/account/login")}?error=${encodeNotice("Для входа в кабинет клиента используйте учетную запись клиента.")}`
+      `${localePath(locale, "/account/login")}?error=${encodeNotice(m.customerAccountRequired)}`
     );
   }
 
@@ -63,6 +66,7 @@ export async function customerLoginAction(formData: FormData) {
 
 export async function customerRegisterAction(formData: FormData) {
   const locale = getLocaleFromForm(formData);
+  const m = getDictionarySync(locale).account.messages;
   const name = toNullableString(formData.get("name"));
   const email = toNullableString(formData.get("email"))?.toLowerCase();
   const password = toNullableString(formData.get("password")) ?? "";
@@ -73,29 +77,27 @@ export async function customerRegisterAction(formData: FormData) {
   const passwordConfirm = toNullableString(formData.get("passwordConfirm"));
 
   if (formData.get("legalAccepted") !== "yes") {
-    redirect(
-      `${localePath(locale, "/account/register")}?error=${encodeNotice("Нужно согласие с политикой конфиденциальности и офертой.")}`
-    );
+    redirect(`${localePath(locale, "/account/register")}?error=${encodeNotice(m.legalRequired)}`);
   }
 
   if (!name || !email) {
-    redirect(`${localePath(locale, "/account/register")}?error=${encodeNotice("Укажите имя и email.")}`);
+    redirect(`${localePath(locale, "/account/register")}?error=${encodeNotice(m.nameEmailRequired)}`);
   }
 
   if (!emailConfirm) {
-    redirect(`${localePath(locale, "/account/register")}?error=${encodeNotice("Повторите email.")}`);
+    redirect(`${localePath(locale, "/account/register")}?error=${encodeNotice(m.emailConfirmRequired)}`);
   }
 
   if (email !== emailConfirm) {
-    redirect(`${localePath(locale, "/account/register")}?error=${encodeNotice("Email и повтор не совпадают.")}`);
+    redirect(`${localePath(locale, "/account/register")}?error=${encodeNotice(m.emailMismatch)}`);
   }
 
   if (!passwordConfirm) {
-    redirect(`${localePath(locale, "/account/register")}?error=${encodeNotice("Повторите пароль.")}`);
+    redirect(`${localePath(locale, "/account/register")}?error=${encodeNotice(m.passwordConfirmRequired)}`);
   }
 
   if (password !== passwordConfirm) {
-    redirect(`${localePath(locale, "/account/register")}?error=${encodeNotice("Пароли не совпадают.")}`);
+    redirect(`${localePath(locale, "/account/register")}?error=${encodeNotice(m.passwordMismatch)}`);
   }
 
   let userId: string;
@@ -103,21 +105,20 @@ export async function customerRegisterAction(formData: FormData) {
     const user = await createCustomerAccount({ email, password, name, phone, telegram });
     userId = user.id;
   } catch (error) {
-    redirect(
-      `${localePath(locale, "/account/register")}?error=${encodeNotice(error instanceof Error ? error.message : "Не удалось зарегистрироваться.")}`
-    );
+    const raw = error instanceof Error ? error.message : "";
+    const message = raw ? mapRegisterServerError(raw, getDictionarySync(locale)) : m.registerFailed;
+    redirect(`${localePath(locale, "/account/register")}?error=${encodeNotice(message)}`);
   }
 
   await createCustomerSession(userId);
-  redirect(
-    `${localePath(locale, "/account")}?success=${encodeNotice("Регистрация завершена. Добро пожаловать в кабинет.")}`
-  );
+  redirect(`${localePath(locale, "/account")}?success=${encodeNotice(m.registerSuccess)}`);
 }
 
 export async function customerLogoutAction(formData: FormData) {
   const locale = getLocaleFromForm(formData);
+  const m = getDictionarySync(locale).account.messages;
   await clearCustomerSession();
-  redirect(`${localePath(locale, "/account/login")}?success=${encodeNotice("Вы вышли из кабинета.")}`);
+  redirect(`${localePath(locale, "/account/login")}?success=${encodeNotice(m.signedOut)}`);
 }
 
 export type CustomerMarkPaidState = {
@@ -125,11 +126,12 @@ export type CustomerMarkPaidState = {
   message: string | null;
 };
 
-async function markOrderPaidCore(formData: FormData, sessionUserId: string) {
+async function markOrderPaidCore(formData: FormData, sessionUserId: string, locale: Locale) {
+  const m = getDictionarySync(locale).account.messages;
   const orderId = toNullableString(formData.get("orderId"));
 
   if (!orderId) {
-    return { success: false, message: "Не указан заказ." };
+    return { success: false, message: m.orderMissing };
   }
 
   const order = await prisma.order.findFirst({
@@ -138,13 +140,13 @@ async function markOrderPaidCore(formData: FormData, sessionUserId: string) {
   });
 
   if (!order) {
-    return { success: false, message: "Заказ не найден." };
+    return { success: false, message: m.orderNotFound };
   }
 
   if (!MARKABLE_PAYMENT_STATUSES.includes(order.paymentStatus)) {
     return {
       success: true,
-      message: "Отметка об оплате уже отправлена. Администратор проверит и обновит статус."
+      message: m.paymentMarkAlreadySubmitted
     };
   }
 
@@ -179,23 +181,24 @@ async function markOrderPaidCore(formData: FormData, sessionUserId: string) {
 
   return {
     success: true,
-    message: "Отметка об оплате отправлена. Администратор проверит и обновит статус."
+    message: m.paymentMarkSubmitted
   };
 }
 
 export async function customerMarkOrderPaidFormAction(formData: FormData) {
   const locale = getLocaleFromForm(formData);
+  const m = getDictionarySync(locale).account.messages;
   const loginPath = localePath(locale, "/account/login");
   const session = await requireCustomerSession(loginPath);
   const returnToRaw = getSafeCustomerRedirectPath(toNullableString(formData.get("returnTo")));
   const returnTo = returnToRaw.startsWith(`/${locale}`) ? returnToRaw : localePath(locale, returnToRaw);
-  const result = await markOrderPaidCore(formData, session.user.id);
+  const result = await markOrderPaidCore(formData, session.user.id, locale);
 
   if (!result.success) {
-    redirect(`${returnTo}?error=${encodeNotice(result.message ?? "Не удалось отметить оплату.")}`);
+    redirect(`${returnTo}?error=${encodeNotice(result.message ?? m.paymentMarkFailed)}`);
   }
 
-  redirect(`${returnTo}?success=${encodeNotice(result.message ?? "Отметка отправлена.")}`);
+  redirect(`${returnTo}?success=${encodeNotice(result.message ?? m.paymentMarkSent)}`);
 }
 
 export async function customerMarkOrderPaidAction(
@@ -204,11 +207,12 @@ export async function customerMarkOrderPaidAction(
 ): Promise<CustomerMarkPaidState> {
   const locale = getLocaleFromForm(formData);
   const session = await requireCustomerSession(localePath(locale, "/account/login"));
-  return markOrderPaidCore(formData, session.user.id);
+  return markOrderPaidCore(formData, session.user.id, locale);
 }
 
 export async function updateCustomerProfileAction(formData: FormData) {
   const locale = getLocaleFromForm(formData);
+  const m = getDictionarySync(locale).account.messages;
   const session = await requireCustomerSession(localePath(locale, "/account/profile"));
 
   await prisma.user.update({
@@ -240,5 +244,5 @@ export async function updateCustomerProfileAction(formData: FormData) {
   });
 
   revalidatePath("/account/profile");
-  redirect(`${localePath(locale, "/account/profile")}?success=${encodeNotice("Профиль обновлен.")}`);
+  redirect(`${localePath(locale, "/account/profile")}?success=${encodeNotice(m.profileUpdated)}`);
 }

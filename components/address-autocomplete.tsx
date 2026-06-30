@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 import type { AddressProviderReason, AddressSuggestion } from "@/lib/address/dadata";
+import type { Dictionary } from "@/lib/i18n/dictionaries/ru";
 
 export type AddressFormValues = {
   addressFull: string;
@@ -38,6 +39,7 @@ type AddressAutocompleteProps = {
   disabled?: boolean;
   fieldErrors?: Record<string, string>;
   defaultValues?: Partial<AddressFormValues>;
+  dict: Dictionary;
 };
 
 type SuggestResponse = {
@@ -67,8 +69,10 @@ function suggestionToValues(suggestion: AddressSuggestion): AddressFormValues {
 export function AddressAutocomplete({
   disabled = false,
   fieldErrors = {},
-  defaultValues
+  defaultValues,
+  dict
 }: AddressAutocompleteProps) {
+  const t = dict.address;
   const [query, setQuery] = useState(defaultValues?.addressFull ?? defaultValues?.addressLine1 ?? "");
   const [values, setValues] = useState<AddressFormValues>({
     ...emptyValues,
@@ -111,9 +115,7 @@ export function AddressAutocomplete({
         if (!cancelled && payload.providerEnabled === false) {
           setProviderEnabled(false);
           setManualMode(true);
-          setStatusMessage(
-            payload.message ?? "Подсказки адреса временно недоступны. Заполните адрес вручную."
-          );
+          setStatusMessage(t.providerUnavailable);
         }
       } catch {
         // ignore mount probe errors
@@ -122,7 +124,7 @@ export function AddressAutocomplete({
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [t.providerUnavailable]);
 
   useEffect(() => {
     if (!providerEnabled && !manualMode) {
@@ -139,7 +141,7 @@ export function AddressAutocomplete({
     const controller = new AbortController();
     const timer = window.setTimeout(async () => {
       setIsLoading(true);
-      setStatusMessage("Ищем адрес...");
+      setStatusMessage(t.searching);
       try {
         const response = await fetch("/api/address/suggest", {
           method: "POST",
@@ -153,11 +155,9 @@ export function AddressAutocomplete({
         setProviderEnabled(payload.providerEnabled ?? false);
 
         if (payload.reason === "no_results") {
-          setStatusMessage(payload.message ?? "Адрес не найден. Попробуйте уточнить запрос или заполните вручную.");
+          setStatusMessage(t.addressNotFound);
         } else if (!payload.providerEnabled) {
-          setStatusMessage(
-            payload.message ?? "Подсказки адреса временно недоступны. Заполните адрес вручную."
-          );
+          setStatusMessage(t.providerUnavailable);
         } else if (nextSuggestions.length > 0) {
           setStatusMessage(null);
         } else {
@@ -166,7 +166,7 @@ export function AddressAutocomplete({
       } catch {
         if (!controller.signal.aborted) {
           setSuggestions([]);
-          setStatusMessage("Подсказки адреса временно недоступны. Заполните адрес вручную.");
+          setStatusMessage(t.providerUnavailable);
         }
       } finally {
         if (!controller.signal.aborted) {
@@ -179,7 +179,15 @@ export function AddressAutocomplete({
       controller.abort();
       window.clearTimeout(timer);
     };
-  }, [debouncedQuery, disabled, manualMode, selectedLabel]);
+  }, [
+    debouncedQuery,
+    disabled,
+    manualMode,
+    selectedLabel,
+    t.addressNotFound,
+    t.providerUnavailable,
+    t.searching
+  ]);
 
   function applySuggestion(suggestion: AddressSuggestion) {
     const next = suggestionToValues(suggestion);
@@ -224,7 +232,7 @@ export function AddressAutocomplete({
 
   return (
     <div className="address-autocomplete field full">
-      <label htmlFor="addressSuggest">Адрес доставки</label>
+      <label htmlFor="addressSuggest">{t.deliveryAddress}</label>
       <input
         id="addressSuggest"
         type="text"
@@ -234,16 +242,16 @@ export function AddressAutocomplete({
           setSelectedLabel(null);
           setValues((prev) => ({ ...prev, addressFull: event.target.value, addressLine1: event.target.value }));
         }}
-        placeholder="Начните вводить город, улицу и дом"
+        placeholder={t.placeholder}
         disabled={disabled || Boolean(selectedLabel && !manualMode)}
         autoComplete="off"
         aria-invalid={addressError ? true : undefined}
         className={addressError ? "input-error" : undefined}
       />
-      {isLoading ? <p className="address-status muted">Ищем адрес...</p> : null}
+      {isLoading ? <p className="address-status muted">{t.searching}</p> : null}
       {!isLoading && statusMessage ? <p className="address-status muted">{statusMessage}</p> : null}
       {suggestions.length > 0 ? (
-        <ul className="address-suggestions" role="listbox" aria-label="Подсказки адреса">
+        <ul className="address-suggestions" role="listbox" aria-label={t.suggestionsAria}>
           {suggestions.map((suggestion) => (
             <li key={`${suggestion.full}-${suggestion.postalCode ?? ""}`}>
               <button type="button" onClick={() => applySuggestion(suggestion)}>
@@ -256,87 +264,87 @@ export function AddressAutocomplete({
       {selectedLabel && !manualMode ? (
         <div className="address-selected-card">
           <p>
-            Выбран адрес: <strong>{selectedLabel}</strong>
+            {t.selectedPrefix} <strong>{selectedLabel}</strong>
           </p>
           <div className="address-selected-actions">
             <button type="button" className="text-link" onClick={() => setManualMode(true)}>
-              Уточнить вручную
+              {t.editManually}
             </button>
             <button type="button" className="text-link" onClick={clearSelection}>
-              Изменить
+              {t.change}
             </button>
           </div>
         </div>
       ) : null}
       {!selectedLabel && providerEnabled ? (
         <button type="button" className="text-link address-manual-toggle" onClick={() => setManualMode(true)}>
-          Уточнить вручную
+          {t.editManually}
         </button>
       ) : null}
       {showManualFields ? (
         <div className="address-manual-fields form-grid stack-top">
           <div className={`field ${fieldErrors.country ? "has-error" : ""}`}>
-            <label htmlFor="country">Страна</label>
+            <label htmlFor="country">{t.country}</label>
             <input
               id="country"
               value={values.country}
               onChange={(e) => updateManualField("country", e.target.value)}
-              placeholder="Россия / Грузия"
+              placeholder={t.countryPlaceholder}
               aria-invalid={fieldErrors.country ? true : undefined}
             />
             {fieldErrors.country ? <span className="field-error">{fieldErrors.country}</span> : null}
           </div>
           <div className="field">
-            <label htmlFor="region">Регион</label>
+            <label htmlFor="region">{t.region}</label>
             <input
               id="region"
               value={values.region}
               onChange={(e) => updateManualField("region", e.target.value)}
-              placeholder="Область / край"
+              placeholder={t.regionPlaceholder}
             />
           </div>
           <div className={`field ${fieldErrors.city ? "has-error" : ""}`}>
-            <label htmlFor="city">Город</label>
+            <label htmlFor="city">{t.city}</label>
             <input
               id="city"
               value={values.city}
               onChange={(e) => updateManualField("city", e.target.value)}
-              placeholder="Москва / Тбилиси"
+              placeholder={t.cityPlaceholder}
               aria-invalid={fieldErrors.city ? true : undefined}
             />
             {fieldErrors.city ? <span className="field-error">{fieldErrors.city}</span> : null}
           </div>
           <div className={`field ${fieldErrors.street ? "has-error" : ""}`}>
-            <label htmlFor="street">Улица</label>
+            <label htmlFor="street">{t.street}</label>
             <input
               id="street"
               value={values.street}
               onChange={(e) => updateManualField("street", e.target.value)}
-              placeholder="Улица"
+              placeholder={t.streetPlaceholder}
               aria-invalid={fieldErrors.street ? true : undefined}
             />
             {fieldErrors.street ? <span className="field-error">{fieldErrors.street}</span> : null}
           </div>
           <div className="field">
-            <label htmlFor="house">Дом</label>
+            <label htmlFor="house">{t.house}</label>
             <input
               id="house"
               value={values.house}
               onChange={(e) => updateManualField("house", e.target.value)}
-              placeholder="Дом"
+              placeholder={t.housePlaceholder}
             />
           </div>
           <div className="field">
-            <label htmlFor="flat">Квартира / офис</label>
+            <label htmlFor="flat">{t.apartment}</label>
             <input
               id="flat"
               value={values.flat}
               onChange={(e) => updateManualField("flat", e.target.value)}
-              placeholder="Квартира"
+              placeholder={t.apartmentPlaceholder}
             />
           </div>
           <div className="field">
-            <label htmlFor="postalCode">Индекс</label>
+            <label htmlFor="postalCode">{t.postalCode}</label>
             <input
               id="postalCode"
               value={values.postalCode}
@@ -345,12 +353,12 @@ export function AddressAutocomplete({
             />
           </div>
           <div className={`field full ${fieldErrors.addressLine1 ? "has-error" : ""}`}>
-            <label htmlFor="addressLine2Manual">Дополнение к адресу</label>
+            <label htmlFor="addressLine2Manual">{t.addressDetails}</label>
             <input
               id="addressLine2Manual"
               value={values.addressLine2}
               onChange={(e) => updateManualField("addressLine2", e.target.value)}
-              placeholder="Подъезд, домофон, ориентир"
+              placeholder={t.entrancePlaceholder}
             />
           </div>
         </div>

@@ -6,6 +6,10 @@ import { ContactMethod, Role } from "@prisma/client";
 import { createCheckoutOrder } from "@/lib/commerce/checkout";
 import { authenticateUser, createCustomerSession, getCurrentCustomerSession } from "@/lib/auth/session";
 import { getSafeCustomerRedirectPath } from "@/lib/auth/safe-redirect";
+import { defaultLocale, isLocale, type Locale } from "@/lib/i18n/config";
+import { getDictionarySync } from "@/lib/i18n/get-dictionary";
+import { mapCheckoutServerError } from "@/lib/i18n/map-checkout-error";
+import { localizeHref } from "@/lib/i18n/routing";
 
 export type CheckoutActionState = {
   success: boolean;
@@ -15,9 +19,6 @@ export type CheckoutActionState = {
   orderNumber: string | null;
   fieldErrors?: Record<string, string>;
 };
-
-import { defaultLocale, isLocale, type Locale } from "@/lib/i18n/config";
-import { localizeHref } from "@/lib/i18n/routing";
 
 function getLocaleFromForm(formData: FormData): Locale {
   const raw = typeof formData.get("locale") === "string" ? (formData.get("locale") as string).trim() : "";
@@ -78,18 +79,18 @@ async function resolveCartFlags(cartEntries: ReturnType<typeof parseCartEntries>
 
 export async function checkoutCustomerLoginAction(formData: FormData) {
   const locale = getLocaleFromForm(formData);
+  const dict = getDictionarySync(locale);
+  const v = dict.checkout.validation;
   const email = toNullableString(formData.get("email"))?.toLowerCase();
   const password = toNullableString(formData.get("password"));
 
   if (!email || !password) {
-    redirect(`${localePath(locale, "/checkout")}?error=${encodeURIComponent("Введите email и пароль для входа.")}`);
+    redirect(`${localePath(locale, "/checkout")}?error=${encodeURIComponent(v.enterEmailPassword)}`);
   }
 
   const user = await authenticateUser(email, password);
   if (!user || user.role !== Role.CUSTOMER) {
-    redirect(
-      `${localePath(locale, "/checkout")}?error=${encodeURIComponent("Неверные учетные данные или это не аккаунт клиента.")}`
-    );
+    redirect(`${localePath(locale, "/checkout")}?error=${encodeURIComponent(v.invalidCustomerLogin)}`);
   }
 
   await createCustomerSession(user.id);
@@ -100,12 +101,15 @@ export async function submitCheckoutAction(
   _prevState: CheckoutActionState,
   formData: FormData
 ): Promise<CheckoutActionState> {
+  const locale = getLocaleFromForm(formData);
+  const dict = getDictionarySync(locale);
+  const v = dict.checkout.validation;
   const fieldErrors: Record<string, string> = {};
 
   try {
     const cartEntries = parseCartEntries(toNullableString(formData.get("cartEntries")));
     if (cartEntries.length === 0) {
-      return emptyErrorState("Корзина пуста.", { cart: "Добавьте товары или услуги из каталога." });
+      return emptyErrorState(v.cartEmpty, { cart: v.addItems });
     }
 
     const { totals } = await resolveCartFlags(cartEntries);
@@ -128,45 +132,45 @@ export async function submitCheckoutAction(
 
     if (!isLoggedIn && accountMode === "new") {
       if (!name) {
-        fieldErrors.name = "Укажите имя.";
+        fieldErrors.name = v.nameRequired;
       }
       if (!email) {
-        fieldErrors.email = "Укажите email.";
+        fieldErrors.email = v.emailRequired;
       }
       if (!emailConfirm) {
-        fieldErrors.emailConfirm = "Повторите email.";
+        fieldErrors.emailConfirm = v.emailConfirmRequired;
       } else if (email && email !== emailConfirm) {
-        fieldErrors.emailConfirm = "Email и повтор не совпадают.";
+        fieldErrors.emailConfirm = v.emailMismatch;
       }
       if (!password) {
-        fieldErrors.password = "Укажите пароль.";
+        fieldErrors.password = v.passwordRequired;
       } else if (password.length < 8) {
-        fieldErrors.password = "Пароль должен содержать минимум 8 символов.";
+        fieldErrors.password = v.passwordTooShort;
       }
       if (!passwordConfirm) {
-        fieldErrors.passwordConfirm = "Повторите пароль.";
+        fieldErrors.passwordConfirm = v.passwordConfirmRequired;
       } else if (password && password !== passwordConfirm) {
-        fieldErrors.passwordConfirm = "Пароли не совпадают.";
+        fieldErrors.passwordConfirm = v.passwordMismatch;
       }
     } else if (!isLoggedIn && accountMode === "existing") {
       if (!email) {
-        fieldErrors.email = "Укажите email.";
+        fieldErrors.email = v.emailRequired;
       }
       if (!password) {
-        fieldErrors.password = "Укажите пароль.";
+        fieldErrors.password = v.passwordRequired;
       }
     } else if (isLoggedIn) {
       if (!name) {
-        fieldErrors.name = "Укажите имя.";
+        fieldErrors.name = v.nameRequired;
       }
     }
 
     if (hasProducts && !phone) {
-      fieldErrors.phone = "Для доставки товара укажите телефон.";
+      fieldErrors.phone = v.phoneRequiredForDelivery;
     }
 
     if (hasServices && !hasProducts && !phone && !telegram) {
-      fieldErrors.phone = "Укажите телефон или Telegram для связи.";
+      fieldErrors.phone = v.phoneOrTelegramRequired;
     }
 
     const country = toNullableString(formData.get("country"));
@@ -183,28 +187,26 @@ export async function submitCheckoutAction(
         Boolean(street?.trim() && house?.trim());
 
       if (!hasAddress) {
-        fieldErrors.addressFull = "Укажите адрес доставки или выберите подсказку.";
+        fieldErrors.addressFull = v.addressRequired;
       }
       if (!country) {
-        fieldErrors.country = "Укажите страну.";
+        fieldErrors.country = v.countryRequired;
       }
       if (!city) {
-        fieldErrors.city = "Укажите город.";
+        fieldErrors.city = v.cityRequired;
       }
     }
 
     if (formData.get("ageConfirmed") !== "yes") {
-      fieldErrors.ageConfirmed = "Подтвердите, что вам исполнилось 18 лет.";
+      fieldErrors.ageConfirmed = v.ageRequired;
     }
     if (formData.get("legalAccepted") !== "yes") {
-      fieldErrors.legalAccepted = "Нужно согласие с политикой конфиденциальности и офертой.";
+      fieldErrors.legalAccepted = v.legalRequired;
     }
 
     if (Object.keys(fieldErrors).length > 0) {
-      return emptyErrorState("Проверьте выделенные поля.", fieldErrors);
+      return emptyErrorState(v.checkHighlightedFields, fieldErrors);
     }
-
-    const locale = getLocaleFromForm(formData);
 
     const order = await createCheckoutOrder({
       cartEntries,
@@ -243,25 +245,9 @@ export async function submitCheckoutAction(
       fieldErrors: undefined
     };
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Не удалось оформить заказ.";
-    const lower = message.toLowerCase();
-
-    if (lower.includes("email") && lower.includes("зарегистрирован")) {
-      return emptyErrorState(message, { email: message });
-    }
-    if (lower.includes("аккаунт") && lower.includes("не найден")) {
-      return emptyErrorState(message, { email: message });
-    }
-    if (lower.includes("парол")) {
-      return emptyErrorState(message, { password: message });
-    }
-    if (lower.includes("адрес") || lower.includes("доставк")) {
-      return emptyErrorState(message, { addressFull: message });
-    }
-    if (lower.includes("телефон")) {
-      return emptyErrorState(message, { phone: message });
-    }
-
-    return emptyErrorState(message, {});
+    const rawMessage = error instanceof Error ? error.message : v.checkoutFailed;
+    const mapped = mapCheckoutServerError(rawMessage, dict);
+    const fieldErrorsFromError = mapped.field ? { [mapped.field]: mapped.message } : {};
+    return emptyErrorState(mapped.message, fieldErrorsFromError);
   }
 }
