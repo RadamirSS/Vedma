@@ -2,14 +2,30 @@
 
 import Link from "next/link";
 
+import { LocaleSwitcher } from "@/components/locale-switcher";
 import type { SiteSettingsShape } from "@/lib/admin/settings";
+import type { Locale } from "@/lib/i18n/config";
+import type { Dictionary } from "@/lib/i18n/dictionaries/ru";
+import { localizeHref } from "@/lib/i18n/routing";
 
-export function Footer({ settings }: { settings: SiteSettingsShape }) {
+export function Footer({
+  settings,
+  locale,
+  dict
+}: {
+  settings: SiteSettingsShape;
+  locale: Locale;
+  dict: Dictionary;
+}) {
+  const homeHref = localizeHref(locale, "/");
+  const disclaimer = locale === "en" ? dict.footer.disclaimer : settings.footer.disclaimer;
+  const footerLead = locale === "en" ? dict.meta.defaultDescription : settings.footer.description;
+
   return (
     <footer>
       <div className="container footer-grid">
         <div>
-          <Link href="/" className="brand">
+          <Link href={homeHref} className="brand">
             {settings.mediaSlots.footerBrandImage ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
@@ -21,44 +37,45 @@ export function Footer({ settings }: { settings: SiteSettingsShape }) {
               <>
                 <span className="sigil">Б</span>
                 <span>
-                  <span className="brand-name">Бажена</span>
-                  <span className="brand-sub">Магия жизни</span>
+                  <span className="brand-name">{dict.header.brandName}</span>
+                  <span className="brand-sub">{dict.header.brandSub}</span>
                 </span>
               </>
             )}
           </Link>
-          <p className="footer-lead">{settings.footer.description}</p>
+          <p className="footer-lead">{footerLead}</p>
           <span className="age">18+</span>
         </div>
         <div>
-          <h4>Навигация</h4>
+          <h4>{dict.footer.navigation}</h4>
           <div className="footer-links">
-            <Link href="/services">Услуги</Link>
-            <Link href="/products">Товары</Link>
-            <Link href="/about">Обо мне</Link>
-            <Link href="/reviews">Отзывы</Link>
+            <Link href={localizeHref(locale, "/services")}>{dict.header.services}</Link>
+            <Link href={localizeHref(locale, "/products")}>{dict.header.shop}</Link>
+            <Link href={localizeHref(locale, "/about")}>{dict.header.about}</Link>
+            <Link href={localizeHref(locale, "/reviews")}>{dict.header.reviews}</Link>
           </div>
         </div>
         <div>
-          <h4>Контакты</h4>
+          <h4>{dict.footer.contacts}</h4>
           <div className="footer-links">
             <a href={settings.socialLinks.telegram} target="_blank" rel="noreferrer">
-              Telegram
+              {dict.footer.telegram}
             </a>
-            <Link href="/contacts">Контакты</Link>
-            <Link href="/cart">Корзина</Link>
+            <Link href={localizeHref(locale, "/contacts")}>{dict.header.contacts}</Link>
+            <Link href={localizeHref(locale, "/cart")}>{dict.footer.cart}</Link>
           </div>
         </div>
         <div>
-          <h4>О сервисе</h4>
-          <p>{settings.footer.disclaimer}</p>
+          <h4>{dict.footer.aboutService}</h4>
+          <p>{disclaimer}</p>
         </div>
       </div>
       <div className="container footer-bottom">
         <p>{settings.footer.copyright}</p>
         <p>
-          <Link href="/legal">Политика конфиденциальности</Link> · Публичная оферта
+          <Link href={localizeHref(locale, "/legal")}>{dict.footer.privacy}</Link> · {dict.footer.offer}
         </p>
+        <LocaleSwitcher dict={dict} />
       </div>
     </footer>
   );

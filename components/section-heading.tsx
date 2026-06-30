@@ -8,7 +8,7 @@ export function SectionHeading({
 }: {
   eyebrow: string;
   title: string;
-  text: string;
+  text?: string;
   children?: ReactNode;
 }) {
   return (
@@ -17,10 +17,12 @@ export function SectionHeading({
         <span className="eyebrow">{eyebrow}</span>
         <h2>{title}</h2>
       </div>
-      <div>
-        <p>{text}</p>
-        {children}
-      </div>
+      {(text || children) && (
+        <div>
+          {text ? <p>{text}</p> : null}
+          {children}
+        </div>
+      )}
     </div>
   );
 }

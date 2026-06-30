@@ -42,7 +42,7 @@ export default async function AdminServiceDetailPage({
           <p>Обновлено {formatAdminDate(service.updatedAt)}</p>
         </div>
         <div className="admin-actions-row">
-          <Link className="btn btn-ghost" href={`/services/${service.slug}`} target="_blank">
+          <Link className="btn btn-ghost" href={`/ru/services/${service.slug}`} target="_blank">
             Preview
           </Link>
           <Link className="btn btn-ghost" href="/admin/services">

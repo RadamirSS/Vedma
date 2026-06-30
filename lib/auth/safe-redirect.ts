@@ -1,7 +1,18 @@
 const ACCOUNT_ALLOWED_PREFIXES = ["/account", "/checkout", "/cart"] as const;
 
+function stripLocaleFromPath(path: string): string {
+  const parts = path.split("/").filter(Boolean);
+  if (parts[0] === "en" || parts[0] === "ru") {
+    const rest = parts.slice(1).join("/");
+    return rest ? `/${rest}` : "/";
+  }
+
+  return path;
+}
+
 function matchesAllowedPrefix(path: string, prefix: string) {
-  return path === prefix || path.startsWith(`${prefix}/`);
+  const bare = stripLocaleFromPath(path);
+  return bare === prefix || bare.startsWith(`${prefix}/`);
 }
 
 function normalizeInternalPath(value: string | null | undefined) {
@@ -35,7 +46,8 @@ export function getSafeAdminRedirectPath(value: string | null | undefined) {
 
 export function getSafeCustomerRedirectPath(value: string | null | undefined) {
   const normalized = normalizeInternalPath(value);
-  return normalized && ACCOUNT_ALLOWED_PREFIXES.some((prefix) => matchesAllowedPrefix(normalized, prefix))
+  return normalized &&
+    ACCOUNT_ALLOWED_PREFIXES.some((prefix) => matchesAllowedPrefix(normalized, prefix))
     ? normalized
     : "/account/orders";
 }

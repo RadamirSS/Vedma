@@ -1,15 +1,7 @@
-export function SoftTrustNotice({ compact = false }: { compact?: boolean }) {
+export function SoftTrustNotice({ compact = false, text }: { compact?: boolean; text: string }) {
   if (compact) {
-    return (
-      <p className="muted soft-trust-notice">
-        Работа ведётся бережно и конфиденциально. Товары и услуги доступны для клиентов 18+.
-      </p>
-    );
+    return <p className="muted soft-trust-notice">{text}</p>;
   }
 
-  return (
-    <div className="notice notice--soft">
-      Работа ведётся бережно и конфиденциально. Товары и услуги доступны для клиентов 18+.
-    </div>
-  );
+  return <div className="notice notice--soft">{text}</div>;
 }

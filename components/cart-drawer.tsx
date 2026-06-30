@@ -3,12 +3,18 @@
 import Link from "next/link";
 
 import { useCart } from "@/components/cart-context";
+import type { Locale } from "@/lib/i18n/config";
+import type { Dictionary } from "@/lib/i18n/dictionaries/ru";
+import { localizeHref } from "@/lib/i18n/routing";
 import { formatCatalogLabel, formatPrice } from "@/lib/utils";
 
-const STALE_CART_MESSAGE =
-  "Товары из корзины больше недоступны. Обновите корзину или выберите товары заново.";
-
-export function CartDrawer() {
+export function CartDrawer({
+  locale,
+  dict
+}: {
+  locale: Locale;
+  dict: Dictionary;
+}) {
   const {
     resolvedItems,
     total,
@@ -22,6 +28,8 @@ export function CartDrawer() {
     items
   } = useCart();
 
+  const t = dict.cart;
+  const staleCartMessage = dict.checkout.staleCart;
   const cartIsEmpty = items.length === 0 && resolvedItems.length === 0 && !isPending;
 
   return (
@@ -31,21 +39,23 @@ export function CartDrawer() {
         onClick={closeCart}
         aria-hidden={!isOpen}
       />
-      <aside className={`drawer ${isOpen ? "open" : ""}`} aria-label="Корзина">
+      <aside className={`drawer ${isOpen ? "open" : ""}`} aria-label={t.drawerTitle}>
         <div className="drawer-head">
-          <h3>Корзина</h3>
+          <h3>{t.drawerTitle}</h3>
           <button className="close" type="button" onClick={closeCart}>
             ×
           </button>
         </div>
         <div className="drawer-body">
           {resolveError ? <p className="checkout-error">{resolveError}</p> : null}
-          {cartUnavailable ? <p className="checkout-error">{STALE_CART_MESSAGE}</p> : null}
+          {cartUnavailable ? <p className="checkout-error">{staleCartMessage}</p> : null}
           {resolvedItems.length === 0 ? (
             cartIsEmpty ? (
-              <p className="muted">Корзина пустая. Добавьте услугу или товар из каталога.</p>
+              <p className="muted">
+                {t.empty} {t.emptyHint}
+              </p>
             ) : isPending ? (
-              <p className="muted">Загружаем корзину...</p>
+              <p className="muted">{t.loading}</p>
             ) : null
           ) : (
             resolvedItems.map((item) => {
@@ -56,13 +66,14 @@ export function CartDrawer() {
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={item.image} alt="" />
                     ) : (
-                      <span>{item.type === "product" ? "Т" : "У"}</span>
+                      <span>{item.type === "product" ? "T" : "S"}</span>
                     )}
                   </div>
                   <div>
                     <b>{item.title}</b>
                     <span>
-                      {formatCatalogLabel(item.type === "product" ? "Товар" : "Услуга")} · {formatPrice(item.unitAmount)}
+                      {formatCatalogLabel(item.type === "product" ? dict.catalog.products : dict.catalog.services)} ·{" "}
+                      {formatPrice(item.unitAmount)}
                     </span>
                     <div className="qty">
                       <button
@@ -76,7 +87,10 @@ export function CartDrawer() {
                       <button
                         type="button"
                         onClick={() => changeQty(item.type, item.slug, 1)}
-                        disabled={item.type === "service" || (item.maxQuantity !== null && item.quantity >= item.maxQuantity)}
+                        disabled={
+                          item.type === "service" ||
+                          (item.maxQuantity !== null && item.quantity >= item.maxQuantity)
+                        }
                       >
                         +
                       </button>
@@ -96,17 +110,17 @@ export function CartDrawer() {
         </div>
         <div className="drawer-foot">
           <div className="total">
-            <span>Итого</span>
+            <span>{t.total}</span>
             <b>{isPending ? "..." : formatPrice(total)}</b>
           </div>
-          <Link className="btn btn-primary" href="/cart" onClick={closeCart}>
-            Перейти в корзину
+          <Link className="btn btn-primary" href={localizeHref(locale, "/cart")} onClick={closeCart}>
+            {t.viewCart}
           </Link>
-          <Link className="btn btn-ghost" href="/checkout" onClick={closeCart}>
-            Оформить заказ
+          <Link className="btn btn-ghost" href={localizeHref(locale, "/checkout")} onClick={closeCart}>
+            {t.checkout}
           </Link>
           <button className="btn btn-ghost" type="button" onClick={clearCart}>
-            Очистить корзину
+            {t.remove}
           </button>
         </div>
       </aside>

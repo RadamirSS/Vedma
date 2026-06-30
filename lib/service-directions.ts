@@ -20,7 +20,7 @@ export const serviceDirections: ServiceDirection[] = [
     id: "tarot",
     title: "Таро и расклады",
     description:
-      "Расклады на отношения, судьбу, выбор и ситуацию. Точная диагностика через символы и интуицию.",
+      "Расклады на отношения, судьбу, выбор и ситуацию. Диагностика через символы и интуицию.",
     accent: "tarot",
     image: "/uploads/vk/services/diagnostika-negativa/cover.jpg",
     href: leadUrl("Таро и расклады"),

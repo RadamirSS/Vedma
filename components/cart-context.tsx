@@ -9,6 +9,7 @@ import {
   type ReactNode
 } from "react";
 import { usePathname } from "next/navigation";
+import { getLocaleFromPathname, localizeHref } from "@/lib/i18n/routing";
 
 type CartEntry = {
   type: "product" | "service";
@@ -148,7 +149,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
           return;
         }
 
-        setResolvedItems(data.items);
+        const locale = getLocaleFromPathname(pathname);
+        setResolvedItems(
+          data.items.map((item) => ({
+            ...item,
+            detailHref: localizeHref(locale, item.detailHref)
+          }))
+        );
         setTotal(data.totals.totalAmount);
         setTotalRub(data.totals.totalAmountRub);
         setTotalUsd(data.totals.totalAmountUsd);
@@ -176,7 +183,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     return () => {
       aborted = true;
     };
-  }, [items, isAdminRoute]);
+  }, [items, isAdminRoute, pathname]);
 
   const cartUnavailable =
     items.length > 0 && resolvedItems.length === 0 && !isPending && !resolveError;

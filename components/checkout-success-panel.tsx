@@ -4,34 +4,39 @@ import Link from "next/link";
 import type { Route } from "next";
 import { useActionState } from "react";
 
-import { customerMarkOrderPaidAction } from "@/app/account/actions";
+import { customerMarkOrderPaidAction } from "@/lib/actions/customer";
 import { SubmitButton } from "@/components/admin/submit-button";
+import type { Locale } from "@/lib/i18n/config";
+import type { Dictionary } from "@/lib/i18n/dictionaries/ru";
+import { localizeHref } from "@/lib/i18n/routing";
 
 const initialState = { success: false, message: null as string | null };
 
 export function CheckoutSuccessPanel({
   orderId,
   orderNumber,
-  accountUrl
+  accountUrl,
+  locale,
+  dict
 }: {
   orderId: string;
   orderNumber: string;
   accountUrl: string;
+  locale: Locale;
+  dict: Dictionary;
 }) {
   const [state, formAction] = useActionState(customerMarkOrderPaidAction, initialState);
   const marked = state.success;
+  const t = dict.checkout;
 
   return (
     <div className="checkout-success-panel" role="status">
-      <h3>Заказ создан</h3>
+      <h3>{t.successTitle}</h3>
       <p>
-        Номер заказа: <strong>{orderNumber}</strong>
+        {dict.account.orderNumber}: <strong>{orderNumber}</strong>
       </p>
-      <p>Мы сохранили заказ в вашем кабинете.</p>
-      <p className="muted">
-        Оплата пока работает в тестовом режиме. Нажмите «Я оплатил», если уже перевели оплату по
-        реквизитам — это временная заглушка, а не подтверждение реального платежа.
-      </p>
+      <p>{t.successSaved}</p>
+      <p className="muted">{t.paymentManual}</p>
       {state.message ? (
         <p className={marked ? "checkout-success" : "checkout-error"}>{state.message}</p>
       ) : null}
@@ -39,17 +44,18 @@ export function CheckoutSuccessPanel({
         {!marked ? (
           <form action={formAction}>
             <input type="hidden" name="orderId" value={orderId} />
-            <input type="hidden" name="returnTo" value="/checkout" />
-            <SubmitButton className="btn btn-primary btn-wide" pendingLabel="Отправляем отметку...">
-              Я оплатил
+            <input type="hidden" name="locale" value={locale} />
+            <input type="hidden" name="returnTo" value={localizeHref(locale, "/checkout")} />
+            <SubmitButton className="btn btn-primary btn-wide" pendingLabel={dict.account.markPaidPending}>
+              {t.iHavePaid}
             </SubmitButton>
           </form>
         ) : null}
         <Link className="btn btn-ghost btn-wide" href={accountUrl as Route}>
-          Открыть заказ
+          {t.viewOrder}
         </Link>
-        <Link className="btn btn-ghost btn-wide" href="/products">
-          Вернуться в магазин
+        <Link className="btn btn-ghost btn-wide" href={localizeHref(locale, "/products")}>
+          {t.continueShopping}
         </Link>
       </div>
     </div>
