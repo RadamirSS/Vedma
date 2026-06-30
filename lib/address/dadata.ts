@@ -32,8 +32,10 @@ type DaDataSuggestion = {
   data?: {
     country?: string;
     region_with_type?: string;
-    city_with_type?: string;
-    city?: string;
+    settlement_with_type?: string;
+    settlement?: string;
+    block_type?: string;
+    block?: string;
     street_with_type?: string;
     street?: string;
     house?: string;
@@ -53,15 +55,18 @@ export function isAddressProviderConfigured(): boolean {
 
 function normalizeDaDataItem(item: DaDataSuggestion): AddressSuggestion {
   const data = item.data ?? {};
-  const city = data.city_with_type ?? data.city ?? null;
+  const city = data.city_with_type ?? data.settlement_with_type ?? data.city ?? data.settlement ?? null;
   const street = data.street_with_type ?? data.street ?? null;
+  const houseParts = [data.house, data.block_type && data.block ? `${data.block_type} ${data.block}` : data.block].filter(
+    Boolean
+  );
 
   return {
     country: data.country ?? "Россия",
     region: data.region_with_type ?? null,
     city,
     street,
-    house: data.house ?? null,
+    house: houseParts.length > 0 ? houseParts.join(" ") : null,
     flat: data.flat ?? null,
     postalCode: data.postal_code ?? null,
     full: item.unrestricted_value ?? item.value ?? "",
