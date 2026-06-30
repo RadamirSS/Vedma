@@ -2,8 +2,8 @@
 
 Date: 2026-06-30
 Repository: `Vedma`
-Current branch: `cursor/package-3-5-mobile-i18n-polish`
-Main branch status: Package 3.4 / 3.4.1 / 3.4.2 deployed on https://bajena.it
+Current branch: `main`
+Main branch status: Package 3.5 deployed on https://bajena.it
 
 ## Instruction Sources
 
@@ -182,24 +182,40 @@ See [docs/packages/package-3-4-2-checkout-ux-finalization.md](docs/packages/pack
 
 ### Package 3.5
 
-Status: `IN_REVIEW` on branch `cursor/package-3-5-mobile-i18n-polish`
+Status: `MERGED` / `DEPLOYED_TO_TEST` on https://bajena.it
+
+Merge commit: `29acd63c66bbada48e06125f226b2d5ce148dcbb`  
+Deployed commit: `7110266` (includes Caddy proxy redirect hotfix for `/` → `/en|ru`)
 
 Implemented:
 
 - removed inappropriate public meta-copy from homepage benefits section
-- fixed service direction «точная диагностика» wording
+- fixed service direction «точная диагностика» wording; EN uses «Insight work»
 - mobile header: account button visible at ≤720px with compact label
 - checkout dark premium mobile styling (readable labels/inputs/checkboxes)
 - login/register dual-card CTA layout
 - typed EN/RU i18n via `app/[locale]/` with middleware locale detection
-- locale switcher (cookie `bajena_locale`), hreflang/canonical metadata
+- locale switcher (cookie `bajena_locale`), hreflang/canonical metadata, SSR `html lang`
 - legacy `/products`, `/checkout`, `/account` redirect to detected locale
+- localized checkout/account server validation and address autocomplete UI
+- cart resolve errors and contact method select localized
+
+Live smoke (2026-06-30):
+
+- `/` Accept-Language en → `/en`, ru → `/ru` (after hotfix `7110266`)
+- `/en`, `/ru`, `/admin/login`: HTTP 200
+- EN checkout UI: English address block + Phone contact method
+- RU checkout UI: Russian labels
+- DaData: key present, `providerEnabled` true, suggestions returned
+- `/uploads/admin/*`: HTTP 200, no locale redirect
+- other server projects unchanged (astrology-panel.it, onix-ai.it, solanalisting.it)
 
 Limitations:
 
 - admin remains Russian at `/admin`
-- catalog DB content still Russian on both locales (UI chrome translated)
+- catalog DB content still Russian on EN pages (UI chrome translated)
 - payments/email unchanged
+- full browser checkout E2E for PKG35 test emails not automated in deploy script (manual browser recommended)
 
 See [docs/packages/package-3-5-mobile-i18n-polish.md](docs/packages/package-3-5-mobile-i18n-polish.md).
 
@@ -212,7 +228,21 @@ See [docs/packages/package-3-5-mobile-i18n-polish.md](docs/packages/package-3-5-
 
 ## Current Validation Status
 
-Verified on 2026-06-30 on `main` (live deploy to bajena.it):
+Verified on 2026-06-30 on `main` (Package 3.5 deploy to bajena.it):
+
+- `pnpm lint`: passed (local pre-merge)
+- `pnpm build`: passed (local + server)
+- `pnpm db:verify:catalog`: passed (local + server)
+- `pnpm exec prisma migrate deploy`: no pending migrations (server)
+- `vedma.service`: active on `127.0.0.1:3020`
+- Caddy validate: valid
+- locale redirects: `/` → `/en|ru` per Accept-Language; legacy `/products` → locale-prefixed
+- DaData `/api/address/suggest`: `providerEnabled` true, suggestions returned
+- `/uploads/admin/*`: HTTP 200
+- EN/RU public UI chrome verified via live HTTP
+- existing projects: astrology-panel.it, onix-ai.it, solanalisting.it — OK
+
+Previously verified on 2026-06-30 (Packages 3.4.x):
 
 - `pnpm install --frozen-lockfile`: passed
 - `pnpm db:generate`: passed

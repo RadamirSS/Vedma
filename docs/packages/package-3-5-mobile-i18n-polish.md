@@ -1,8 +1,11 @@
 # Package 3.5 — Mobile UX Polish and i18n EN/RU
 
 Date: 2026-06-30  
-Branch: `cursor/package-3-5-mobile-i18n-polish`  
-Status: Ready for review (not deployed)
+Branch: `cursor/package-3-5-mobile-i18n-polish` → merged to `main`  
+Status: **MERGED / DEPLOYED_TO_TEST** on https://bajena.it
+
+Merge commit: `29acd63c66bbada48e06125f226b2d5ce148dcbb`  
+Deployed commit: `7110266` (includes middleware hotfix for locale redirects behind Caddy)
 
 ## Summary
 
@@ -80,7 +83,7 @@ Manual switch via header/footer EN/RU toggle sets cookie and navigates to equiva
 
 ## SEO
 
-- `html lang` synced via `LocaleHtmlLang`
+- `html lang` synced via SSR header + `LocaleHtmlLang` client fallback
 - Per-locale metadata title/description
 - `alternates.canonical` and `alternates.languages` (en, ru, x-default: en)
 
@@ -90,23 +93,32 @@ Manual switch via header/footer EN/RU toggle sets cookie and navigates to equiva
 - Catalog content (product/service titles, descriptions, reviews) still from DB in Russian on both locales — full catalog translation is phase 2
 - Payments remain manual placeholders
 - Email not connected
-- Not deployed to production without owner approval
+
+## Deploy notes (2026-06-30)
+
+- Pre-deploy commit on server: `d1f0487`
+- Post-deploy hotfix: middleware used `request.url` origin behind Caddy → redirects pointed to `localhost:3020`; fixed in `7110266` using `x-forwarded-host` / `x-forwarded-proto`
+- Production env: `DADATA_API_KEY` present, `NEXT_PUBLIC_SITE_URL=https://bajena.it`, `ALLOW_STATIC_CATALOG_FALLBACK=false`
+- `/uploads/admin/*` rewrite and media upload fix from `d1f0487` preserved
 
 ## Verification
 
 ```bash
-pnpm lint        # pass
-pnpm build       # pass
-pnpm db:verify:catalog  # pass
+pnpm lint        # pass (local pre-merge)
+pnpm build       # pass (local + server)
+pnpm db:verify:catalog  # pass (local + server)
+pnpm exec prisma migrate deploy  # no pending migrations (server)
 ```
 
-## Smoke checklist
+## Live smoke (2026-06-30)
 
-- [ ] `/` + Accept-Language: ru → `/ru`
-- [ ] `/` + Accept-Language: en → `/en`
-- [ ] Manual EN↔RU switch persists
-- [ ] `/ru/checkout` and `/en/checkout` readable on mobile
-- [ ] Cart survives language switch
-- [ ] `/admin/login` unchanged
-- [ ] `/uploads/admin/...` rewrite works
-- [ ] Mobile 390px: account visible, registration CTA obvious
+- [x] `/` + Accept-Language: ru → `/ru`
+- [x] `/` + Accept-Language: en → `/en`
+- [x] Legacy `/products` → locale-prefixed path
+- [x] `/en/checkout` English UI; `/ru/checkout` Russian UI
+- [x] `/admin/login` unchanged (HTTP 200)
+- [x] `/uploads/admin/...` HTTP 200, no locale redirect
+- [x] DaData suggest: `providerEnabled` true
+- [x] Mobile header markup: `account-btn`, `cart-btn`, `burger` present
+- [ ] Full browser checkout E2E with PKG35 test emails — recommend manual pass (server actions require browser)
+- [ ] Manual EN↔RU switch + cart persistence — recommend manual pass
