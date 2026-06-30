@@ -1,9 +1,9 @@
 # Package 3.4 — Production Ordering, Media Slots And Browser Polish
 
-Date: 2026-06-29  
-Branch: `cursor/package-3-4-production-ordering-polish`  
+Date: 2026-06-30  
+Branch: `main`  
 Domain: https://bajena.it  
-Status: `IN_REVIEW`
+Status: `MERGED` / `DEPLOYED_TO_TEST`
 
 ## Summary
 
@@ -83,26 +83,19 @@ Updated `app/globals.css` and `app/admin/admin.css` for:
 | `pnpm db:verify:catalog` | Passed |
 | `pnpm db:mark-test-orders` | 2 test orders in DB |
 
+## Live verification (2026-06-30, bajena.it)
+
+| Check | Result |
+|-------|--------|
+| Deploy commit | `839de29` on `main` |
+| `pnpm build` | Passed on server |
+| `pnpm db:verify:catalog` | Passed (0 errors) |
+| `pnpm db:mark-test-orders` | 2 test orders retained |
+| DaData suggest API | Working (`providerEnabled`, suggestions returned) |
+| `/admin/media/site` | Route active (auth redirect for anonymous) |
+
 ## Limitations
 
 - Manual payments only; no Lava, no online card provider
-- Package 3.4.1/3.4.2 continue on the same branch — see [package-3-4-1-release-ux-closeout.md](package-3-4-1-release-ux-closeout.md) and [package-3-4-2-checkout-ux-finalization.md](package-3-4-2-checkout-ux-finalization.md)
 - No email sending
-- Server deploy pending owner approval
 - Homepage direction/product images still use VK fallbacks until manager replaces slots in admin
-
-## Deploy (when approved)
-
-```bash
-cd /srv/projects/vedma/current
-git fetch origin
-git checkout cursor/package-3-4-production-ordering-polish
-git pull origin cursor/package-3-4-production-ordering-polish
-pnpm install --frozen-lockfile
-pnpm db:generate
-pnpm exec prisma migrate deploy
-pnpm db:verify:catalog
-pnpm db:mark-test-orders
-pnpm build
-systemctl restart vedma
-```

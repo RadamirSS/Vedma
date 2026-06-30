@@ -1,8 +1,8 @@
 # Package 3.4.1 — Release UX Closeout
 
-Date: 2026-06-29  
-Branch: `cursor/package-3-4-production-ordering-polish`  
-Status: `IN_REVIEW`
+Date: 2026-06-30  
+Branch: `main`  
+Status: `MERGED` / `DEPLOYED_TO_TEST` on https://bajena.it
 
 ## Summary
 
@@ -79,6 +79,15 @@ No slot rebuild. Existing `/admin/media/site` slots and `lib/site-media.ts` fall
 | `pnpm db:verify:catalog` | Passed (0 errors; 2 warnings for missing service images locally) |
 | Public grep: medical/professional disclaimer strings | None in app/components |
 | Header “Оформить” | Removed |
+
+## Live verification (2026-06-30)
+
+| Check | Result |
+|-------|--------|
+| Header «Оформить» | Absent from header |
+| Scary disclaimer grep on homepage | Clean |
+| «Я оплатил» smoke | Payment `PENDING`, not `PAID` |
+| Admin/demo order scopes | Verified via DB filters |
 
 ## Remaining limitations
 

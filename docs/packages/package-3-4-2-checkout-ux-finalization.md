@@ -1,8 +1,8 @@
 # Package 3.4.2 — Checkout UX Finalization
 
-Date: 2026-06-29  
-Branch: `cursor/package-3-4-production-ordering-polish`  
-Status: `IN_REVIEW`
+Date: 2026-06-30  
+Branch: `main`  
+Status: `MERGED` / `DEPLOYED_TO_TEST` on https://bajena.it
 
 ## Summary
 
@@ -61,6 +61,8 @@ Reasons: `missing_key`, `disabled`, `no_results`, `provider_error`, `query_too_s
 
 Local env (2026-06-29): `DADATA_API_KEY` **not configured** — manual fallback verified by provider probe.
 
+Live server (2026-06-30): `DADATA_API_KEY` configured; `/api/address/suggest` returns suggestions for Russian addresses.
+
 ## Payment placeholder (unchanged behavior, polished copy)
 
 After order creation:
@@ -89,8 +91,19 @@ No «Оформить» in header. Checkout via cart drawer / cart page only.
 | `DADATA_API_KEY` in local `.env` | Not set (manual address fallback) |
 | Public scary disclaimer grep | Clean |
 
+## Live verification (2026-06-30)
+
+| Check | Result |
+|-------|--------|
+| Checkout «Кабинет покупателя» | Present |
+| «Я новый клиент» default | Present |
+| email/password repeat fields | Present on checkout and register |
+| DaData on bajena.it | Working |
+| Product checkout smoke | `ORD-20260630-HSCE1R` |
+| Service checkout smoke | `ORD-20260630-K3PENZ` |
+
 ## Remaining limitations
 
 - Real online payment not connected
 - Email sending not connected
-- DaData suggestions require `DADATA_API_KEY` on server
+- DaData connected on bajena.it server

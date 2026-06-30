@@ -1,9 +1,9 @@
 # Project State
 
-Date: 2026-06-29
+Date: 2026-06-30
 Repository: `Vedma`
-Current branch: `cursor/package-3-4-production-ordering-polish`
-Main branch status: Package 3.3 deployed on https://bajena.it; Package 3.4 in review
+Current branch: `main`
+Main branch status: Package 3.4 / 3.4.1 / 3.4.2 deployed on https://bajena.it
 
 ## Instruction Sources
 
@@ -132,7 +132,9 @@ See [docs/packages/package-3-3-customer-journey-cleanup.md](docs/packages/packag
 
 ### Package 3.4
 
-Status: `IN_REVIEW` on `cursor/package-3-4-production-ordering-polish`
+Status: `MERGED` / `DEPLOYED_TO_TEST` on https://bajena.it
+
+Deploy commit: `839de2916462986b4437b2d1de1e5299ee2f635d` (+ TypeScript hotfix for DaData types)
 
 Implemented:
 
@@ -149,7 +151,7 @@ See [docs/packages/package-3-4-production-ordering-polish.md](docs/packages/pack
 
 ### Package 3.4.1
 
-Status: `IN_REVIEW` on `cursor/package-3-4-production-ordering-polish`
+Status: `MERGED` / `DEPLOYED_TO_TEST` on https://bajena.it
 
 Implemented:
 
@@ -165,7 +167,7 @@ See [docs/packages/package-3-4-1-release-ux-closeout.md](docs/packages/package-3
 
 ### Package 3.4.2
 
-Status: `IN_REVIEW` on `cursor/package-3-4-production-ordering-polish`
+Status: `MERGED` / `DEPLOYED_TO_TEST` on https://bajena.it
 
 Implemented:
 
@@ -187,7 +189,25 @@ See [docs/packages/package-3-4-2-checkout-ux-finalization.md](docs/packages/pack
 
 ## Current Validation Status
 
-Verified on 2026-06-29 on `main` (post-merge):
+Verified on 2026-06-30 on `main` (live deploy to bajena.it):
+
+- `pnpm install --frozen-lockfile`: passed
+- `pnpm db:generate`: passed
+- `pnpm exec prisma migrate deploy`: no pending migrations
+- `pnpm db:mark-test-orders`: 2 total test orders retained (`ordersMarked: 0`)
+- `pnpm db:verify:catalog`: passed (0 errors)
+- `pnpm build`: passed on server (after DaData TypeScript type fix)
+- `vedma.service`: active on `127.0.0.1:3020`
+- Caddy validate: valid; bajena.it `/` 200, `/account` 307, `/admin/login` 200
+- DaData `/api/address/suggest`: `providerEnabled` true, suggestions returned
+- live product checkout smoke: `ORD-20260630-HSCE1R` (`test+deploy-1782823094@bajena.it`)
+- live service checkout smoke: `ORD-20260630-K3PENZ` (`test+deploy-service-1782823094@bajena.it`)
+- «Я оплатил» placeholder: payment status `PENDING`, not `PAID`
+- customer register/login: pages render repeat fields; customer auth OK
+- admin/demo scopes: production/test separation verified
+- existing projects: astrology-panel.it, onix-ai.it, solanalisting.it — OK
+
+Previously verified on 2026-06-29 (Package 3.3):
 
 - `pnpm lint`: passed
 - `pnpm build`: passed (production DB via SSH tunnel; `staticGenerationMaxConcurrency: 1`)
@@ -206,15 +226,16 @@ Verified on 2026-06-29 on `main` (post-merge):
 - Customers cannot self-download private PDFs
 - Customer account creation through checkout and `/account/register`
 - Smoke-test orders from acceptance E2E remain in production DB (marked by `test+pkg33-*@bajena.it` emails)
+- DaData address suggestions connected on bajena.it server (configured during 2026-06-30 deploy)
 
 ## Merge Readiness
 
-Status: `MERGED_AND_DEPLOYED`
+Status: `MERGED_AND_DEPLOYED_TO_TEST`
 
-Package 3.3 is merged to `main` and deployed to bajena.it.
+Packages 3.3, 3.4, 3.4.1, and 3.4.2 are merged to `main` and deployed to https://bajena.it for pre-production testing.
 
 ## Recommended Next Package
 
 ### Package 4
 
-Do not start until Package 3.4 is merged and server verification is complete.
+Do not start until owner approves pre-production testing on bajena.it and confirms payment/email integration scope.

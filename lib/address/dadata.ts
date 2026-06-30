@@ -32,6 +32,8 @@ type DaDataSuggestion = {
   data?: {
     country?: string;
     region_with_type?: string;
+    city_with_type?: string;
+    city?: string;
     settlement_with_type?: string;
     settlement?: string;
     block_type?: string;
