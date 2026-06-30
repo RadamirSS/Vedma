@@ -1,14 +1,20 @@
+"use client";
+
+import { useAdminI18n } from "@/components/admin/admin-i18n-provider";
+
 export function AdminReadOnlyNotice({
-  title = "Демо-режим",
-  text = "Этот аккаунт работает только на просмотр. Изменение данных, загрузки и доступ к приватным PDF отключены."
+  title,
+  text
 }: {
   title?: string;
   text?: string;
 }) {
+  const { dict } = useAdminI18n();
+
   return (
     <div className="admin-notice">
-      <strong>{title}</strong>
-      <div>{text}</div>
+      <strong>{title ?? dict.demoMode.title}</strong>
+      <div>{text ?? dict.demoMode.defaultText}</div>
     </div>
   );
 }

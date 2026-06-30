@@ -6,10 +6,12 @@ import { AdminReadOnlyNotice } from "@/components/admin/admin-read-only-notice";
 import { ConfirmSubmitButton } from "@/components/admin/confirm-submit-button";
 import { AdminNotice } from "@/components/admin/admin-notice";
 import { CatalogEntityForm } from "@/components/admin/catalog-entity-form";
-import { PUBLICATION_OPTIONS, SERVICE_CATEGORY_OPTIONS } from "@/lib/admin/constants";
 import { formatAdminDate } from "@/lib/admin/format";
 import { isReadOnlyAdminRole, requireAdminSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db/prisma";
+import { getAdminLocaleFromCookies } from "@/lib/i18n/admin/detect-locale";
+import { getServiceCategoryOptions, getPublicationOptions } from "@/lib/i18n/admin/constants";
+import { getAdminDictionary } from "@/lib/i18n/admin/get-admin-dictionary";
 
 export default async function AdminServiceDetailPage({
   params,
@@ -18,6 +20,9 @@ export default async function AdminServiceDetailPage({
   params: Promise<{ id: string }>;
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  const locale = await getAdminLocaleFromCookies();
+  const dict = await getAdminDictionary(locale);
+  const t = dict.services.detail;
   const { id } = await params;
   const query = await searchParams;
   const session = await requireAdminSession(`/admin/services/${id}`);
@@ -37,16 +42,16 @@ export default async function AdminServiceDetailPage({
     <div className="admin-page">
       <div className="admin-header">
         <div className="admin-title">
-          <span className="eyebrow">Редактирование услуги</span>
+          <span className="eyebrow">{t.eyebrow}</span>
           <h1>{service.title}</h1>
-          <p>Обновлено {formatAdminDate(service.updatedAt)}</p>
+          <p>{t.updatedAt.replace("{date}", formatAdminDate(service.updatedAt, locale))}</p>
         </div>
         <div className="admin-actions-row">
           <Link className="btn btn-ghost" href={`/ru/services/${service.slug}`} target="_blank">
-            Preview
+            {dict.common.preview}
           </Link>
           <Link className="btn btn-ghost" href="/admin/services">
-            К списку
+            {dict.common.backToList}
           </Link>
         </div>
       </div>
@@ -54,7 +59,7 @@ export default async function AdminServiceDetailPage({
         success={typeof query.success === "string" ? query.success : undefined}
         error={typeof query.error === "string" ? query.error : undefined}
       />
-      {isReadOnly ? <AdminReadOnlyNotice text="Демо-аккаунт может просматривать карточки услуг, но не может менять, публиковать или удалять их." /> : null}
+      {isReadOnly ? <AdminReadOnlyNotice text={dict.demoMode.services} /> : null}
       <div className="admin-detail-grid">
         <CatalogEntityForm
           entity="service"
@@ -63,8 +68,8 @@ export default async function AdminServiceDetailPage({
           previewHref={`/services/${service.slug}`}
           readOnly={isReadOnly}
           media={media}
-          categoryOptions={SERVICE_CATEGORY_OPTIONS}
-          publicationOptions={PUBLICATION_OPTIONS}
+          categoryOptions={getServiceCategoryOptions(dict)}
+          publicationOptions={getPublicationOptions(dict)}
           initial={{
             ...service,
             image: service.image ?? undefined,
@@ -75,17 +80,18 @@ export default async function AdminServiceDetailPage({
         {!isReadOnly ? (
           <aside>
             <div className="admin-section-head">
-              <h2>Опасная зона</h2>
-              <p>Удаление отвязывает связанные медиа и убирает услугу из публичного каталога.</p>
+              <h2>{dict.common.dangerousZone}</h2>
+              <p>{t.dangerousZoneDescription}</p>
             </div>
             <form action={deleteServiceAction}>
               <input type="hidden" name="id" value={service.id} />
+              <input type="hidden" name="adminLocale" value={locale} />
               <ConfirmSubmitButton
                 className="btn btn-wine"
-                message="Удалить услугу? Это действие нельзя отменить."
-                pendingLabel="Удаление..."
+                message={t.deleteConfirm}
+                pendingLabel={t.deleting}
               >
-                Удалить услугу
+                {t.delete}
               </ConfirmSubmitButton>
             </form>
           </aside>

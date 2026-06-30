@@ -6,12 +6,17 @@ import { SiteMediaForm } from "@/components/admin/site-media-form";
 import { getSiteSettings } from "@/lib/admin/settings";
 import { isReadOnlyAdminRole, requireAdminSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db/prisma";
+import { getAdminLocaleFromCookies } from "@/lib/i18n/admin/detect-locale";
+import { getAdminDictionary } from "@/lib/i18n/admin/get-admin-dictionary";
 
 export default async function AdminSiteMediaPage({
   searchParams
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  const locale = await getAdminLocaleFromCookies();
+  const dict = await getAdminDictionary(locale);
+  const t = dict.media.site;
   const params = await searchParams;
   const session = await requireAdminSession("/admin/media/site");
   const isReadOnly = isReadOnlyAdminRole(session.user.role);
@@ -26,19 +31,17 @@ export default async function AdminSiteMediaPage({
     <div className="admin-page">
       <div className="admin-header">
         <div className="admin-title">
-          <span className="eyebrow">Медиа сайта</span>
-          <h1>Медиа сайта</h1>
-          <p>Управляйте логотипом, hero-портретом, галереей и изображениями направлений на публичном сайте.</p>
+          <span className="eyebrow">{t.eyebrow}</span>
+          <h1>{t.title}</h1>
+          <p>{t.description}</p>
         </div>
         <Link className="btn btn-ghost" href="/admin/media">
-          К медиатеке
+          {t.backToLibrary}
         </Link>
       </div>
 
       <AdminNotice success={success} error={error} />
-      {isReadOnly ? (
-        <AdminReadOnlyNotice text="Демо-аккаунт может просматривать слоты медиа сайта, но не может сохранять изменения." />
-      ) : null}
+      {isReadOnly ? <AdminReadOnlyNotice text={dict.demoMode.siteMedia} /> : null}
 
       <SiteMediaForm mediaSlots={settings.mediaSlots} media={media} readOnly={isReadOnly} />
     </div>

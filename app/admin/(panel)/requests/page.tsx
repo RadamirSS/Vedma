@@ -2,21 +2,23 @@ import Link from "next/link";
 
 import { AdminNotice } from "@/components/admin/admin-notice";
 import { CommerceScopeTabs } from "@/components/admin/commerce-scope-tabs";
-import {
-  commerceScopeTabs,
-  requestListWhere,
-  resolveCommerceScope
-} from "@/lib/admin/commerce-filters";
-import { REQUEST_STATUS_LABELS } from "@/lib/admin/constants";
+import { requestListWhere, resolveCommerceScope } from "@/lib/admin/commerce-filters";
 import { formatAdminDate, parseSearchParam } from "@/lib/admin/format";
 import { requireAdminSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db/prisma";
+import { getAdminLocaleFromCookies } from "@/lib/i18n/admin/detect-locale";
+import { getCommerceScopeTabs, getRequestStatusLabels } from "@/lib/i18n/admin/constants";
+import { getAdminDictionary } from "@/lib/i18n/admin/get-admin-dictionary";
 
 export default async function AdminRequestsPage({
   searchParams
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  const locale = await getAdminLocaleFromCookies();
+  const dict = await getAdminDictionary(locale);
+  const t = dict.requests;
+  const requestStatusLabels = getRequestStatusLabels(dict);
   const params = await searchParams;
   const session = await requireAdminSession("/admin/requests");
   const q = parseSearchParam(params.q);
@@ -50,9 +52,9 @@ export default async function AdminRequestsPage({
     <div className="admin-page">
       <div className="admin-header">
         <div className="admin-title">
-          <span className="eyebrow">Заявки</span>
-          <h1>Intake requests</h1>
-          <p>Каждый checkout создает отдельную заявку для ручной работы менеджера.</p>
+          <span className="eyebrow">{t.eyebrow}</span>
+          <h1>{t.title}</h1>
+          <p>{t.description}</p>
         </div>
       </div>
 
@@ -61,18 +63,18 @@ export default async function AdminRequestsPage({
       <CommerceScopeTabs
         basePath="/admin/requests"
         currentScope={currentScope}
-        tabs={commerceScopeTabs(session.user.role)}
+        tabs={session.user.role === "ADMIN" ? getCommerceScopeTabs(dict) : []}
         query={q}
       />
 
       <div className="admin-toolbar">
         <form>
           {scopeParam ? <input type="hidden" name="scope" value={scopeParam} /> : null}
-          <input className="admin-input" name="q" placeholder="Номер, email или имя" defaultValue={q} />
+          <input className="admin-input" name="q" placeholder={dict.filters.searchRequest} defaultValue={q} />
           <div />
           <div />
           <button className="btn btn-ghost" type="submit">
-            Поиск
+            {dict.common.search}
           </button>
         </form>
       </div>
@@ -81,12 +83,12 @@ export default async function AdminRequestsPage({
         <table>
           <thead>
             <tr>
-              <th>Заявка</th>
-              <th>Клиент</th>
-              <th>Выбрано</th>
-              <th>Статус</th>
-              <th>Ответственный</th>
-              <th>Создана</th>
+              <th>{t.table.request}</th>
+              <th>{t.table.client}</th>
+              <th>{t.table.selected}</th>
+              <th>{t.table.status}</th>
+              <th>{t.table.responsible}</th>
+              <th>{t.table.created}</th>
               <th />
             </tr>
           </thead>
@@ -95,19 +97,19 @@ export default async function AdminRequestsPage({
               <tr key={request.id}>
                 <td>
                   <strong>{request.requestNumber}</strong>
-                  {request.isTest ? <span className="admin-badge admin-badge-test">Тест</span> : null}
-                  <div className="muted">{request.email ?? "—"}</div>
+                  {request.isTest ? <span className="admin-badge admin-badge-test">{dict.common.test}</span> : null}
+                  <div className="muted">{request.email ?? dict.common.emDash}</div>
                 </td>
-                <td>{request.name ?? "Без имени"}</td>
-                <td>{request.selectedProduct?.title ?? request.selectedService?.title ?? "—"}</td>
+                <td>{request.name ?? dict.common.noName}</td>
+                <td>{request.selectedProduct?.title ?? request.selectedService?.title ?? dict.common.emDash}</td>
                 <td>
-                  <span className="admin-badge">{REQUEST_STATUS_LABELS[request.status]}</span>
+                  <span className="admin-badge">{requestStatusLabels[request.status]}</span>
                 </td>
-                <td>{request.responsibleUser?.name ?? request.responsibleUser?.email ?? "—"}</td>
-                <td>{formatAdminDate(request.createdAt)}</td>
+                <td>{request.responsibleUser?.name ?? request.responsibleUser?.email ?? dict.common.emDash}</td>
+                <td>{formatAdminDate(request.createdAt, locale)}</td>
                 <td>
                   <Link className="btn btn-ghost btn-small" href={`/admin/requests/${request.id}`}>
-                    Открыть
+                    {dict.common.open}
                   </Link>
                 </td>
               </tr>

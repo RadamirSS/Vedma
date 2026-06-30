@@ -3,8 +3,13 @@ import Link from "next/link";
 import { formatAdminDate } from "@/lib/admin/format";
 import { requireAdminSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db/prisma";
+import { getAdminLocaleFromCookies } from "@/lib/i18n/admin/detect-locale";
+import { getAdminDictionary } from "@/lib/i18n/admin/get-admin-dictionary";
 
 export default async function AdminCustomersPage() {
+  const locale = await getAdminLocaleFromCookies();
+  const dict = await getAdminDictionary(locale);
+  const t = dict.customers;
   const session = await requireAdminSession("/admin/customers");
   const isDemo = session.user.role === "DEMO";
 
@@ -43,9 +48,9 @@ export default async function AdminCustomersPage() {
     <div className="admin-page">
       <div className="admin-header">
         <div className="admin-title">
-          <span className="eyebrow">Клиенты</span>
-          <h1>Customer accounts</h1>
-          <p>Аккаунты создаются в checkout или через регистрацию и используют ту же систему сессий.</p>
+          <span className="eyebrow">{t.eyebrow}</span>
+          <h1>{t.title}</h1>
+          <p>{t.description}</p>
         </div>
       </div>
 
@@ -53,12 +58,12 @@ export default async function AdminCustomersPage() {
         <table>
           <thead>
             <tr>
-              <th>Клиент</th>
-              <th>Контакты</th>
-              <th>Заказы</th>
-              <th>Заявки</th>
-              <th>PDF</th>
-              <th>Последний вход</th>
+              <th>{t.table.client}</th>
+              <th>{t.table.contacts}</th>
+              <th>{t.table.orders}</th>
+              <th>{t.table.requests}</th>
+              <th>{t.table.pdf}</th>
+              <th>{t.table.lastLogin}</th>
               <th />
             </tr>
           </thead>
@@ -66,20 +71,20 @@ export default async function AdminCustomersPage() {
             {customers.map((customer) => (
               <tr key={customer.id}>
                 <td>
-                  <strong>{customer.name ?? "Без имени"}</strong>
+                  <strong>{customer.name ?? dict.common.noName}</strong>
                   <div className="muted">{customer.email}</div>
                 </td>
                 <td>
-                  <div>{customer.phone ?? "—"}</div>
-                  <div className="muted">{customer.telegram ?? "—"}</div>
+                  <div>{customer.phone ?? dict.common.emDash}</div>
+                  <div className="muted">{customer.telegram ?? dict.common.emDash}</div>
                 </td>
                 <td>{customer.customerOrders.length}</td>
                 <td>{customer.customerRequests.length}</td>
                 <td>{customer.customerFiles.length}</td>
-                <td>{formatAdminDate(customer.lastLoginAt)}</td>
+                <td>{formatAdminDate(customer.lastLoginAt, locale)}</td>
                 <td>
                   <Link className="btn btn-ghost btn-small" href={`/admin/customers/${customer.id}`}>
-                    Открыть
+                    {dict.common.open}
                   </Link>
                 </td>
               </tr>

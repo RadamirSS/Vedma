@@ -8,6 +8,8 @@ import { SubmitButton } from "@/components/admin/submit-button";
 import { formatAdminDate } from "@/lib/admin/format";
 import { isReadOnlyAdminRole, requireAdminSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db/prisma";
+import { getAdminLocaleFromCookies } from "@/lib/i18n/admin/detect-locale";
+import { getAdminDictionary } from "@/lib/i18n/admin/get-admin-dictionary";
 
 export default async function AdminCustomerDetailPage({
   params,
@@ -16,6 +18,9 @@ export default async function AdminCustomerDetailPage({
   params: Promise<{ id: string }>;
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  const locale = await getAdminLocaleFromCookies();
+  const dict = await getAdminDictionary(locale);
+  const t = dict.customers.detail;
   const { id } = await params;
   const query = await searchParams;
   const session = await requireAdminSession(`/admin/customers/${id}`);
@@ -49,57 +54,58 @@ export default async function AdminCustomerDetailPage({
     <div className="admin-page">
       <div className="admin-header">
         <div className="admin-title">
-          <span className="eyebrow">Клиент</span>
+          <span className="eyebrow">{t.eyebrow}</span>
           <h1>{customer.name ?? customer.email}</h1>
           <p>{customer.email}</p>
         </div>
         <Link className="btn btn-ghost" href="/admin/customers">
-          Назад к клиентам
+          {t.backToList}
         </Link>
       </div>
 
       <AdminNotice success={success} />
-      {isReadOnly ? <AdminReadOnlyNotice text="Демо-аккаунт может просматривать клиентов, но не может менять заметки или открывать приватные PDF." /> : null}
+      {isReadOnly ? <AdminReadOnlyNotice text={dict.demoMode.customers} /> : null}
 
       <div className="admin-detail-grid">
         <article className="admin-card">
           <div className="admin-section-head">
-            <h2>Контакты и доставка</h2>
-            <p>Данные из checkout и личного кабинета.</p>
+            <h2>{t.contactsTitle}</h2>
+            <p>{t.contactsDescription}</p>
           </div>
           <div className="admin-side-list">
             <div className="summary-line">
-              <span>Телефон</span>
-              <b>{customer.phone ?? "—"}</b>
+              <span>{dict.common.phone}</span>
+              <b>{customer.phone ?? dict.common.emDash}</b>
             </div>
             <div className="summary-line">
-              <span>Telegram</span>
-              <b>{customer.telegram ?? "—"}</b>
+              <span>{dict.common.telegram}</span>
+              <b>{customer.telegram ?? dict.common.emDash}</b>
             </div>
             <div className="summary-line">
-              <span>Город</span>
-              <b>{customer.customerProfile?.city ?? "—"}</b>
+              <span>{t.city}</span>
+              <b>{customer.customerProfile?.city ?? dict.common.emDash}</b>
             </div>
             <div className="summary-line">
-              <span>Страна</span>
-              <b>{customer.customerProfile?.country ?? "—"}</b>
+              <span>{t.country}</span>
+              <b>{customer.customerProfile?.country ?? dict.common.emDash}</b>
             </div>
             <div className="summary-line">
-              <span>Адрес</span>
-              <b>{customer.customerProfile?.addressLine1 ?? "—"}</b>
+              <span>{t.address}</span>
+              <b>{customer.customerProfile?.addressLine1 ?? dict.common.emDash}</b>
             </div>
           </div>
         </article>
 
         <article className="admin-card">
           <div className="admin-section-head">
-            <h2>Заметки менеджера</h2>
-            <p>Внутренняя заметка по клиенту.</p>
+            <h2>{t.notesTitle}</h2>
+            <p>{t.notesDescriptionShort}</p>
           </div>
           <form className="admin-form-grid" action={updateCustomerNotesAction}>
             <input type="hidden" name="userId" value={customer.id} />
+            <input type="hidden" name="adminLocale" value={locale} />
             <label className="admin-field full">
-              <span>Заметка</span>
+              <span>{t.note}</span>
               <textarea
                 className="admin-textarea"
                 name="adminNotes"
@@ -108,8 +114,8 @@ export default async function AdminCustomerDetailPage({
               />
             </label>
             {!isReadOnly ? (
-              <SubmitButton className="btn btn-primary" pendingLabel="Сохранение...">
-                Сохранить заметку
+              <SubmitButton className="btn btn-primary" pendingLabel={dict.common.saving}>
+                {t.saveNotes}
               </SubmitButton>
             ) : null}
           </form>
@@ -119,14 +125,14 @@ export default async function AdminCustomerDetailPage({
       <div className="admin-detail-grid">
         <article className="admin-card">
           <div className="admin-section-head">
-            <h2>Заказы</h2>
-            <p>Последние заказы клиента.</p>
+            <h2>{t.ordersTitle}</h2>
+            <p>{t.ordersDescription}</p>
           </div>
           <div className="admin-side-list">
             {customer.customerOrders.map((order) => (
               <Link key={order.id} className="admin-card" href={`/admin/orders/${order.id}`}>
                 <strong>{order.orderNumber}</strong>
-                <span>{formatAdminDate(order.createdAt)}</span>
+                <span>{formatAdminDate(order.createdAt, locale)}</span>
               </Link>
             ))}
           </div>
@@ -134,14 +140,14 @@ export default async function AdminCustomerDetailPage({
 
         <article className="admin-card">
           <div className="admin-section-head">
-            <h2>Заявки и PDF</h2>
-            <p>История обращений и приватных вложений.</p>
+            <h2>{t.requestsAndPdfTitle}</h2>
+            <p>{t.requestsAndPdfDescription}</p>
           </div>
           <div className="admin-side-list">
             {customer.customerRequests.map((request) => (
               <Link key={request.id} className="admin-card" href={`/admin/requests/${request.id}`}>
                 <strong>{request.requestNumber}</strong>
-                <span>{formatAdminDate(request.createdAt)}</span>
+                <span>{formatAdminDate(request.createdAt, locale)}</span>
               </Link>
             ))}
             {canViewPrivateFiles ? (
@@ -151,7 +157,7 @@ export default async function AdminCustomerDetailPage({
                 </a>
               ))
             ) : customer.customerFiles.length > 0 ? (
-              <p className="muted">Приватные PDF доступны только администратору.</p>
+              <p className="muted">{dict.orders.detail.privateFilesAdminOnly}</p>
             ) : null}
           </div>
         </article>

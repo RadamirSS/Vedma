@@ -1,10 +1,14 @@
-export function formatAdminDate(value: Date | string | null | undefined) {
+export function formatAdminDate(
+  value: Date | string | null | undefined,
+  locale: string = "ru"
+) {
   if (!value) {
     return "—";
   }
 
   const date = value instanceof Date ? value : new Date(value);
-  return new Intl.DateTimeFormat("ru-RU", {
+  const localeTag = locale === "en" ? "en-US" : "ru-RU";
+  return new Intl.DateTimeFormat(localeTag, {
     dateStyle: "medium",
     timeStyle: "short"
   }).format(date);

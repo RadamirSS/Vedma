@@ -3,6 +3,7 @@
 import type { AvailabilityStatus, Currency, PublicationStatus } from "@prisma/client";
 import { useMemo, useState } from "react";
 
+import { useAdminI18n } from "@/components/admin/admin-i18n-provider";
 import { DirtyForm } from "@/components/admin/dirty-form";
 import { SubmitButton } from "@/components/admin/submit-button";
 
@@ -12,13 +13,18 @@ type MediaOption = {
   alt: string | null;
 };
 
+type CategoryOption = {
+  value: string;
+  label: string;
+};
+
 type Props = {
   entity: "product" | "service";
   action: (formData: FormData) => void | Promise<void>;
   cancelHref: string;
   previewHref?: string | null;
   media: MediaOption[];
-  categoryOptions: readonly string[];
+  categoryOptions: readonly CategoryOption[];
   publicationOptions: Array<{ value: PublicationStatus; label: string }>;
   availabilityOptions?: Array<{ value: AvailabilityStatus; label: string }>;
   readOnly?: boolean;
@@ -65,6 +71,8 @@ export function CatalogEntityForm({
   readOnly = false,
   initial
 }: Props) {
+  const { locale, dict } = useAdminI18n();
+  const t = dict.forms.catalogEntity;
   const [selectedImage, setSelectedImage] = useState(initial?.image ?? "");
   const [uploadPreview, setUploadPreview] = useState<string | null>(null);
 
@@ -77,32 +85,33 @@ export function CatalogEntityForm({
 
   return (
     <DirtyForm action={action} className="admin-form-grid" disabled={readOnly}>
+      <input type="hidden" name="adminLocale" value={locale} />
       {initial?.id ? <input type="hidden" name="id" value={initial.id} /> : null}
 
       <label>
-        <span>Название</span>
+        <span>{t.title}</span>
         <input className="admin-input" name="title" required defaultValue={initial?.title ?? ""} />
       </label>
 
       <label>
-        <span>Slug</span>
+        <span>{t.slug}</span>
         <input className="admin-input" name="slug" defaultValue={initial?.slug ?? ""} />
       </label>
 
       <label>
-        <span>Категория</span>
+        <span>{t.category}</span>
         <select className="admin-select" name="category" defaultValue={initial?.category ?? ""}>
-          <option value="">Выберите категорию</option>
+          <option value="">{t.selectCategory}</option>
           {categoryOptions.map((option) => (
-            <option key={option} value={option}>
-              {option}
+            <option key={option.value} value={option.value}>
+              {option.label}
             </option>
           ))}
         </select>
       </label>
 
       <label>
-        <span>Статус публикации</span>
+        <span>{t.publicationStatus}</span>
         <select
           className="admin-select"
           name="publicationStatus"
@@ -119,7 +128,7 @@ export function CatalogEntityForm({
       {entity === "product" && availabilityOptions ? (
         <>
           <label>
-            <span>Наличие</span>
+            <span>{t.availability}</span>
             <select
               className="admin-select"
               name="availabilityStatus"
@@ -133,7 +142,7 @@ export function CatalogEntityForm({
             </select>
           </label>
           <label>
-            <span>Количество</span>
+            <span>{t.quantity}</span>
             <input
               className="admin-input"
               name="quantity"
@@ -148,11 +157,11 @@ export function CatalogEntityForm({
       {entity === "service" ? (
         <>
           <label>
-            <span>Формат</span>
+            <span>{t.format}</span>
             <input className="admin-input" name="format" defaultValue={initial?.format ?? ""} />
           </label>
           <label>
-            <span>Длительность</span>
+            <span>{t.duration}</span>
             <input
               className="admin-input"
               name="duration"
@@ -160,7 +169,7 @@ export function CatalogEntityForm({
             />
           </label>
           <label>
-            <span>Срок исполнения</span>
+            <span>{t.executionTime}</span>
             <input
               className="admin-input"
               name="executionTime"
@@ -170,13 +179,13 @@ export function CatalogEntityForm({
         </>
       ) : (
         <label>
-          <span>Назначение</span>
+          <span>{t.purpose}</span>
           <input className="admin-input" name="purpose" defaultValue={initial?.purpose ?? ""} />
         </label>
       )}
 
       <label>
-        <span>Цена RUB</span>
+        <span>{t.priceRub}</span>
         <input
           className="admin-input"
           name="priceRub"
@@ -187,7 +196,7 @@ export function CatalogEntityForm({
       </label>
 
       <label>
-        <span>Цена USD</span>
+        <span>{t.priceUsd}</span>
         <input
           className="admin-input"
           name="priceUsd"
@@ -198,7 +207,7 @@ export function CatalogEntityForm({
       </label>
 
       <label>
-        <span>Подпись цены</span>
+        <span>{t.priceLabel}</span>
         <input
           className="admin-input"
           name="priceLabel"
@@ -207,7 +216,7 @@ export function CatalogEntityForm({
       </label>
 
       <label>
-        <span>Валюта</span>
+        <span>{t.currency}</span>
         <select className="admin-select" name="currency" defaultValue={initial?.currency ?? "RUB"}>
           <option value="RUB">RUB</option>
           <option value="USD">USD</option>
@@ -215,7 +224,7 @@ export function CatalogEntityForm({
       </label>
 
       <label className="full">
-        <span>Короткое описание</span>
+        <span>{t.shortDescription}</span>
         <textarea
           className="admin-textarea"
           name="shortDescription"
@@ -224,7 +233,7 @@ export function CatalogEntityForm({
       </label>
 
       <label className="full">
-        <span>Полное описание</span>
+        <span>{t.fullDescription}</span>
         <textarea
           className="admin-textarea"
           name="fullDescription"
@@ -234,7 +243,7 @@ export function CatalogEntityForm({
 
       <div className="full admin-image-section">
         <label>
-          <span>Загрузить новое главное изображение</span>
+          <span>{t.uploadMainImage}</span>
           <input
             className="admin-input"
             name="mainImageUpload"
@@ -249,13 +258,11 @@ export function CatalogEntityForm({
               setUploadPreview(URL.createObjectURL(file));
             }}
           />
-          <small className="muted">
-            JPG, PNG или WEBP до 10 МБ. Если выбран и файл, и медиа из библиотеки, файл имеет приоритет.
-          </small>
+          <small className="muted">{t.uploadMainImageHint}</small>
         </label>
 
         <label>
-          <span>Или выбрать из медиатеки</span>
+          <span>{t.selectFromLibrary}</span>
           <select
             className="admin-select"
             name="image"
@@ -265,7 +272,7 @@ export function CatalogEntityForm({
               setUploadPreview(null);
             }}
           >
-            <option value="">Без изображения</option>
+            <option value="">{t.noImage}</option>
             {media.map((item) => (
               <option key={item.id} value={item.path}>
                 {formatMediaLabel(item)}
@@ -277,38 +284,38 @@ export function CatalogEntityForm({
         {previewSrc ? (
           <div className="admin-image-preview">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={previewSrc} alt="Превью главного изображения" />
+            <img src={previewSrc} alt={t.mainImagePreviewAlt} />
           </div>
         ) : null}
       </div>
 
       <label className="full">
-        <span>Галерея</span>
+        <span>{t.gallery}</span>
         <textarea
           className="admin-textarea"
           name="gallery"
           defaultValue={(initial?.gallery ?? []).join("\n")}
-          placeholder="/uploads/... по одной строке"
+          placeholder={t.galleryPlaceholder}
         />
       </label>
 
       <label className="full">
-        <span>Теги</span>
+        <span>{t.tags}</span>
         <textarea
           className="admin-textarea"
           name="tags"
           defaultValue={(initial?.tags ?? []).join("\n")}
-          placeholder="по одному тегу на строку"
+          placeholder={t.tagsPlaceholder}
         />
       </label>
 
       <label>
-        <span>SEO title</span>
+        <span>{t.seoTitle}</span>
         <input className="admin-input" name="seoTitle" defaultValue={initial?.seoTitle ?? ""} />
       </label>
 
       <label>
-        <span>SEO description</span>
+        <span>{t.seoDescription}</span>
         <textarea
           className="admin-textarea"
           name="seoDescription"
@@ -318,16 +325,16 @@ export function CatalogEntityForm({
 
       <div className="full admin-actions-row">
         {!readOnly ? (
-          <SubmitButton className="btn btn-primary" pendingLabel="Сохранение...">
-            Сохранить
+          <SubmitButton className="btn btn-primary" pendingLabel={t.saving}>
+            {t.save}
           </SubmitButton>
         ) : null}
         <a className="btn btn-ghost" href={cancelHref}>
-          {readOnly ? "К списку" : "Отмена"}
+          {readOnly ? t.backToList : t.cancel}
         </a>
         {previewHref ? (
           <a className="btn btn-ghost" href={previewHref} target="_blank" rel="noreferrer">
-            Открыть на сайте
+            {t.openOnSite}
           </a>
         ) : null}
       </div>

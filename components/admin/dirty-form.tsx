@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 
+import { useAdminI18n } from "@/components/admin/admin-i18n-provider";
+
 type Props = {
   action: (formData: FormData) => void | Promise<void>;
   children: React.ReactNode;
@@ -10,6 +12,7 @@ type Props = {
 };
 
 export function DirtyForm({ action, children, className, disabled = false }: Props) {
+  const { dict } = useAdminI18n();
   const [isDirty, setIsDirty] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
@@ -42,7 +45,9 @@ export function DirtyForm({ action, children, className, disabled = false }: Pro
       onSubmit={() => setIsSubmitting(true)}
     >
       <fieldset disabled={disabled}>{children}</fieldset>
-      {isDirty && !disabled ? <p className="admin-form-hint">Есть несохраненные изменения.</p> : null}
+      {isDirty && !disabled ? (
+        <p className="admin-form-hint">{dict.forms.dirtyForm.unsavedChanges}</p>
+      ) : null}
     </form>
   );
 }
