@@ -6,7 +6,8 @@ import { OrderStatus, PaymentStatus, RequestStatus, Role } from "@prisma/client"
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import { deleteMediaFileIfUnlinked, replaceStoredFile, storeUploadedFile } from "@/lib/admin/media";
+import { deleteMediaFileIfUnlinked, formatMediaStorageError, replaceStoredFile, storeUploadedFile } from "@/lib/admin/media";
+import { propagateMediaPathChange, revalidateMediaPathChange } from "@/lib/admin/media-path-sync";
 import { getSiteSettings, type SiteMediaSlotsShape } from "@/lib/admin/settings";
 import {
   validateProductForm,
@@ -179,9 +180,7 @@ export async function saveProductAction(formData: FormData) {
       imagePath = await storeCatalogMainImage(mainImageUpload, data.title);
     } catch (error) {
       redirect(
-        `/admin/products${id ? `/${id}` : "/new"}?error=${encodeNotice(
-          error instanceof Error ? error.message : "Не удалось загрузить изображение."
-        )}`
+        `/admin/products${id ? `/${id}` : "/new"}?error=${encodeNotice(formatMediaStorageError(error))}`
       );
     }
   }
@@ -324,9 +323,7 @@ export async function saveServiceAction(formData: FormData) {
       imagePath = await storeCatalogMainImage(mainImageUpload, data.title);
     } catch (error) {
       redirect(
-        `/admin/services${id ? `/${id}` : "/new"}?error=${encodeNotice(
-          error instanceof Error ? error.message : "Не удалось загрузить изображение."
-        )}`
+        `/admin/services${id ? `/${id}` : "/new"}?error=${encodeNotice(formatMediaStorageError(error))}`
       );
     }
   }
@@ -753,7 +750,11 @@ async function resolveMediaPathFromForm(
 ) {
   const upload = formData.get(uploadField);
   if (upload instanceof File && upload.size > 0) {
-    return storeCatalogMainImage(upload, null);
+    try {
+      return await storeCatalogMainImage(upload, null);
+    } catch (error) {
+      throw new Error(formatMediaStorageError(error));
+    }
   }
 
   const selected = toNullableString(formData.get(selectField));
@@ -762,83 +763,92 @@ async function resolveMediaPathFromForm(
 
 export async function saveSiteMediaSlotsAction(formData: FormData) {
   await requireWritableManagerOrAdmin("/admin/media/site");
-  const current = await getSiteSettings();
-  const media = current.mediaSlots;
 
-  const homeGallery = await Promise.all(
-    media.homeGallery.map(async (slot, index) => ({
-      label: slot.label,
-      alt: toNullableString(formData.get(`gallery.${index}.alt`)) ?? slot.alt,
-      src:
-        (await resolveMediaPathFromForm(
-          formData,
-          `gallery.${index}.upload`,
-          `gallery.${index}.image`,
-          slot.src
-        )) ?? slot.src
-    }))
-  );
+  try {
+    const current = await getSiteSettings();
+    const media = current.mediaSlots;
 
-  const homeDirections = await Promise.all(
-    media.homeDirections.map(async (slot) => ({
-      id: slot.id,
-      alt: toNullableString(formData.get(`direction.${slot.id}.alt`)) ?? slot.alt,
-      image:
-        (await resolveMediaPathFromForm(
-          formData,
-          `direction.${slot.id}.upload`,
-          `direction.${slot.id}.image`,
-          slot.image
-        )) ?? slot.image
-    }))
-  );
+    const homeGallery = await Promise.all(
+      media.homeGallery.map(async (slot, index) => ({
+        label: slot.label,
+        alt: toNullableString(formData.get(`gallery.${index}.alt`)) ?? slot.alt,
+        src:
+          (await resolveMediaPathFromForm(
+            formData,
+            `gallery.${index}.upload`,
+            `gallery.${index}.image`,
+            slot.src
+          )) ?? slot.src
+      }))
+    );
 
-  const nextMediaSlots: SiteMediaSlotsShape = {
-    logoImage: await resolveMediaPathFromForm(
-      formData,
-      "logo.upload",
-      "logo.image",
-      media.logoImage
-    ),
-    logoAlt: toNullableString(formData.get("logo.alt")) ?? media.logoAlt,
-    heroPortrait: await resolveMediaPathFromForm(
-      formData,
-      "hero.upload",
-      "hero.image",
-      media.heroPortrait
-    ),
-    heroPortraitAlt: toNullableString(formData.get("hero.alt")) ?? media.heroPortraitAlt,
-    homeGallery,
-    homeDirections,
-    footerBrandImage: await resolveMediaPathFromForm(
-      formData,
-      "footer.upload",
-      "footer.image",
-      media.footerBrandImage
-    ),
-    aboutImage: await resolveMediaPathFromForm(
-      formData,
-      "about.upload",
-      "about.image",
-      media.aboutImage
-    )
-  };
+    const homeDirections = await Promise.all(
+      media.homeDirections.map(async (slot) => ({
+        id: slot.id,
+        alt: toNullableString(formData.get(`direction.${slot.id}.alt`)) ?? slot.alt,
+        image:
+          (await resolveMediaPathFromForm(
+            formData,
+            `direction.${slot.id}.upload`,
+            `direction.${slot.id}.image`,
+            slot.image
+          )) ?? slot.image
+      }))
+    );
 
-  const next = {
-    ...current,
-    mediaSlots: nextMediaSlots
-  };
+    const nextMediaSlots: SiteMediaSlotsShape = {
+      logoImage: await resolveMediaPathFromForm(
+        formData,
+        "logo.upload",
+        "logo.image",
+        media.logoImage
+      ),
+      logoAlt: toNullableString(formData.get("logo.alt")) ?? media.logoAlt,
+      heroPortrait: await resolveMediaPathFromForm(
+        formData,
+        "hero.upload",
+        "hero.image",
+        media.heroPortrait
+      ),
+      heroPortraitAlt: toNullableString(formData.get("hero.alt")) ?? media.heroPortraitAlt,
+      homeGallery,
+      homeDirections,
+      footerBrandImage: await resolveMediaPathFromForm(
+        formData,
+        "footer.upload",
+        "footer.image",
+        media.footerBrandImage
+      ),
+      aboutImage: await resolveMediaPathFromForm(
+        formData,
+        "about.upload",
+        "about.image",
+        media.aboutImage
+      )
+    };
 
-  await prisma.siteSetting.upsert({
-    where: { key: "site_settings" },
-    update: { value: next },
-    create: { key: "site_settings", value: next }
-  });
+    const next = {
+      ...current,
+      mediaSlots: nextMediaSlots
+    };
 
-  revalidatePath("/");
-  revalidatePath("/about");
-  revalidatePath("/admin/media/site");
-  redirect(`/admin/media/site?success=${encodeNotice("Медиа сайта обновлены.")}`);
+    await prisma.siteSetting.upsert({
+      where: { key: "site_settings" },
+      update: { value: next },
+      create: { key: "site_settings", value: next }
+    });
+
+    revalidatePath("/");
+    revalidatePath("/about");
+    revalidatePath("/admin/media/site");
+    redirect(`/admin/media/site?success=${encodeNotice("Медиа сайта обновлены.")}`);
+  } catch (error) {
+    redirect(
+      `/admin/media/site?error=${encodeNotice(
+        error instanceof Error ? error.message : "Не удалось сохранить медиа сайта."
+      )}`
+    );
+  }
 }
 
 export async function saveUserAction(formData: FormData) {
@@ -927,7 +937,7 @@ export async function saveMediaUploadAction(formData: FormData) {
   } catch (error) {
     redirect(
       `/admin/media?error=${encodeNotice(
-        error instanceof Error ? error.message : "Не удалось загрузить изображение."
+        formatMediaStorageError(error)
       )}`
     );
   }
@@ -963,9 +973,7 @@ export async function updateMediaAction(formData: FormData) {
       nextSize = replaced.size;
     } catch (error) {
       redirect(
-        `/admin/media/${id}?error=${encodeNotice(
-          error instanceof Error ? error.message : "Не удалось заменить файл."
-        )}`
+        `/admin/media/${id}?error=${encodeNotice(formatMediaStorageError(error))}`
       );
     }
   }
@@ -982,7 +990,13 @@ export async function updateMediaAction(formData: FormData) {
     }
   });
 
+  if (nextPath !== media.path) {
+    await propagateMediaPathChange(media.path, nextPath);
+    await revalidateMediaPathChange(media.path, nextPath);
+  }
+
   revalidatePath("/admin/media");
+  revalidatePath(`/admin/media/${id}`);
   redirect(`/admin/media/${id}?success=${encodeNotice("Файл обновлен.")}`);
 }
 
