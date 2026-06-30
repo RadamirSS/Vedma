@@ -32,6 +32,17 @@ function shouldSkipLocale(pathname: string) {
   );
 }
 
+function getPublicOrigin(request: NextRequest) {
+  const host = request.headers.get("x-forwarded-host") ?? request.headers.get("host");
+  const proto = request.headers.get("x-forwarded-proto") ?? request.nextUrl.protocol.replace(":", "");
+
+  if (host) {
+    return `${proto}://${host}`;
+  }
+
+  return request.nextUrl.origin;
+}
+
 export function middleware(request: NextRequest) {
   const uploadRewrite = handleAdminUploadRewrite(request);
   if (uploadRewrite) {
@@ -58,7 +69,7 @@ export function middleware(request: NextRequest) {
   const locale = detectLocaleFromRequest(cookieLocale, acceptLanguage);
   const targetPath = pathname === "/" ? `/${locale}` : `/${locale}${pathname}`;
 
-  return NextResponse.redirect(new URL(`${targetPath}${search}`, request.url));
+  return NextResponse.redirect(new URL(`${targetPath}${search}`, getPublicOrigin(request)));
 }
 
 export const config = {
