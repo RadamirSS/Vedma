@@ -1,0 +1,275 @@
+{
+  "generatedAt": "2026-06-30T23:19:37.365773+00:00",
+  "services": [
+    {
+      "sourceId": "vk-service-028",
+      "titleRu": "\"9 Врат Силы\" - Магический марафон",
+      "missing": [
+        "description"
+      ],
+      "extractionMethod": "safari_clipboard",
+      "clarificationQuestion": "Описание не извлечено с карточки VK."
+    },
+    {
+      "sourceId": "vk-service-005",
+      "titleRu": "КТО ИЛИ ЧТО ВАС ВДОХНОВЛЯЕТ? РАСЧЁТ ПО ДАТЕ РОЖДЕНИЯ",
+      "missing": [
+        "description"
+      ],
+      "extractionMethod": "safari_js",
+      "clarificationQuestion": "Цена «от 550 ₽» — какие тарифы показывать на сайте?"
+    },
+    {
+      "sourceId": "vk-service-032",
+      "titleRu": "ВСТРЕЧА «НАПОЛНЕНИЕ ЖИВОЙ»",
+      "missing": [
+        "description"
+      ],
+      "extractionMethod": "safari_clipboard",
+      "clarificationQuestion": "Описание не извлечено с карточки VK."
+    },
+    {
+      "sourceId": "vk-service-033",
+      "titleRu": "Встреча с Пиковой Дамой",
+      "missing": [
+        "description"
+      ],
+      "extractionMethod": "safari_clipboard",
+      "clarificationQuestion": "Описание не извлечено с карточки VK."
+    },
+    {
+      "sourceId": "vk-service-010",
+      "titleRu": "Никола Зимний. Помощь и защита.",
+      "missing": [
+        "description"
+      ],
+      "extractionMethod": "safari_clipboard",
+      "clarificationQuestion": "Описание не извлечено с карточки VK."
+    },
+    {
+      "sourceId": "vk-service-034",
+      "titleRu": "ВСТРЕЧА «МУДРОСТЬ ЯГИ»",
+      "missing": [
+        "description"
+      ],
+      "extractionMethod": "safari_clipboard",
+      "clarificationQuestion": "Описание не извлечено с карточки VK."
+    },
+    {
+      "sourceId": "vk-service-011",
+      "titleRu": "Ошибки, блокирующие деньги",
+      "missing": [
+        "description"
+      ],
+      "extractionMethod": "safari_js",
+      "clarificationQuestion": "Цена «от 550 ₽» — какие тарифы показывать на сайте?"
+    },
+    {
+      "sourceId": "vk-service-036",
+      "titleRu": "Громница. (изготовление свечей)",
+      "missing": [
+        "description"
+      ],
+      "extractionMethod": "safari_clipboard",
+      "clarificationQuestion": "Описание не извлечено с карточки VK."
+    },
+    {
+      "sourceId": "vk-service-037",
+      "titleRu": "Пробуждение Огня и Живы. Имболк/Громница",
+      "missing": [
+        "description"
+      ],
+      "extractionMethod": "safari_clipboard",
+      "clarificationQuestion": "Описание не извлечено с карточки VK."
+    },
+    {
+      "sourceId": "vk-service-015",
+      "titleRu": "Детские деньги",
+      "missing": [
+        "description"
+      ],
+      "extractionMethod": "safari_clipboard",
+      "clarificationQuestion": "Цена «от 550 ₽» — какие тарифы показывать на сайте?"
+    },
+    {
+      "sourceId": "vk-service-018",
+      "titleRu": "Расчёт энергий определяющий проблемы в деньгах и отношениях",
+      "missing": [
+        "description"
+      ],
+      "extractionMethod": "safari_js",
+      "clarificationQuestion": "Описание не извлечено с карточки VK."
+    },
+    {
+      "sourceId": "vk-service-042",
+      "titleRu": "Чествуем Домового",
+      "missing": [
+        "description"
+      ],
+      "extractionMethod": "safari_clipboard",
+      "clarificationQuestion": "Описание не извлечено с карточки VK."
+    },
+    {
+      "sourceId": "vk-service-019",
+      "titleRu": "Расчёт Суперсилы",
+      "missing": [
+        "description"
+      ],
+      "extractionMethod": "safari_clipboard",
+      "clarificationQuestion": "Цена «от 550 ₽» — какие тарифы показывать на сайте?"
+    },
+    {
+      "sourceId": "vk-service-021",
+      "titleRu": "Где мои деньги в 2026 году?",
+      "missing": [
+        "description"
+      ],
+      "extractionMethod": "safari_clipboard",
+      "clarificationQuestion": "Цена «от 550 ₽» — какие тарифы показывать на сайте?"
+    },
+    {
+      "sourceId": "vk-service-022",
+      "titleRu": "Перековка Судьбы",
+      "missing": [
+        "description"
+      ],
+      "extractionMethod": "safari_clipboard",
+      "clarificationQuestion": "Описание не извлечено с карточки VK."
+    },
+    {
+      "sourceId": "vk-service-023",
+      "titleRu": "Комплекс ритуалов «Мой дом – моя крепость»",
+      "missing": [
+        "description"
+      ],
+      "extractionMethod": "safari_clipboard",
+      "clarificationQuestion": "Описание не извлечено с карточки VK."
+    },
+    {
+      "sourceId": "vk-service-024",
+      "titleRu": "Усиление денежного канала через Число Судьбы + Медитация \"Выравнивание денежных трат\"",
+      "missing": [
+        "description"
+      ],
+      "extractionMethod": "safari_clipboard",
+      "clarificationQuestion": "Описание не извлечено с карточки VK."
+    },
+    {
+      "sourceId": "vk-service-048",
+      "titleRu": "Сила Рода",
+      "missing": [
+        "description"
+      ],
+      "extractionMethod": "safari_clipboard",
+      "clarificationQuestion": "Описание не извлечено с карточки VK."
+    },
+    {
+      "sourceId": "vk-service-049",
+      "titleRu": "Весенние Деды. Почитание Предков",
+      "missing": [
+        "description"
+      ],
+      "extractionMethod": "safari_clipboard",
+      "clarificationQuestion": "Описание не извлечено с карточки VK."
+    },
+    {
+      "sourceId": "vk-service-050",
+      "titleRu": "Культ Плодородия",
+      "missing": [
+        "description"
+      ],
+      "extractionMethod": "safari_clipboard",
+      "clarificationQuestion": "Описание не извлечено с карточки VK."
+    },
+    {
+      "sourceId": "vk-service-026",
+      "titleRu": "Купало-Ночь великого Солнца",
+      "missing": [
+        "description"
+      ],
+      "extractionMethod": "safari_clipboard",
+      "clarificationQuestion": "Описание не извлечено с карточки VK."
+    },
+    {
+      "sourceId": "vk-service-035",
+      "titleRu": "Марафон+встреча \"Масленичная неделя\"",
+      "missing": [
+        "description"
+      ],
+      "extractionMethod": "safari_clipboard",
+      "clarificationQuestion": "Описание не извлечено с карточки VK."
+    },
+    {
+      "sourceId": "vk-service-038",
+      "titleRu": "Зимнее Солнцестояние",
+      "missing": [
+        "description"
+      ],
+      "extractionMethod": "safari_clipboard",
+      "clarificationQuestion": "Описание не извлечено с карточки VK."
+    },
+    {
+      "sourceId": "vk-service-039",
+      "titleRu": "ПРОБУЖДЕНИЕ ОГНЯ. ВСТУПЛЕНИЕ В СИЛУ. Весеннее Равноденствие",
+      "missing": [
+        "description"
+      ],
+      "extractionMethod": "safari_clipboard",
+      "clarificationQuestion": "Описание не извлечено с карточки VK."
+    },
+    {
+      "sourceId": "vk-service-041",
+      "titleRu": "Осеннее Равноденствие",
+      "missing": [
+        "description"
+      ],
+      "extractionMethod": "safari_clipboard",
+      "clarificationQuestion": "Описание не извлечено с карточки VK."
+    },
+    {
+      "sourceId": "vk-service-043",
+      "titleRu": "Медовый Спас",
+      "missing": [
+        "description"
+      ],
+      "extractionMethod": "safari_clipboard",
+      "clarificationQuestion": "Описание не извлечено с карточки VK."
+    },
+    {
+      "sourceId": "vk-service-044",
+      "titleRu": "Хлебный/Ореховый Спас",
+      "missing": [
+        "description"
+      ],
+      "extractionMethod": "safari_clipboard",
+      "clarificationQuestion": "Описание не извлечено с карточки VK."
+    },
+    {
+      "sourceId": "vk-service-045",
+      "titleRu": "Яблочный Спас",
+      "missing": [
+        "description"
+      ],
+      "extractionMethod": "safari_clipboard",
+      "clarificationQuestion": "Описание не извлечено с карточки VK."
+    },
+    {
+      "sourceId": "vk-service-046",
+      "titleRu": "Лугнасад",
+      "missing": [
+        "description"
+      ],
+      "extractionMethod": "safari_clipboard",
+      "clarificationQuestion": "Описание не извлечено с карточки VK."
+    },
+    {
+      "sourceId": "vk-service-051",
+      "titleRu": "Весеннее Равноденствие",
+      "missing": [
+        "description"
+      ],
+      "extractionMethod": "safari_clipboard",
+      "clarificationQuestion": "Описание не извлечено с карточки VK."
+    }
+  ]
+}
