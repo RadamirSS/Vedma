@@ -146,7 +146,7 @@ export default async function AdminServicesPage({
                       <Link className="btn btn-ghost btn-small" href={`/admin/services/${item.id}`}>
                         {isReadOnly ? "Открыть" : "Редактировать"}
                       </Link>
-                      <Link className="btn btn-ghost btn-small" href={`/services/${item.slug}`} target="_blank">
+                      <Link className="btn btn-ghost btn-small" href={`/ru/services/${item.slug}`} target="_blank">
                         Preview
                       </Link>
                     </div>

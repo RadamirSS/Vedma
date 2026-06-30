@@ -2,7 +2,7 @@
 
 Date: 2026-06-30
 Repository: `Vedma`
-Current branch: `main`
+Current branch: `cursor/package-3-5-mobile-i18n-polish`
 Main branch status: Package 3.4 / 3.4.1 / 3.4.2 deployed on https://bajena.it
 
 ## Instruction Sources
@@ -179,6 +179,29 @@ Implemented:
 - registration repeat email/password validation
 
 See [docs/packages/package-3-4-2-checkout-ux-finalization.md](docs/packages/package-3-4-2-checkout-ux-finalization.md).
+
+### Package 3.5
+
+Status: `IN_REVIEW` on branch `cursor/package-3-5-mobile-i18n-polish`
+
+Implemented:
+
+- removed inappropriate public meta-copy from homepage benefits section
+- fixed service direction «точная диагностика» wording
+- mobile header: account button visible at ≤720px with compact label
+- checkout dark premium mobile styling (readable labels/inputs/checkboxes)
+- login/register dual-card CTA layout
+- typed EN/RU i18n via `app/[locale]/` with middleware locale detection
+- locale switcher (cookie `bajena_locale`), hreflang/canonical metadata
+- legacy `/products`, `/checkout`, `/account` redirect to detected locale
+
+Limitations:
+
+- admin remains Russian at `/admin`
+- catalog DB content still Russian on both locales (UI chrome translated)
+- payments/email unchanged
+
+See [docs/packages/package-3-5-mobile-i18n-polish.md](docs/packages/package-3-5-mobile-i18n-polish.md).
 
 ## DB And Fallback Behavior
 

@@ -1,34 +1,22 @@
-import type { Metadata } from "next";
+import { headers } from "next/headers";
 
 import { CartProvider } from "@/components/cart-context";
-import { SiteShell } from "@/components/site-shell";
-import { getSiteSettings } from "@/lib/admin/settings";
+import { LocaleHtmlLang } from "@/components/locale-html-lang";
+import { defaultLocale, isLocale } from "@/lib/i18n/config";
 
 import "./globals.css";
 
-export async function generateMetadata(): Promise<Metadata> {
-  const settings = await getSiteSettings();
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://bajena.it";
-
-  return {
-    metadataBase: new URL(siteUrl),
-    title: {
-      default: settings.seo.defaultTitle,
-      template: settings.seo.titleTemplate
-    },
-    description: settings.seo.defaultDescription,
-    keywords: settings.seo.keywords
-  };
-}
-
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  const settings = await getSiteSettings();
+  const headerStore = await headers();
+  const headerLocale = headerStore.get("x-bajena-locale");
+  const lang = headerLocale && isLocale(headerLocale) ? headerLocale : defaultLocale;
 
   return (
-    <html lang="ru">
+    <html lang={lang} suppressHydrationWarning>
       <body>
         <CartProvider>
-          <SiteShell settings={settings}>{children}</SiteShell>
+          <LocaleHtmlLang />
+          {children}
         </CartProvider>
       </body>
     </html>

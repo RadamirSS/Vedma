@@ -1,27 +1,38 @@
 "use client";
 
 import Link from "next/link";
-import type { Route } from "next";
 
 import { AddToCartButton } from "@/components/commerce/add-to-cart-button";
 import { CatalogVisual } from "@/components/catalog-visual";
 import type { CatalogItem } from "@/lib/catalog-types";
+import type { Locale } from "@/lib/i18n/config";
+import type { Dictionary } from "@/lib/i18n/dictionaries/ru";
+import { localizeHref } from "@/lib/i18n/routing";
+import { buildTelegramLeadUrl } from "@/lib/i18n/telegram-lead";
 import { getProductDisplayCategory } from "@/lib/product-categories";
 import { formatPrice } from "@/lib/utils";
 
-const TELEGRAM = "https://t.me/Bazhena13witch";
-
-function getCategoryLabel(item: CatalogItem) {
+function getCategoryLabel(item: CatalogItem, dict: Dictionary) {
   if (item.type === "product") {
     return getProductDisplayCategory(item);
   }
-  return "Услуга";
+  return dict.catalog.services;
 }
 
-export function CatalogCard({ item }: { item: CatalogItem }) {
-  const detailHref =
-    (item.type === "service" ? `/services/${item.slug}` : `/products/${item.slug}`) as Route;
-  const categoryLabel = getCategoryLabel(item);
+export function CatalogCard({
+  item,
+  locale,
+  dict
+}: {
+  item: CatalogItem;
+  locale: Locale;
+  dict: Dictionary;
+}) {
+  const detailHref = localizeHref(
+    locale,
+    item.type === "service" ? `/services/${item.slug}` : `/products/${item.slug}`
+  );
+  const categoryLabel = getCategoryLabel(item, dict);
 
   return (
     <article className="product-card">
@@ -36,7 +47,7 @@ export function CatalogCard({ item }: { item: CatalogItem }) {
       </div>
       <div className="card-body">
         <div className="meta">
-          <span>{item.type === "service" ? "Услуга" : "Товар"}</span>
+          <span>{item.type === "service" ? dict.catalog.services : dict.catalog.products}</span>
           <span>{categoryLabel}</span>
         </div>
         <h3 className="card-title">{item.title}</h3>
@@ -44,27 +55,29 @@ export function CatalogCard({ item }: { item: CatalogItem }) {
         <div className="card-footer">
           <div className="price-row">
             <div className="price">
-              {item.type === "service" ? formatPrice(item.price, "от") : formatPrice(item.price)}
+              {item.type === "service"
+                ? formatPrice(item.price, dict.catalog.fromPrice)
+                : formatPrice(item.price)}
             </div>
           </div>
           <div className="card-actions">
             <Link className="btn btn-ghost btn-small" href={detailHref}>
-              Подробнее
+              {dict.catalog.viewDetails}
             </Link>
             <AddToCartButton
               itemType={item.type}
               slug={item.slug}
               className="btn btn-primary btn-small"
-              label={item.type === "service" ? "В корзину" : "В корзину"}
+              label={dict.catalog.addToCart}
             />
             {item.type === "service" ? (
               <a
                 className="btn btn-ghost btn-small"
-                href={`${TELEGRAM}?text=${encodeURIComponent(`Здравствуйте! Интересует услуга: ${item.title}`)}`}
+                href={buildTelegramLeadUrl(dict.common.telegramServiceLead, item.title)}
                 target="_blank"
                 rel="noreferrer"
               >
-                Уточнить
+                {dict.catalog.clarify}
               </a>
             ) : null}
           </div>

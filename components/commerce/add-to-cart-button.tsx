@@ -1,6 +1,10 @@
 "use client";
 
+import { usePathname } from "next/navigation";
+
 import { useCart } from "@/components/cart-context";
+import { getDictionarySync } from "@/lib/i18n/get-dictionary";
+import { getLocaleFromPathname } from "@/lib/i18n/routing";
 
 export function AddToCartButton({
   itemType,
@@ -13,7 +17,9 @@ export function AddToCartButton({
   className?: string;
   label?: string;
 }) {
+  const pathname = usePathname();
   const { addItem } = useCart();
+  const dict = getDictionarySync(getLocaleFromPathname(pathname));
 
   return (
     <button
@@ -21,7 +27,7 @@ export function AddToCartButton({
       className={className}
       onClick={() => addItem({ type: itemType, slug })}
     >
-      {label ?? "В корзину"}
+      {label ?? dict.catalog.addToCart}
     </button>
   );
 }

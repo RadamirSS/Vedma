@@ -3,18 +3,15 @@
 import Link from "next/link";
 import { useActionState, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
-import { customerLogoutAction } from "@/app/account/actions";
-
-import {
-  checkoutCustomerLoginAction,
-  submitCheckoutAction,
-  type CheckoutActionState
-} from "@/app/checkout/actions";
+import { customerLogoutAction, submitCheckoutAction, checkoutCustomerLoginAction, type CheckoutActionState } from "@/lib/actions/customer";
 import { AddressAutocomplete } from "@/components/address-autocomplete";
 import { CheckoutSuccessPanel } from "@/components/checkout-success-panel";
 import { SoftTrustNotice } from "@/components/soft-trust-notice";
 import { SubmitButton } from "@/components/admin/submit-button";
 import { useCart } from "@/components/cart-context";
+import type { Locale } from "@/lib/i18n/config";
+import type { Dictionary } from "@/lib/i18n/dictionaries/ru";
+import { localizeHref } from "@/lib/i18n/routing";
 import { formatPrice } from "@/lib/utils";
 
 const initialState: CheckoutActionState = {
@@ -24,9 +21,6 @@ const initialState: CheckoutActionState = {
   orderId: null,
   orderNumber: null
 };
-
-const STALE_CART_MESSAGE =
-  "Товары из корзины больше недоступны. Обновите корзину или выберите товары заново.";
 
 function FieldWrap({
   name,
@@ -54,7 +48,9 @@ function FieldWrap({
 
 export function CheckoutView({
   currentUser,
-  loginError
+  loginError,
+  locale,
+  dict
 }: {
   currentUser?: {
     email: string;
@@ -68,6 +64,8 @@ export function CheckoutView({
     postalCode?: string | null;
   } | null;
   loginError?: string | null;
+  locale: Locale;
+  dict: Dictionary;
 }) {
   const {
     items,
@@ -110,21 +108,24 @@ export function CheckoutView({
   const fieldErrors = state.fieldErrors ?? {};
   const showCheckoutForm = isLoggedIn || accountMode === "new";
 
+  const t = dict.checkout;
+  const staleCartMessage = t.staleCart;
+
   let submitDisabledReason: string | null = null;
   if (state.success) {
     submitDisabledReason = null;
   } else if (isPending) {
-    submitDisabledReason = "Загружаем состав корзины...";
+    submitDisabledReason = t.loadingCart;
   } else if (resolveError) {
     submitDisabledReason = resolveError;
   } else if (cartUnavailable) {
-    submitDisabledReason = STALE_CART_MESSAGE;
+    submitDisabledReason = staleCartMessage;
   } else if (resolvedItems.length === 0) {
-    submitDisabledReason = "Добавьте товары или услуги из каталога, чтобы оформить заказ.";
+    submitDisabledReason = t.addItemsHint;
   }
 
-  const productCommentLabel = "Комментарий к заказу / пожелания по доставке";
-  const serviceCommentLabel = "Опишите запрос или ситуацию";
+  const productCommentLabel = t.productCommentLabel;
+  const serviceCommentLabel = t.serviceCommentLabel;
 
   if (state.success && state.orderId && state.orderNumber && state.redirectTo) {
     return (
@@ -133,9 +134,11 @@ export function CheckoutView({
           orderId={state.orderId}
           orderNumber={state.orderNumber}
           accountUrl={state.redirectTo}
+          locale={locale}
+          dict={dict}
         />
         <aside className="cart-summary">
-          <SoftTrustNotice compact />
+          <SoftTrustNotice compact text={dict.trust.softNotice} />
         </aside>
       </div>
     );
@@ -145,31 +148,28 @@ export function CheckoutView({
     <div className="checkout-grid">
       <div className="form-card">
         {resolveError ? <p className="checkout-error">{resolveError}</p> : null}
-        {cartUnavailable ? <p className="checkout-error">{STALE_CART_MESSAGE}</p> : null}
+        {cartUnavailable ? <p className="checkout-error">{staleCartMessage}</p> : null}
         {loginError ? <p className="checkout-error">{loginError}</p> : null}
 
         <section className="checkout-account-section">
-          <h3>Кабинет покупателя</h3>
+          <h3>{t.customerAccount}</h3>
           {isLoggedIn ? (
             <div className="checkout-account-confirmed">
               <p>
-                Вы вошли как <strong>{currentUser?.email}</strong>
+                {t.loggedInAs} <strong>{currentUser?.email}</strong>
               </p>
-              <p className="muted">
-                Данные профиля подставлены ниже. Заказ будет сохранён в вашем кабинете.
-              </p>
+              <p className="muted">{t.profilePrefilled}</p>
               <form action={customerLogoutAction} className="stack-top">
+                <input type="hidden" name="locale" value={locale} />
                 <button type="submit" className="text-link">
-                  Выйти и сменить аккаунт
+                  {t.logoutSwitch}
                 </button>
               </form>
             </div>
           ) : (
             <>
-              <p className="muted">
-                Создайте кабинет для отслеживания заказа или войдите, если уже регистрировались.
-              </p>
-              <div className="checkout-account-mode" role="radiogroup" aria-label="Режим кабинета">
+              <p className="muted">{t.accountHint}</p>
+              <div className="checkout-account-mode" role="radiogroup" aria-label={t.customerAccount}>
                 <label className={`checkout-mode-option ${accountMode === "new" ? "is-active" : ""}`}>
                   <input
                     type="radio"
@@ -178,7 +178,7 @@ export function CheckoutView({
                     checked={accountMode === "new"}
                     onChange={() => setAccountMode("new")}
                   />
-                  <span>Я новый клиент</span>
+                  <span>{t.newCustomer}</span>
                 </label>
                 <label className={`checkout-mode-option ${accountMode === "existing" ? "is-active" : ""}`}>
                   <input
@@ -188,24 +188,28 @@ export function CheckoutView({
                     checked={accountMode === "existing"}
                     onChange={() => setAccountMode("existing")}
                   />
-                  <span>У меня уже есть кабинет</span>
+                  <span>{t.existingCustomer}</span>
                 </label>
               </div>
               {accountMode === "existing" ? (
                 <form className="checkout-login-form stack-top" action={checkoutCustomerLoginAction}>
-                  <FieldWrap name="email" label="Email" fieldErrors={fieldErrors}>
-                    <input id="email" name="email" type="email" placeholder="mail@example.com" />
+                  <input type="hidden" name="locale" value={locale} />
+                  <FieldWrap name="email" label={t.email} fieldErrors={fieldErrors}>
+                    <input id="email" name="email" type="email" placeholder={t.emailPlaceholder} />
                   </FieldWrap>
-                  <FieldWrap name="password" label="Пароль" fieldErrors={fieldErrors}>
-                    <input id="password" name="password" type="password" placeholder="Пароль кабинета" />
+                  <FieldWrap name="password" label={t.password} fieldErrors={fieldErrors}>
+                    <input id="password" name="password" type="password" placeholder={t.passwordPlaceholder} />
                   </FieldWrap>
-                  <SubmitButton className="btn btn-primary btn-wide" pendingLabel="Входим...">
-                    Войти и продолжить
+                  <SubmitButton className="btn btn-primary btn-wide" pendingLabel={dict.account.loginPending}>
+                    {t.loginContinue}
                   </SubmitButton>
                   <p className="muted">
-                    Или{" "}
-                    <Link className="text-link" href="/account/login?next=/checkout">
-                      войти на отдельной странице
+                    {t.or}{" "}
+                    <Link
+                      className="text-link"
+                      href={`${localizeHref(locale, "/account/login")}?next=${encodeURIComponent(localizeHref(locale, "/checkout"))}`}
+                    >
+                      {t.loginSeparate}
                     </Link>
                     .
                   </p>
@@ -217,21 +221,22 @@ export function CheckoutView({
 
         {showCheckoutForm ? (
           <form ref={formRef} className="stack-top" action={formAction} noValidate>
+            <input type="hidden" name="locale" value={locale} />
             <input type="hidden" name="cartEntries" value={cartEntriesJson} />
             <input type="hidden" name="accountMode" value={isLoggedIn ? "existing" : accountMode} />
 
             {hasProducts ? (
               <div className="checkout-note checkout-note--info">
-                <p>После успешного оформления заказа товар будет предварительно зарезервирован.</p>
-                <p>Администратор подтвердит наличие и отправит реквизиты.</p>
-                <p>Пожалуйста, проверьте контактные данные и адрес доставки.</p>
+                <p>{t.productNote1}</p>
+                <p>{t.productNote2}</p>
+                <p>{t.productNote3}</p>
               </div>
             ) : null}
 
             {hasServices && !hasProducts ? (
               <div className="checkout-note checkout-note--info">
-                <p>После оформления заявки администратор свяжется для согласования времени и формата.</p>
-                <p>Оплата пока вручную после подтверждения.</p>
+                <p>{t.serviceNote1}</p>
+                <p>{t.serviceNote2}</p>
               </div>
             ) : null}
 
@@ -240,11 +245,11 @@ export function CheckoutView({
             ) : null}
 
             <div className="form-grid">
-              <FieldWrap name="name" label="Имя" fieldErrors={fieldErrors}>
+              <FieldWrap name="name" label={t.name} fieldErrors={fieldErrors}>
                 <input
                   id="name"
                   name="name"
-                  placeholder="Ваше имя"
+                  placeholder={t.namePlaceholder}
                   defaultValue={currentUser?.name ?? ""}
                   className={fieldErrors.name ? "input-error" : undefined}
                   aria-invalid={fieldErrors.name ? true : undefined}
@@ -255,45 +260,45 @@ export function CheckoutView({
                 <>
                   <FieldWrap
                     name="email"
-                    label="Email"
+                    label={t.email}
                     fieldErrors={fieldErrors}
-                    hint="Email нужен для подтверждения заказа и будущих чеков/уведомлений."
+                    hint={t.emailHint}
                   >
                     <input
                       id="email"
                       name="email"
                       type="email"
-                      placeholder="mail@example.com"
+                      placeholder={t.emailPlaceholder}
                       className={fieldErrors.email ? "input-error" : undefined}
                       aria-invalid={fieldErrors.email ? true : undefined}
                     />
                   </FieldWrap>
-                  <FieldWrap name="emailConfirm" label="Повторите email" fieldErrors={fieldErrors}>
+                  <FieldWrap name="emailConfirm" label={t.emailConfirm} fieldErrors={fieldErrors}>
                     <input
                       id="emailConfirm"
                       name="emailConfirm"
                       type="email"
-                      placeholder="mail@example.com"
+                      placeholder={t.emailPlaceholder}
                       className={fieldErrors.emailConfirm ? "input-error" : undefined}
                       aria-invalid={fieldErrors.emailConfirm ? true : undefined}
                     />
                   </FieldWrap>
-                  <FieldWrap name="password" label="Пароль кабинета" fieldErrors={fieldErrors}>
+                  <FieldWrap name="password" label={t.accountPassword} fieldErrors={fieldErrors}>
                     <input
                       id="password"
                       name="password"
                       type="password"
-                      placeholder="Минимум 8 символов"
+                      placeholder={t.passwordMin}
                       className={fieldErrors.password ? "input-error" : undefined}
                       aria-invalid={fieldErrors.password ? true : undefined}
                     />
                   </FieldWrap>
-                  <FieldWrap name="passwordConfirm" label="Повторите пароль" fieldErrors={fieldErrors}>
+                  <FieldWrap name="passwordConfirm" label={t.passwordConfirm} fieldErrors={fieldErrors}>
                     <input
                       id="passwordConfirm"
                       name="passwordConfirm"
                       type="password"
-                      placeholder="Повторите пароль"
+                      placeholder={t.passwordConfirm}
                       className={fieldErrors.passwordConfirm ? "input-error" : undefined}
                       aria-invalid={fieldErrors.passwordConfirm ? true : undefined}
                     />
@@ -305,38 +310,39 @@ export function CheckoutView({
                 <input type="hidden" name="email" value={currentUser?.email ?? ""} />
               ) : null}
 
-              <FieldWrap name="phone" label={`Телефон${hasProducts ? " *" : ""}`} fieldErrors={fieldErrors}>
+              <FieldWrap name="phone" label={`${t.phone}${hasProducts ? " *" : ""}`} fieldErrors={fieldErrors}>
                 <input
                   id="phone"
                   name="phone"
-                  placeholder="+7 / +995 ..."
+                  placeholder={t.phonePlaceholder}
                   defaultValue={currentUser?.phone ?? ""}
                   className={fieldErrors.phone ? "input-error" : undefined}
                   aria-invalid={fieldErrors.phone ? true : undefined}
                 />
               </FieldWrap>
-              <FieldWrap name="telegram" label="Telegram (необязательно)" fieldErrors={fieldErrors}>
+              <FieldWrap name="telegram" label={t.telegram} fieldErrors={fieldErrors}>
                 <input
                   id="telegram"
                   name="telegram"
-                  placeholder="@username"
+                  placeholder={t.telegramPlaceholder}
                   defaultValue={currentUser?.telegram ?? ""}
                 />
               </FieldWrap>
               <div className="field">
-                <label htmlFor="contactMethod">Способ связи</label>
+                <label htmlFor="contactMethod">{t.contactMethod}</label>
                 <select id="contactMethod" name="contactMethod" defaultValue="TELEGRAM">
-                  <option value="TELEGRAM">Telegram</option>
-                  <option value="WHATSAPP">WhatsApp</option>
-                  <option value="PHONE">Телефон</option>
-                  <option value="EMAIL">Email</option>
+                  <option value="TELEGRAM">{t.contactMethods.telegram}</option>
+                  <option value="WHATSAPP">{t.contactMethods.whatsapp}</option>
+                  <option value="PHONE">{t.contactMethods.phone}</option>
+                  <option value="EMAIL">{t.contactMethods.email}</option>
                 </select>
               </div>
 
               {deliveryRequired ? (
                 <div className="field full checkout-section">
-                  <h4>Доставка</h4>
+                  <h4>{t.delivery}</h4>
                   <AddressAutocomplete
+                    dict={dict}
                     fieldErrors={fieldErrors}
                     defaultValues={{
                       country: currentUser?.country ?? undefined,
@@ -351,21 +357,21 @@ export function CheckoutView({
 
               {hasServices ? (
                 <div className="field full checkout-section">
-                  <h4>Запрос по услуге</h4>
+                  <h4>{t.serviceRequest}</h4>
                   <div className="field full">
                     <label htmlFor="serviceComment">{serviceCommentLabel}</label>
                     <textarea
                       id="serviceComment"
                       name="serviceComment"
-                      placeholder="Опишите ситуацию, запрос или ожидания от работы."
+                      placeholder={t.serviceCommentPlaceholder}
                     />
                   </div>
                   <div className="field full">
-                    <label htmlFor="preferredContactAt">Удобное время связи</label>
+                    <label htmlFor="preferredContactAt">{t.preferredContact}</label>
                     <input
                       id="preferredContactAt"
                       name="preferredContactAt"
-                      placeholder="Например: будни после 18:00 или суббота утром"
+                      placeholder={t.preferredContactPlaceholder}
                     />
                   </div>
                 </div>
@@ -377,19 +383,19 @@ export function CheckoutView({
                   <textarea
                     id="comment"
                     name="comment"
-                    placeholder="Пожелания по доставке, упаковке или составу заказа."
+                    placeholder={t.productCommentPlaceholder}
                   />
                 </div>
               ) : null}
 
               <label className={`field full check ${fieldErrors.ageConfirmed ? "has-error" : ""}`} data-field="ageConfirmed">
                 <input type="checkbox" name="ageConfirmed" value="yes" />
-                <span>Подтверждаю, что мне исполнилось 18 лет.</span>
+                <span>{t.ageConfirm}</span>
                 {fieldErrors.ageConfirmed ? <span className="field-error">{fieldErrors.ageConfirmed}</span> : null}
               </label>
               <label className={`field full check ${fieldErrors.legalAccepted ? "has-error" : ""}`} data-field="legalAccepted">
                 <input type="checkbox" name="legalAccepted" value="yes" />
-                <span>Согласен с политикой конфиденциальности и офертой.</span>
+                <span>{t.legalAccept}</span>
                 {fieldErrors.legalAccepted ? <span className="field-error">{fieldErrors.legalAccepted}</span> : null}
               </label>
             </div>
@@ -398,14 +404,14 @@ export function CheckoutView({
               <p className="checkout-error stack-top">{submitDisabledReason}</p>
             ) : null}
             <button className="btn btn-primary btn-wide stack-top" type="submit" disabled={submitDisabled}>
-              {pending ? "Отправляем заказ..." : "Отправить заказ"}
+              {pending ? t.submitting : t.submitOrder}
             </button>
           </form>
         ) : null}
       </div>
 
       <aside className="cart-summary">
-        <h3>Состав заказа</h3>
+        <h3>{t.orderSummary}</h3>
         {resolvedItems.length > 0 ? (
           <>
             {resolvedItems.map((item) => (
@@ -417,34 +423,34 @@ export function CheckoutView({
               </div>
             ))}
             <div className="summary-line summary-total">
-              <span>Итого</span>
+              <span>{t.total}</span>
               <b>{isPending ? "..." : formatPrice(total)}</b>
             </div>
             {deliveryRequired ? (
-              <p className="muted checkout-delivery-note">Доставка потребуется</p>
+              <p className="muted checkout-delivery-note">{t.deliveryRequired}</p>
             ) : null}
           </>
         ) : cartIsEmpty ? (
           <>
-            <p className="muted">Корзина пока пустая. Добавьте услугу или товар из каталога.</p>
+            <p className="muted">{t.emptyCart}</p>
             <div className="stack-top hero-actions">
-              <Link className="btn btn-primary btn-wide" href="/products">
-                Перейти к товарам
+              <Link className="btn btn-primary btn-wide" href={localizeHref(locale, "/products")}>
+                {dict.cart.goToProducts}
               </Link>
-              <Link className="btn btn-ghost btn-wide" href="/services">
-                Перейти к услугам
+              <Link className="btn btn-ghost btn-wide" href={localizeHref(locale, "/services")}>
+                {dict.cart.goToServices}
               </Link>
             </div>
           </>
         ) : cartUnavailable ? (
-          <p className="checkout-error">{STALE_CART_MESSAGE}</p>
+          <p className="checkout-error">{staleCartMessage}</p>
         ) : resolveError ? (
           <p className="checkout-error">{resolveError}</p>
         ) : (
-          <p className="muted">{isPending ? "Загружаем корзину..." : "Проверяем состав корзины..."}</p>
+          <p className="muted">{isPending ? dict.cart.loading : t.checkingCart}</p>
         )}
         <div className="stack-top">
-          <SoftTrustNotice compact />
+          <SoftTrustNotice compact text={dict.trust.softNotice} />
         </div>
       </aside>
     </div>

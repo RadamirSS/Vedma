@@ -207,6 +207,13 @@ p {
   box-shadow: 0 12px 34px rgba(201, 164, 92, 0.2);
 }
 
+.btn-secondary {
+  background: rgba(201, 164, 92, 0.14);
+  border: 1px solid rgba(201, 164, 92, 0.45);
+  color: var(--gold2);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+}
+
 .btn-wine {
   background: linear-gradient(135deg, var(--wine2), var(--wine));
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -306,8 +313,133 @@ p {
 
 .nav-actions {
   flex-shrink: 0;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: flex-end;
+}
+
+.account-btn__short {
+  display: none;
+}
+
+.locale-switcher {
+  display: inline-flex;
+  gap: 4px;
+  padding: 2px;
+  border: 1px solid rgba(201, 164, 92, 0.22);
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.locale-switcher__btn {
+  min-width: 36px;
+  padding: 6px 10px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+}
+
+.locale-switcher__btn.is-active {
+  background: rgba(201, 164, 92, 0.22);
+  color: var(--gold2);
+}
+
+.account-auth-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  margin-top: 24px;
+}
+
+.account-auth-card-title {
+  margin: 0 0 16px;
+  font-size: clamp(24px, 3vw, 32px);
+}
+
+.account-auth-card--cta {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.account-register-card {
+  max-width: 720px;
+}
+
+.checkout-grid {
+  overflow-x: hidden;
+}
+
+.checkout-grid .form-card,
+.checkout-grid .cart-summary {
+  background: linear-gradient(180deg, rgba(27, 21, 21, 0.96), rgba(13, 11, 11, 0.94));
+}
+
+.checkout-grid .field label {
+  color: var(--gold2);
+}
+
+.checkout-grid input,
+.checkout-grid textarea,
+.checkout-grid select {
+  background: rgba(0, 0, 0, 0.35);
+  color: var(--ivory);
+  max-width: 100%;
+}
+
+.checkout-grid input::placeholder,
+.checkout-grid textarea::placeholder {
+  color: rgba(201, 185, 158, 0.55);
+}
+
+.checkout-grid .check {
+  align-items: flex-start;
+}
+
+.checkout-grid .check span {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.checkout-grid .text-link {
+  color: var(--gold);
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.checkout-grid .form-card {
+  overflow-x: hidden;
+}
+
+@media (max-width: 768px) {
+  .account-auth-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 390px) {
+  .nav-actions {
+    gap: 6px;
+  }
+
+  .nav-actions .btn-small {
+    padding: 8px 10px;
+    font-size: 11px;
+  }
+
+  .locale-switcher__btn {
+    min-width: 32px;
+    padding: 5px 8px;
+  }
 }
 
 .menu {
@@ -1692,7 +1824,15 @@ main {
     height: 70px;
   }
 
-  .nav-actions .btn:not(.cart-btn):not(.burger) {
+  .nav-actions .btn:not(.cart-btn):not(.burger):not(.account-btn) {
+    display: none;
+  }
+
+  .account-btn__short {
+    display: inline;
+  }
+
+  .account-btn__full {
     display: none;
   }
 
