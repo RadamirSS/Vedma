@@ -1,0 +1,3 @@
+Tab: Ответ на один вопрос - купить за 500 руб. на ВК Маркет
+
+JS/clipboard unavailable. Enable Safari → Settings → Developer → Allow JavaScript from Apple Events.
