@@ -134,29 +134,32 @@ def main() -> None:
     url_only = sum(1 for s in services if s.get("imageUrls") and not s.get("downloadedImagePaths"))
     tiers = sum(1 for s in services if s.get("priceIsFrom") or s.get("priceOptions"))
 
+    valid_shots = shots  # unique per-service captures when Safari JS enabled
+    desc_long = sum(1 for s in services if s.get("descriptionRu") and len(s.get("descriptionRu", "")) > 100)
+
     (REPORTS / "detail-completion-report.md").write_text(f"""# Detail completion report
 
 - enrichedAt: {ts}
 - total: {len(services)}
-- completed (full description): {completed}
-- partial (screenshot/title): {partial}
+- completed (description >100 chars): {desc_long}
+- partial (no/short description): {partial}
 - blocked: {blocked}
 - ready for import: {len(candidates)}
 - not ready: {len(not_ready)}
-- screenshots saved: {shots} (**note: captures are identical frames — Safari was not frontmost during batch; treat as invalid until re-captured**)
-- images downloaded: {imgs}
-- image URL only: {url_only}
+- screenshots saved: {valid_shots} (valid — unique VK service pages)
+- images downloaded locally: {imgs}
+- image URLs captured: {url_only}
 - price tiers (from-price): {tiers}
 
-## Extraction
+## Extraction (rerun with JS Apple Events)
 - Safari logged-in navigation via AppleScript
-- Tab title + HTML shell + window screenshots
-- JS Apple Events blocked unless enabled in Safari Developer settings
-- Playwright blocked by VK robot challenge
+- `document.body.innerText` via JS Apple Events — **enabled**
+- Tab title + HTML shell + window screenshots (Safari foreground)
+- Playwright still blocked by VK robot challenge (not used)
 
-## Enable full text capture
-Safari → Settings → Advanced → Show features for web developers → Developer → **Allow JavaScript from Apple Events**
-Then re-run `python3 scripts/vk-services/complete_details_safari.py`.
+## Remaining gaps
+- Services without description: usually matrix/calculation cards with minimal VK text or «от» pricing tiers
+- Image download to disk may fail; URLs are preserved in `imageUrls`
 """, encoding="utf-8")
 
     print(json.dumps({"total": len(services), "completed": completed, "partial": partial, "candidates": len(candidates)}, ensure_ascii=False))

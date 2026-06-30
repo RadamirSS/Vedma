@@ -53,19 +53,16 @@ def safari_open_and_prepare(url: str, wait_s: float = 11.0) -> None:
         tell application "Safari"
           activate
           if (count of windows) = 0 then make new document
+          set miniaturized of front window to false
           set URL of current tab of front window to "{url}"
           delay {wait_s}
         end tell
         tell application "System Events"
           tell process "Safari"
             set frontmost to true
-            delay 0.4
+            delay 0.5
             key code 115
-            delay 0.2
-            repeat 6 times
-              key code 125
-              delay 0.2
-            end repeat
+            delay 0.3
           end tell
         end tell
         '''
@@ -119,6 +116,8 @@ def safari_try_js(expr: str) -> str | None:
 
 def safari_screenshot(dest: Path) -> bool:
     try:
+        run_applescript('tell application "Safari" to activate')
+        time.sleep(0.4)
         x, y, w, h = safari_bounds()
         subprocess.run(["screencapture", "-x", "-R", f"{x},{y},{w},{h}", str(dest)], check=True, timeout=30)
         return dest.exists() and dest.stat().st_size > 10000
@@ -238,7 +237,8 @@ def extract_service(service: dict[str, Any]) -> dict[str, Any]:
     tab = safari_tab_title()
     tab_data = parse_tab_title(tab)
     page_text = safari_try_js("document.body.innerText") or safari_try_clipboard()
-    method = "safari_js" if page_text and safari_try_js("'ok'") else ("safari_clipboard" if page_text else "safari_tab_html")
+    js_ok = bool(page_text and len(page_text) > 300 and "робот" not in page_text.lower())
+    method = "safari_js" if js_ok else ("safari_clipboard" if page_text else "safari_tab_html")
     html = safari_page_source()
 
     (DETAIL / "raw-html" / f"{base}.html").write_text(html, encoding="utf-8")
@@ -289,7 +289,12 @@ def extract_service(service: dict[str, Any]) -> dict[str, Any]:
     if not result.get("descriptionRu"):
         result["needsOwnerClarification"] = True
         if not result.get("clarificationQuestion"):
-            result["clarificationQuestion"] = "Нужно описание: включите Allow JavaScript from Apple Events или сохраните текст карточки вручную."
+            result["clarificationQuestion"] = "Описание не извлечено с карточки VK."
+    elif result.get("priceIsFrom"):
+        pass
+    else:
+        result["needsOwnerClarification"] = False
+        result["clarificationQuestion"] = None
 
     return result
 

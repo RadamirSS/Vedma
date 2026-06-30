@@ -1,140 +1,14 @@
 {
-  "generatedAt": "2026-06-30T22:36:25.183925+00:00",
+  "generatedAt": "2026-06-30T23:19:37.365773+00:00",
   "services": [
-    {
-      "sourceId": "vk-service-001",
-      "titleRu": "ОБРЯД СВАРОГА «КОВАНАЯ СУДЬБА»",
-      "missing": [
-        "description"
-      ],
-      "extractionMethod": "safari_tab_html",
-      "clarificationQuestion": "Нужно описание: включите Allow JavaScript from Apple Events или сохраните текст карточки вручную."
-    },
-    {
-      "sourceId": "vk-service-002",
-      "titleRu": "Защита Себека",
-      "missing": [
-        "description"
-      ],
-      "extractionMethod": "safari_tab_html",
-      "clarificationQuestion": "Нужно описание: включите Allow JavaScript from Apple Events или сохраните текст карточки вручную."
-    },
-    {
-      "sourceId": "vk-service-053",
-      "titleRu": "Ответ на один вопрос",
-      "missing": [
-        "description"
-      ],
-      "extractionMethod": "safari_tab_html",
-      "clarificationQuestion": "Нужно описание: включите Allow JavaScript from Apple Events или сохраните текст карточки вручную."
-    },
-    {
-      "sourceId": "vk-service-054",
-      "titleRu": "Консультация",
-      "missing": [
-        "description"
-      ],
-      "extractionMethod": "safari_tab_html",
-      "clarificationQuestion": "Нужно описание: включите Allow JavaScript from Apple Events или сохраните текст карточки вручную."
-    },
-    {
-      "sourceId": "vk-service-004",
-      "titleRu": "Защита \"Ведьмин Круг\"",
-      "missing": [
-        "description"
-      ],
-      "extractionMethod": "safari_tab_html",
-      "clarificationQuestion": "Нужно описание: включите Allow JavaScript from Apple Events или сохраните текст карточки вручную."
-    },
-    {
-      "sourceId": "vk-service-055",
-      "titleRu": "Разбор ситуации на метафорических картах",
-      "missing": [
-        "description"
-      ],
-      "extractionMethod": "safari_tab_html",
-      "clarificationQuestion": "Нужно описание: включите Allow JavaScript from Apple Events или сохраните текст карточки вручную."
-    },
-    {
-      "sourceId": "vk-service-006",
-      "titleRu": "Распаковка Матрицы Судьбы",
-      "missing": [
-        "description"
-      ],
-      "extractionMethod": "safari_tab_html",
-      "clarificationQuestion": "Нужно описание: включите Allow JavaScript from Apple Events или сохраните текст карточки вручную."
-    },
-    {
-      "sourceId": "vk-service-012",
-      "titleRu": "Усиление связи с Родом",
-      "missing": [
-        "description"
-      ],
-      "extractionMethod": "safari_tab_html",
-      "clarificationQuestion": "Нужно описание: включите Allow JavaScript from Apple Events или сохраните текст карточки вручную."
-    },
-    {
-      "sourceId": "vk-service-014",
-      "titleRu": "Вход в финансовый поток",
-      "missing": [
-        "description"
-      ],
-      "extractionMethod": "safari_tab_html",
-      "clarificationQuestion": "Цена «от 550 ₽» — какие тарифы показывать на сайте?"
-    },
-    {
-      "sourceId": "vk-service-017",
-      "titleRu": "Как пробить денежный потолок?",
-      "missing": [
-        "description"
-      ],
-      "extractionMethod": "safari_tab_html",
-      "clarificationQuestion": "Нужно описание: включите Allow JavaScript from Apple Events или сохраните текст карточки вручную."
-    },
-    {
-      "sourceId": "vk-service-020",
-      "titleRu": "Матрица Судьбы на 2026 год",
-      "missing": [
-        "description"
-      ],
-      "extractionMethod": "safari_tab_html",
-      "clarificationQuestion": "Нужно описание: включите Allow JavaScript from Apple Events или сохраните текст карточки вручную."
-    },
-    {
-      "sourceId": "vk-service-025",
-      "titleRu": "МАРАФОН «ПЛАНЕТАРНЫЙ ЧЕЛОВЕК» 🌌 ПРОБУЖДЕНИЕ И НАПОЛНЕНИЕ СИЛОЙ ПЛАНЕТ",
-      "missing": [
-        "description"
-      ],
-      "extractionMethod": "safari_tab_html",
-      "clarificationQuestion": "Нужно описание: включите Allow JavaScript from Apple Events или сохраните текст карточки вручную."
-    },
-    {
-      "sourceId": "vk-service-003",
-      "titleRu": "Пробуждение и усиление Ведовской Силы",
-      "missing": [
-        "description"
-      ],
-      "extractionMethod": "safari_tab_html",
-      "clarificationQuestion": "Нужно описание: включите Allow JavaScript from Apple Events или сохраните текст карточки вручную."
-    },
-    {
-      "sourceId": "vk-service-027",
-      "titleRu": "Сила женских волос",
-      "missing": [
-        "description"
-      ],
-      "extractionMethod": "safari_tab_html",
-      "clarificationQuestion": "Нужно описание: включите Allow JavaScript from Apple Events или сохраните текст карточки вручную."
-    },
     {
       "sourceId": "vk-service-028",
       "titleRu": "\"9 Врат Силы\" - Магический марафон",
       "missing": [
         "description"
       ],
-      "extractionMethod": "safari_tab_html",
-      "clarificationQuestion": "Нужно описание: включите Allow JavaScript from Apple Events или сохраните текст карточки вручную."
+      "extractionMethod": "safari_clipboard",
+      "clarificationQuestion": "Описание не извлечено с карточки VK."
     },
     {
       "sourceId": "vk-service-005",
@@ -142,53 +16,8 @@
       "missing": [
         "description"
       ],
-      "extractionMethod": "safari_tab_html",
+      "extractionMethod": "safari_js",
       "clarificationQuestion": "Цена «от 550 ₽» — какие тарифы показывать на сайте?"
-    },
-    {
-      "sourceId": "vk-service-029",
-      "titleRu": "Вальпургиева Ночь - Время Огня, Силы и Перехода",
-      "missing": [
-        "description"
-      ],
-      "extractionMethod": "safari_tab_html",
-      "clarificationQuestion": "Нужно описание: включите Allow JavaScript from Apple Events или сохраните текст карточки вручную."
-    },
-    {
-      "sourceId": "vk-service-030",
-      "titleRu": "Денежный марафон \"Восстановление и усиление денежного потока\"",
-      "missing": [
-        "description"
-      ],
-      "extractionMethod": "safari_tab_html",
-      "clarificationQuestion": "Нужно описание: включите Allow JavaScript from Apple Events или сохраните текст карточки вручную."
-    },
-    {
-      "sourceId": "vk-service-007",
-      "titleRu": "Отдых по Дате Рождения",
-      "missing": [
-        "description"
-      ],
-      "extractionMethod": "safari_tab_html",
-      "clarificationQuestion": "Цена «от 550 ₽» — какие тарифы показывать на сайте?"
-    },
-    {
-      "sourceId": "vk-service-031",
-      "titleRu": "7 дней воплощения Силы Живы. Марафон \"Стань носителем Жизни\"",
-      "missing": [
-        "description"
-      ],
-      "extractionMethod": "safari_tab_html",
-      "clarificationQuestion": "Нужно описание: включите Allow JavaScript from Apple Events или сохраните текст карточки вручную."
-    },
-    {
-      "sourceId": "vk-service-008",
-      "titleRu": "Освобождение эмоций",
-      "missing": [
-        "description"
-      ],
-      "extractionMethod": "safari_tab_html",
-      "clarificationQuestion": "Нужно описание: включите Allow JavaScript from Apple Events или сохраните текст карточки вручную."
     },
     {
       "sourceId": "vk-service-032",
@@ -196,17 +25,8 @@
       "missing": [
         "description"
       ],
-      "extractionMethod": "safari_tab_html",
-      "clarificationQuestion": "Нужно описание: включите Allow JavaScript from Apple Events или сохраните текст карточки вручную."
-    },
-    {
-      "sourceId": "vk-service-009",
-      "titleRu": "Никола Летний. Защита и благословение пути",
-      "missing": [
-        "description"
-      ],
-      "extractionMethod": "safari_tab_html",
-      "clarificationQuestion": "Нужно описание: включите Allow JavaScript from Apple Events или сохраните текст карточки вручную."
+      "extractionMethod": "safari_clipboard",
+      "clarificationQuestion": "Описание не извлечено с карточки VK."
     },
     {
       "sourceId": "vk-service-033",
@@ -214,8 +34,8 @@
       "missing": [
         "description"
       ],
-      "extractionMethod": "safari_tab_html",
-      "clarificationQuestion": "Нужно описание: включите Allow JavaScript from Apple Events или сохраните текст карточки вручную."
+      "extractionMethod": "safari_clipboard",
+      "clarificationQuestion": "Описание не извлечено с карточки VK."
     },
     {
       "sourceId": "vk-service-010",
@@ -223,8 +43,8 @@
       "missing": [
         "description"
       ],
-      "extractionMethod": "safari_tab_html",
-      "clarificationQuestion": "Нужно описание: включите Allow JavaScript from Apple Events или сохраните текст карточки вручную."
+      "extractionMethod": "safari_clipboard",
+      "clarificationQuestion": "Описание не извлечено с карточки VK."
     },
     {
       "sourceId": "vk-service-034",
@@ -232,8 +52,8 @@
       "missing": [
         "description"
       ],
-      "extractionMethod": "safari_tab_html",
-      "clarificationQuestion": "Нужно описание: включите Allow JavaScript from Apple Events или сохраните текст карточки вручную."
+      "extractionMethod": "safari_clipboard",
+      "clarificationQuestion": "Описание не извлечено с карточки VK."
     },
     {
       "sourceId": "vk-service-011",
@@ -241,7 +61,7 @@
       "missing": [
         "description"
       ],
-      "extractionMethod": "safari_tab_html",
+      "extractionMethod": "safari_js",
       "clarificationQuestion": "Цена «от 550 ₽» — какие тарифы показывать на сайте?"
     },
     {
@@ -250,17 +70,8 @@
       "missing": [
         "description"
       ],
-      "extractionMethod": "safari_tab_html",
-      "clarificationQuestion": "Нужно описание: включите Allow JavaScript from Apple Events или сохраните текст карточки вручную."
-    },
-    {
-      "sourceId": "vk-service-013",
-      "titleRu": "Энергия Числа Судьбы + Кармические задачи",
-      "missing": [
-        "description"
-      ],
-      "extractionMethod": "safari_tab_html",
-      "clarificationQuestion": "Цена «от 550 ₽» — какие тарифы показывать на сайте?"
+      "extractionMethod": "safari_clipboard",
+      "clarificationQuestion": "Описание не извлечено с карточки VK."
     },
     {
       "sourceId": "vk-service-037",
@@ -268,8 +79,8 @@
       "missing": [
         "description"
       ],
-      "extractionMethod": "safari_tab_html",
-      "clarificationQuestion": "Нужно описание: включите Allow JavaScript from Apple Events или сохраните текст карточки вручную."
+      "extractionMethod": "safari_clipboard",
+      "clarificationQuestion": "Описание не извлечено с карточки VK."
     },
     {
       "sourceId": "vk-service-015",
@@ -277,16 +88,7 @@
       "missing": [
         "description"
       ],
-      "extractionMethod": "safari_tab_html",
-      "clarificationQuestion": "Цена «от 550 ₽» — какие тарифы показывать на сайте?"
-    },
-    {
-      "sourceId": "vk-service-016",
-      "titleRu": "Расчёт таланта по Дате рождения",
-      "missing": [
-        "description"
-      ],
-      "extractionMethod": "safari_tab_html",
+      "extractionMethod": "safari_clipboard",
       "clarificationQuestion": "Цена «от 550 ₽» — какие тарифы показывать на сайте?"
     },
     {
@@ -295,8 +97,8 @@
       "missing": [
         "description"
       ],
-      "extractionMethod": "safari_tab_html",
-      "clarificationQuestion": "Нужно описание: включите Allow JavaScript from Apple Events или сохраните текст карточки вручную."
+      "extractionMethod": "safari_js",
+      "clarificationQuestion": "Описание не извлечено с карточки VK."
     },
     {
       "sourceId": "vk-service-042",
@@ -304,8 +106,8 @@
       "missing": [
         "description"
       ],
-      "extractionMethod": "safari_tab_html",
-      "clarificationQuestion": "Нужно описание: включите Allow JavaScript from Apple Events или сохраните текст карточки вручную."
+      "extractionMethod": "safari_clipboard",
+      "clarificationQuestion": "Описание не извлечено с карточки VK."
     },
     {
       "sourceId": "vk-service-019",
@@ -313,7 +115,7 @@
       "missing": [
         "description"
       ],
-      "extractionMethod": "safari_tab_html",
+      "extractionMethod": "safari_clipboard",
       "clarificationQuestion": "Цена «от 550 ₽» — какие тарифы показывать на сайте?"
     },
     {
@@ -322,7 +124,7 @@
       "missing": [
         "description"
       ],
-      "extractionMethod": "safari_tab_html",
+      "extractionMethod": "safari_clipboard",
       "clarificationQuestion": "Цена «от 550 ₽» — какие тарифы показывать на сайте?"
     },
     {
@@ -331,8 +133,8 @@
       "missing": [
         "description"
       ],
-      "extractionMethod": "safari_tab_html",
-      "clarificationQuestion": "Нужно описание: включите Allow JavaScript from Apple Events или сохраните текст карточки вручную."
+      "extractionMethod": "safari_clipboard",
+      "clarificationQuestion": "Описание не извлечено с карточки VK."
     },
     {
       "sourceId": "vk-service-023",
@@ -340,8 +142,8 @@
       "missing": [
         "description"
       ],
-      "extractionMethod": "safari_tab_html",
-      "clarificationQuestion": "Нужно описание: включите Allow JavaScript from Apple Events или сохраните текст карточки вручную."
+      "extractionMethod": "safari_clipboard",
+      "clarificationQuestion": "Описание не извлечено с карточки VK."
     },
     {
       "sourceId": "vk-service-024",
@@ -349,8 +151,8 @@
       "missing": [
         "description"
       ],
-      "extractionMethod": "safari_tab_html",
-      "clarificationQuestion": "Нужно описание: включите Allow JavaScript from Apple Events или сохраните текст карточки вручную."
+      "extractionMethod": "safari_clipboard",
+      "clarificationQuestion": "Описание не извлечено с карточки VK."
     },
     {
       "sourceId": "vk-service-048",
@@ -358,8 +160,8 @@
       "missing": [
         "description"
       ],
-      "extractionMethod": "safari_tab_html",
-      "clarificationQuestion": "Нужно описание: включите Allow JavaScript from Apple Events или сохраните текст карточки вручную."
+      "extractionMethod": "safari_clipboard",
+      "clarificationQuestion": "Описание не извлечено с карточки VK."
     },
     {
       "sourceId": "vk-service-049",
@@ -367,8 +169,8 @@
       "missing": [
         "description"
       ],
-      "extractionMethod": "safari_tab_html",
-      "clarificationQuestion": "Нужно описание: включите Allow JavaScript from Apple Events или сохраните текст карточки вручную."
+      "extractionMethod": "safari_clipboard",
+      "clarificationQuestion": "Описание не извлечено с карточки VK."
     },
     {
       "sourceId": "vk-service-050",
@@ -376,8 +178,8 @@
       "missing": [
         "description"
       ],
-      "extractionMethod": "safari_tab_html",
-      "clarificationQuestion": "Нужно описание: включите Allow JavaScript from Apple Events или сохраните текст карточки вручную."
+      "extractionMethod": "safari_clipboard",
+      "clarificationQuestion": "Описание не извлечено с карточки VK."
     },
     {
       "sourceId": "vk-service-026",
@@ -385,8 +187,8 @@
       "missing": [
         "description"
       ],
-      "extractionMethod": "safari_tab_html",
-      "clarificationQuestion": "Нужно описание: включите Allow JavaScript from Apple Events или сохраните текст карточки вручную."
+      "extractionMethod": "safari_clipboard",
+      "clarificationQuestion": "Описание не извлечено с карточки VK."
     },
     {
       "sourceId": "vk-service-035",
@@ -394,8 +196,8 @@
       "missing": [
         "description"
       ],
-      "extractionMethod": "safari_tab_html",
-      "clarificationQuestion": "Нужно описание: включите Allow JavaScript from Apple Events или сохраните текст карточки вручную."
+      "extractionMethod": "safari_clipboard",
+      "clarificationQuestion": "Описание не извлечено с карточки VK."
     },
     {
       "sourceId": "vk-service-038",
@@ -403,8 +205,8 @@
       "missing": [
         "description"
       ],
-      "extractionMethod": "safari_tab_html",
-      "clarificationQuestion": "Нужно описание: включите Allow JavaScript from Apple Events или сохраните текст карточки вручную."
+      "extractionMethod": "safari_clipboard",
+      "clarificationQuestion": "Описание не извлечено с карточки VK."
     },
     {
       "sourceId": "vk-service-039",
@@ -412,17 +214,8 @@
       "missing": [
         "description"
       ],
-      "extractionMethod": "safari_tab_html",
-      "clarificationQuestion": "Нужно описание: включите Allow JavaScript from Apple Events или сохраните текст карточки вручную."
-    },
-    {
-      "sourceId": "vk-service-040",
-      "titleRu": "ПРОБУЖДЕНИЕ ОГНЯ. ВСТУПЛЕНИЕ В СИЛУ. Весеннее Равноденствие",
-      "missing": [
-        "description"
-      ],
-      "extractionMethod": "safari_tab_html",
-      "clarificationQuestion": "Нужно описание: включите Allow JavaScript from Apple Events или сохраните текст карточки вручную."
+      "extractionMethod": "safari_clipboard",
+      "clarificationQuestion": "Описание не извлечено с карточки VK."
     },
     {
       "sourceId": "vk-service-041",
@@ -430,8 +223,8 @@
       "missing": [
         "description"
       ],
-      "extractionMethod": "safari_tab_html",
-      "clarificationQuestion": "Нужно описание: включите Allow JavaScript from Apple Events или сохраните текст карточки вручную."
+      "extractionMethod": "safari_clipboard",
+      "clarificationQuestion": "Описание не извлечено с карточки VK."
     },
     {
       "sourceId": "vk-service-043",
@@ -439,8 +232,8 @@
       "missing": [
         "description"
       ],
-      "extractionMethod": "safari_tab_html",
-      "clarificationQuestion": "Нужно описание: включите Allow JavaScript from Apple Events или сохраните текст карточки вручную."
+      "extractionMethod": "safari_clipboard",
+      "clarificationQuestion": "Описание не извлечено с карточки VK."
     },
     {
       "sourceId": "vk-service-044",
@@ -448,8 +241,8 @@
       "missing": [
         "description"
       ],
-      "extractionMethod": "safari_tab_html",
-      "clarificationQuestion": "Нужно описание: включите Allow JavaScript from Apple Events или сохраните текст карточки вручную."
+      "extractionMethod": "safari_clipboard",
+      "clarificationQuestion": "Описание не извлечено с карточки VK."
     },
     {
       "sourceId": "vk-service-045",
@@ -457,8 +250,8 @@
       "missing": [
         "description"
       ],
-      "extractionMethod": "safari_tab_html",
-      "clarificationQuestion": "Нужно описание: включите Allow JavaScript from Apple Events или сохраните текст карточки вручную."
+      "extractionMethod": "safari_clipboard",
+      "clarificationQuestion": "Описание не извлечено с карточки VK."
     },
     {
       "sourceId": "vk-service-046",
@@ -466,17 +259,8 @@
       "missing": [
         "description"
       ],
-      "extractionMethod": "safari_tab_html",
-      "clarificationQuestion": "Нужно описание: включите Allow JavaScript from Apple Events или сохраните текст карточки вручную."
-    },
-    {
-      "sourceId": "vk-service-047",
-      "titleRu": "Купало",
-      "missing": [
-        "description"
-      ],
-      "extractionMethod": "safari_tab_html",
-      "clarificationQuestion": "Нужно описание: включите Allow JavaScript from Apple Events или сохраните текст карточки вручную."
+      "extractionMethod": "safari_clipboard",
+      "clarificationQuestion": "Описание не извлечено с карточки VK."
     },
     {
       "sourceId": "vk-service-051",
@@ -484,8 +268,8 @@
       "missing": [
         "description"
       ],
-      "extractionMethod": "safari_tab_html",
-      "clarificationQuestion": "Нужно описание: включите Allow JavaScript from Apple Events или сохраните текст карточки вручную."
+      "extractionMethod": "safari_clipboard",
+      "clarificationQuestion": "Описание не извлечено с карточки VK."
     }
   ]
 }

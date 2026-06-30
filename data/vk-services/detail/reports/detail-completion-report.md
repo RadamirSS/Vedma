@@ -1,23 +1,23 @@
 # Detail completion report
 
-- enrichedAt: 2026-06-30T22:36:25.183925+00:00
+- enrichedAt: 2026-06-30T23:19:37.365773+00:00
 - total: 55
-- completed (full description): 1
-- partial (screenshot/title): 54
+- completed (description >100 chars): 25
+- partial (no/short description): 30
 - blocked: 0
-- ready for import: 1
-- not ready: 54
-- screenshots saved: 55 (**note: captures are identical frames — Safari was not frontmost during batch; treat as invalid until re-captured**)
-- images downloaded: 0
-- image URL only: 0
+- ready for import: 25
+- not ready: 30
+- screenshots saved: 55 (valid — unique VK service pages)
+- images downloaded locally: 0
+- image URLs captured: 52
 - price tiers (from-price): 9
 
-## Extraction
+## Extraction (rerun with JS Apple Events)
 - Safari logged-in navigation via AppleScript
-- Tab title + HTML shell + window screenshots
-- JS Apple Events blocked unless enabled in Safari Developer settings
-- Playwright blocked by VK robot challenge
+- `document.body.innerText` via JS Apple Events — **enabled**
+- Tab title + HTML shell + window screenshots (Safari foreground)
+- Playwright still blocked by VK robot challenge (not used)
 
-## Enable full text capture
-Safari → Settings → Advanced → Show features for web developers → Developer → **Allow JavaScript from Apple Events**
-Then re-run `python3 scripts/vk-services/complete_details_safari.py`.
+## Remaining gaps
+- Services without description: usually matrix/calculation cards with minimal VK text or «от» pricing tiers
+- Image download to disk may fail; URLs are preserved in `imageUrls`
