@@ -84,7 +84,7 @@ export default async function AdminMediaPage({
         {items.map((item) => (
           <Link key={item.id} href={`/admin/media/${item.id}`} className="admin-media-card">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={item.path} alt={item.alt ?? ""} />
+            <img src={item.path} alt={item.alt ?? ""} loading="lazy" decoding="async" />
             <strong>{item.filename}</strong>
             <span>{item.alt ?? "Без alt"}</span>
             <small>{item.path}</small>

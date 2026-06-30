@@ -1,3 +1,5 @@
+import { cache } from "react";
+
 import { prisma } from "@/lib/db/prisma";
 import { mergeMediaSlots } from "@/lib/site-media";
 
@@ -140,7 +142,7 @@ function deepMerge<T extends Record<string, unknown>>(base: T, value: unknown): 
   return result as T;
 }
 
-export async function getSiteSettings() {
+export const getSiteSettings = cache(async function getSiteSettings() {
   if (!process.env.DATABASE_URL) {
     return DEFAULT_SITE_SETTINGS;
   }
@@ -159,4 +161,4 @@ export async function getSiteSettings() {
   } catch {
     return DEFAULT_SITE_SETTINGS;
   }
-}
+});

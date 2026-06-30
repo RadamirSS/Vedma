@@ -74,7 +74,7 @@ export default async function AdminProductsPage({
 
       <div className="admin-toolbar">
         <form>
-          <input className="admin-input" name="q" placeholder="Поиск по названию или slug" defaultValue={q} />
+          <input className="admin-input" name="q" placeholder="Поиск по названию" defaultValue={q} />
           <select className="admin-select" name="status" defaultValue={status}>
             <option value="">Все статусы</option>
             <option value="DRAFT">Черновик</option>
@@ -103,7 +103,7 @@ export default async function AdminProductsPage({
           cta={isReadOnly ? "Сбросить фильтры" : "Добавить товар"}
         />
       ) : (
-        <form action={bulkProductsAction} className="admin-table">
+        <form action={bulkProductsAction} className="admin-table admin-table--with-bulk">
           <table>
             <thead>
               <tr>
@@ -124,22 +124,26 @@ export default async function AdminProductsPage({
                     {!isReadOnly ? <input className="admin-checkbox" type="checkbox" name="ids" value={item.id} /> : null}
                   </td>
                   <td>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    {item.image ? <img className="admin-thumb" src={item.image} alt="" /> : <span>—</span>}
+                    {item.image ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img className="admin-thumb" src={item.image} alt="" loading="lazy" decoding="async" />
+                    ) : (
+                      <span>—</span>
+                    )}
                   </td>
-                  <td>
+                  <td className="admin-cell-name">
                     <strong>{item.title}</strong>
                     <div className="muted">{item.slug}</div>
                   </td>
                   <td>{item.normalizedCategory ?? item.category ?? "—"}</td>
-                  <td>{item.priceRub ? formatPrice(item.priceRub) : "—"}</td>
+                  <td className="admin-cell-price">{item.priceRub ? formatPrice(item.priceRub) : "—"}</td>
                   <td>
                     <span className={`admin-badge admin-badge--${item.publicationStatus.toLowerCase()}`}>
                       {item.publicationStatus}
                     </span>
                   </td>
                   <td>{formatAdminDate(item.updatedAt)}</td>
-                  <td>
+                  <td className="admin-cell-actions">
                     <div className="admin-actions-row">
                       <Link className="btn btn-ghost btn-small" href={`/admin/products/${item.id}`}>
                         {isReadOnly ? "Открыть" : "Редактировать"}
@@ -154,13 +158,12 @@ export default async function AdminProductsPage({
             </tbody>
           </table>
           {!isReadOnly ? (
-            <div className="admin-toolbar">
+            <div className="admin-bulk-bar">
               <select className="admin-select" name="bulkAction" defaultValue="publish">
                 <option value="publish">Опубликовать</option>
                 <option value="hide">Скрыть</option>
                 <option value="draft">В черновик</option>
               </select>
-              <div />
               <div />
               <SubmitButton className="btn btn-primary btn-small" pendingLabel="Применение...">
                 Применить к выбранным

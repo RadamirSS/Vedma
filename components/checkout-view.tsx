@@ -73,8 +73,6 @@ export function CheckoutView({
     items,
     resolvedItems,
     total,
-    totalRub,
-    totalUsd,
     deliveryRequired,
     clearCart,
     isPending,
@@ -180,7 +178,7 @@ export function CheckoutView({
                     checked={accountMode === "new"}
                     onChange={() => setAccountMode("new")}
                   />
-                  Я новый клиент
+                  <span>Я новый клиент</span>
                 </label>
                 <label className={`checkout-mode-option ${accountMode === "existing" ? "is-active" : ""}`}>
                   <input
@@ -190,7 +188,7 @@ export function CheckoutView({
                     checked={accountMode === "existing"}
                     onChange={() => setAccountMode("existing")}
                   />
-                  У меня уже есть кабинет
+                  <span>У меня уже есть кабинет</span>
                 </label>
               </div>
               {accountMode === "existing" ? (
@@ -422,12 +420,8 @@ export function CheckoutView({
               <span>Итого</span>
               <b>{isPending ? "..." : formatPrice(total)}</b>
             </div>
-            {totalRub > 0 || totalUsd > 0 ? (
-              <div className="checkout-meta">
-                {totalRub > 0 ? <span>RUB snapshot: {formatPrice(totalRub)}</span> : null}
-                {totalUsd > 0 ? <span>USD snapshot: {totalUsd} $</span> : null}
-                <span>{deliveryRequired ? "Доставка потребуется" : "Без доставки"}</span>
-              </div>
+            {deliveryRequired ? (
+              <p className="muted checkout-delivery-note">Доставка потребуется</p>
             ) : null}
           </>
         ) : cartIsEmpty ? (

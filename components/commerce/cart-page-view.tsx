@@ -76,7 +76,7 @@ export function CartPageView() {
         <div className="cart-list-page">
           {resolvedItems.map((item) => (
             <div key={`${item.type}:${item.slug}`} className="cart-item cart-item--page">
-              <div>
+              <div className="cart-page-item-info">
                 <b>{item.title}</b>
                 <span className="muted">
                   {item.type === "product" ? "Товар" : "Услуга"} · {formatPrice(item.unitAmount)}

@@ -8,6 +8,7 @@ import {
   startTransition,
   type ReactNode
 } from "react";
+import { usePathname } from "next/navigation";
 
 type CartEntry = {
   type: "product" | "service";
@@ -55,6 +56,8 @@ const CartContext = createContext<CartContextValue | null>(null);
 const STORAGE_KEY = "bazhena-cart";
 
 export function CartProvider({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
+  const isAdminRoute = pathname.startsWith("/admin");
   const [items, setItems] = useState<CartEntry[]>([]);
   const [resolvedItems, setResolvedItems] = useState<ResolvedCartItem[]>([]);
   const [total, setTotal] = useState(0);
@@ -66,17 +69,29 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
+    if (isAdminRoute) {
+      return;
+    }
+
     const saved = window.localStorage.getItem(STORAGE_KEY);
     if (saved) {
       setItems(JSON.parse(saved) as CartEntry[]);
     }
-  }, []);
+  }, [isAdminRoute]);
 
   useEffect(() => {
+    if (isAdminRoute) {
+      return;
+    }
+
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-  }, [items]);
+  }, [items, isAdminRoute]);
 
   useEffect(() => {
+    if (isAdminRoute) {
+      return;
+    }
+
     let aborted = false;
 
     async function syncResolvedCart() {
@@ -161,7 +176,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     return () => {
       aborted = true;
     };
-  }, [items]);
+  }, [items, isAdminRoute]);
 
   const cartUnavailable =
     items.length > 0 && resolvedItems.length === 0 && !isPending && !resolveError;
