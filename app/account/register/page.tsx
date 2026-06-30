@@ -35,18 +35,26 @@ export default async function AccountRegisterPage({
             заказа — аккаунт также создаётся при оформлении checkout.
           </p>
           <AdminNotice error={error} />
-          <form className="account-form" action={customerRegisterAction}>
+          <form className="account-form" action={customerRegisterAction} noValidate>
             <label className="field">
               <span>Имя</span>
               <input type="text" name="name" required />
             </label>
             <label className="field">
               <span>Email</span>
-              <input type="email" name="email" required />
+              <input type="email" name="email" required autoComplete="email" />
+            </label>
+            <label className="field">
+              <span>Повторите email</span>
+              <input type="email" name="emailConfirm" required autoComplete="email" />
             </label>
             <label className="field">
               <span>Пароль</span>
-              <input type="password" name="password" minLength={8} required />
+              <input type="password" name="password" minLength={8} required autoComplete="new-password" />
+            </label>
+            <label className="field">
+              <span>Повторите пароль</span>
+              <input type="password" name="passwordConfirm" minLength={8} required autoComplete="new-password" />
             </label>
             <label className="field">
               <span>Телефон</span>

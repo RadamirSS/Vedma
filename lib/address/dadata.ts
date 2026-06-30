@@ -11,6 +11,21 @@ export type AddressSuggestion = {
   meta: Record<string, unknown>;
 };
 
+export type AddressProviderReason =
+  | "missing_key"
+  | "disabled"
+  | "no_results"
+  | "provider_error"
+  | "query_too_short"
+  | null;
+
+export type AddressSuggestResult = {
+  suggestions: AddressSuggestion[];
+  providerEnabled: boolean;
+  reason: AddressProviderReason;
+  message?: string;
+};
+
 type DaDataSuggestion = {
   value?: string;
   unrestricted_value?: string;
@@ -29,6 +44,12 @@ type DaDataSuggestion = {
     fias_id?: string;
   };
 };
+
+export function isAddressProviderConfigured(): boolean {
+  const apiKey = process.env.DADATA_API_KEY?.trim();
+  const provider = process.env.ADDRESS_SUGGEST_PROVIDER ?? "dadata";
+  return Boolean(apiKey) && provider === "dadata";
+}
 
 function normalizeDaDataItem(item: DaDataSuggestion): AddressSuggestion {
   const data = item.data ?? {};
@@ -53,17 +74,27 @@ function normalizeDaDataItem(item: DaDataSuggestion): AddressSuggestion {
   };
 }
 
-export async function suggestAddresses(query: string): Promise<AddressSuggestion[]> {
-  const apiKey = process.env.DADATA_API_KEY?.trim();
-  if (!apiKey || query.trim().length < 3) {
-    return [];
+export async function suggestAddresses(query: string): Promise<AddressSuggestResult> {
+  const trimmed = query.trim();
+
+  if (trimmed.length < 3) {
+    return {
+      suggestions: [],
+      providerEnabled: isAddressProviderConfigured(),
+      reason: "query_too_short"
+    };
   }
 
-  const provider = process.env.ADDRESS_SUGGEST_PROVIDER ?? "dadata";
-  if (provider !== "dadata") {
-    return [];
+  if (!isAddressProviderConfigured()) {
+    return {
+      suggestions: [],
+      providerEnabled: false,
+      reason: process.env.DADATA_API_KEY?.trim() ? "disabled" : "missing_key",
+      message: "Подсказки адреса временно недоступны. Заполните адрес вручную."
+    };
   }
 
+  const apiKey = process.env.DADATA_API_KEY!.trim();
   const secret = process.env.DADATA_SECRET_KEY?.trim();
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
@@ -79,17 +110,44 @@ export async function suggestAddresses(query: string): Promise<AddressSuggestion
     const response = await fetch("https://suggestions.dadata.ru/suggestions/api/4_1/rs/suggest/address", {
       method: "POST",
       headers,
-      body: JSON.stringify({ query: query.trim(), count: 8 }),
+      body: JSON.stringify({ query: trimmed, count: 8 }),
       cache: "no-store"
     });
 
     if (!response.ok) {
-      return [];
+      console.error("[address-suggest] DaData HTTP", response.status);
+      return {
+        suggestions: [],
+        providerEnabled: true,
+        reason: "provider_error",
+        message: "Подсказки адреса временно недоступны. Заполните адрес вручную."
+      };
     }
 
     const payload = (await response.json()) as { suggestions?: DaDataSuggestion[] };
-    return (payload.suggestions ?? []).map(normalizeDaDataItem).filter((item) => item.full);
-  } catch {
-    return [];
+    const suggestions = (payload.suggestions ?? []).map(normalizeDaDataItem).filter((item) => item.full);
+
+    if (suggestions.length === 0) {
+      return {
+        suggestions: [],
+        providerEnabled: true,
+        reason: "no_results",
+        message: "Адрес не найден. Попробуйте уточнить запрос или заполните вручную."
+      };
+    }
+
+    return {
+      suggestions,
+      providerEnabled: true,
+      reason: null
+    };
+  } catch (error) {
+    console.error("[address-suggest] DaData request failed", error instanceof Error ? error.message : "unknown");
+    return {
+      suggestions: [],
+      providerEnabled: true,
+      reason: "provider_error",
+      message: "Подсказки адреса временно недоступны. Заполните адрес вручную."
+    };
   }
 }

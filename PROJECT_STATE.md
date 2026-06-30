@@ -163,6 +163,21 @@ Implemented:
 
 See [docs/packages/package-3-4-1-release-ux-closeout.md](docs/packages/package-3-4-1-release-ux-closeout.md).
 
+### Package 3.4.2
+
+Status: `IN_REVIEW` on `cursor/package-3-4-production-ordering-polish`
+
+Implemented:
+
+- checkout account modes (new vs existing customer)
+- email/password confirmation on checkout and registration
+- structured `fieldErrors` with inline highlighting
+- single-field address UX with DaData status + manual fallback
+- checkout success panel polish
+- registration repeat email/password validation
+
+See [docs/packages/package-3-4-2-checkout-ux-finalization.md](docs/packages/package-3-4-2-checkout-ux-finalization.md).
+
 ## DB And Fallback Behavior
 
 - With the active local `.env`, `DATABASE_URL` points to PostgreSQL and `ALLOW_STATIC_CATALOG_FALLBACK="false"`.

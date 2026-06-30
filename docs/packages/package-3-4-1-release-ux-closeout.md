@@ -85,3 +85,4 @@ No slot rebuild. Existing `/admin/media/site` slots and `lib/site-media.ts` fall
 - Real online payment not connected (Lava / card provider out of scope)
 - Email sending not connected
 - “Я оплатил” is a temporary manual placeholder, not proof of payment
+- Checkout UX further finalized in [package-3-4-2-checkout-ux-finalization.md](package-3-4-2-checkout-ux-finalization.md)

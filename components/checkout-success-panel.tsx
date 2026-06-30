@@ -19,6 +19,7 @@ export function CheckoutSuccessPanel({
   accountUrl: string;
 }) {
   const [state, formAction] = useActionState(customerMarkOrderPaidAction, initialState);
+  const marked = state.success;
 
   return (
     <div className="checkout-success-panel" role="status">
@@ -26,15 +27,16 @@ export function CheckoutSuccessPanel({
       <p>
         Номер заказа: <strong>{orderNumber}</strong>
       </p>
+      <p>Мы сохранили заказ в вашем кабинете.</p>
       <p className="muted">
-        Оплата пока подключается. Для теста дальнейшего пути нажмите «Я оплатил» — это временная
-        заглушка, а не подтверждение реального платежа.
+        Оплата пока работает в тестовом режиме. Нажмите «Я оплатил», если уже перевели оплату по
+        реквизитам — это временная заглушка, а не подтверждение реального платежа.
       </p>
       {state.message ? (
-        <p className={state.success ? "checkout-success" : "checkout-error"}>{state.message}</p>
+        <p className={marked ? "checkout-success" : "checkout-error"}>{state.message}</p>
       ) : null}
       <div className="checkout-success-actions">
-        {!state.success ? (
+        {!marked ? (
           <form action={formAction}>
             <input type="hidden" name="orderId" value={orderId} />
             <input type="hidden" name="returnTo" value="/checkout" />
@@ -44,7 +46,10 @@ export function CheckoutSuccessPanel({
           </form>
         ) : null}
         <Link className="btn btn-ghost btn-wide" href={accountUrl as Route}>
-          Открыть заказ в кабинете
+          Открыть заказ
+        </Link>
+        <Link className="btn btn-ghost btn-wide" href="/products">
+          Вернуться в магазин
         </Link>
       </div>
     </div>

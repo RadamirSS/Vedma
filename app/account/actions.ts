@@ -56,12 +56,31 @@ export async function customerRegisterAction(formData: FormData) {
   const phone = toNullableString(formData.get("phone"));
   const telegram = toNullableString(formData.get("telegram"));
 
+  const emailConfirm = toNullableString(formData.get("emailConfirm"))?.toLowerCase();
+  const passwordConfirm = toNullableString(formData.get("passwordConfirm"));
+
   if (formData.get("legalAccepted") !== "yes") {
     redirect(`/account/register?error=${encodeNotice("Нужно согласие с политикой конфиденциальности и офертой.")}`);
   }
 
   if (!name || !email) {
     redirect(`/account/register?error=${encodeNotice("Укажите имя и email.")}`);
+  }
+
+  if (!emailConfirm) {
+    redirect(`/account/register?error=${encodeNotice("Повторите email.")}`);
+  }
+
+  if (email !== emailConfirm) {
+    redirect(`/account/register?error=${encodeNotice("Email и повтор не совпадают.")}`);
+  }
+
+  if (!passwordConfirm) {
+    redirect(`/account/register?error=${encodeNotice("Повторите пароль.")}`);
+  }
+
+  if (password !== passwordConfirm) {
+    redirect(`/account/register?error=${encodeNotice("Пароли не совпадают.")}`);
   }
 
   let userId: string;

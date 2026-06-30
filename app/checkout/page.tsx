@@ -3,7 +3,13 @@ import { SectionHeading } from "@/components/section-heading";
 import { getCurrentCustomerSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db/prisma";
 
-export default async function CheckoutPage() {
+export default async function CheckoutPage({
+  searchParams
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const params = await searchParams;
+  const loginError = typeof params.error === "string" ? params.error : undefined;
   const session = await getCurrentCustomerSession();
   const profile =
     session
@@ -21,6 +27,7 @@ export default async function CheckoutPage() {
           text="На первом этапе заказ уходит администратору. Бажена подтверждает возможность работы, наличие товара и отправляет реквизиты."
         />
         <CheckoutView
+          loginError={loginError}
           currentUser={
             session
               ? {

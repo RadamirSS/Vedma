@@ -9,6 +9,7 @@ import { prisma } from "@/lib/db/prisma";
 
 export type CheckoutPayload = {
   cartEntries: CartEntry[];
+  accountMode?: "new" | "existing";
   email: string;
   password: string;
   name: string | null;
@@ -115,14 +116,23 @@ export async function createCheckoutOrder(payload: CheckoutPayload) {
   }
 
   const isLoggedIn = Boolean(payload.currentSessionUserId && existing);
+  const accountMode = payload.accountMode ?? (isLoggedIn ? "existing" : "new");
 
   if (!isLoggedIn) {
-    if (payload.password.length < 8) {
-      throw new Error("Пароль должен содержать минимум 8 символов.");
-    }
-
-    if (existing && !verifyPassword(payload.password, existing.passwordHash)) {
-      throw new Error("Неверный пароль для существующего аккаунта.");
+    if (accountMode === "new") {
+      if (existing) {
+        throw new Error("Этот email уже зарегистрирован. Выберите «У меня уже есть кабинет» и войдите.");
+      }
+      if (payload.password.length < 8) {
+        throw new Error("Пароль должен содержать минимум 8 символов.");
+      }
+    } else if (accountMode === "existing") {
+      if (!existing) {
+        throw new Error("Аккаунт с таким email не найден. Выберите «Я новый клиент».");
+      }
+      if (!verifyPassword(payload.password, existing.passwordHash)) {
+        throw new Error("Неверный пароль. Проверьте данные или восстановите доступ через вход в кабинет.");
+      }
     }
   }
 
