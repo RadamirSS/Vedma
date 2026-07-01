@@ -3,7 +3,23 @@
 Date: 2026-07-01
 Repository: `Vedma`
 Current branch: `main`
-Main branch status: Package 3.5.6 deployed on https://bajena.it (2026-07-01)
+Main branch status: Package 3.5.7 deployed on https://bajena.it (2026-07-01)
+
+## Package 3.5.7 deploy (live)
+
+- Main fix commit: `e5a0ef2`
+- Hotfixes: `01df760` (EN availability), `dc2b468` (account login SubmitButton), `e8c1f4e` (e2e)
+- Previous server commit: `163b5c129aa7016eaec8fb3bef04fc9b95521e37`
+- Cart: safe localStorage parse; locale-aware resolve; badge count from raw items; stale slug prune
+- UI: SVG floating cart FAB; account full label / icon-only ≤360px (no Acct./Каб.)
+- EN: product overlay (71 slugs), service DB script (1 legacy update), localized categories + availability
+- Account: order/payment status labels from public dicts; login/register 500 fixed
+- QA: Playwright 6/6 @ bajena.it; `check-en-catalog-cyrillic` pass
+- `pnpm db:verify:catalog`: pass on server
+- `vedma.service`: active after restart
+- Status: **READY_FOR_EXTERNAL_REVIEW**
+
+See `docs/packages/package-3-5-7-emergency-ux-i18n-cart-account-fix.md` and `docs/audit/package-3-5-7-live-browser-i18n-audit.md`.
 
 ## Package 3.5.6 deploy (live)
 
