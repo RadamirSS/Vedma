@@ -29,7 +29,9 @@ export default async function AccountRegisterPage({ params, searchParams }: Page
   }
 
   if (adminSession) {
-    redirect("/admin/dashboard?error=Кабинет+клиента+недоступен+для+администратора.");
+    redirect(
+      `/admin/dashboard?error=${encodeURIComponent(dict.account.messages.adminCustomerCabinetBlocked)}`
+    );
   }
 
   const loginHref = localizeHref(locale, "/account/login");

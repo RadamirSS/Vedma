@@ -50,7 +50,8 @@ export const ru = {
     password: "Пароль",
     sourceUrl: "Source URL",
     noComment: "Без комментария",
-    notSelected: "Не выбран"
+    notSelected: "Не выбран",
+    localeSwitcherLabel: "Язык"
   },
   login: {
     eyebrow: "CMS доступ",

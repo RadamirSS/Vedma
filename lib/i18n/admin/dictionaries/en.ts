@@ -52,7 +52,8 @@ export const en: AdminDictionary = {
     password: "Password",
     sourceUrl: "Source URL",
     noComment: "No comment",
-    notSelected: "Not selected"
+    notSelected: "Not selected",
+    localeSwitcherLabel: "Language"
   },
   login: {
     eyebrow: "CMS access",

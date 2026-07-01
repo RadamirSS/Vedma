@@ -261,8 +261,14 @@ p {
   display: flex;
   align-items: center;
   gap: 13px;
-  min-width: max-content;
+  min-width: 0;
+  max-width: 100%;
   justify-self: start;
+}
+
+.brand-text {
+  min-width: 0;
+  overflow: hidden;
 }
 
 .menu {
@@ -293,6 +299,9 @@ p {
   font-family: "Cormorant Garamond", serif;
   font-size: 25px;
   font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .brand-sub {
@@ -302,6 +311,9 @@ p {
   font-size: 11px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .menu,
@@ -440,6 +452,16 @@ p {
     min-width: 32px;
     padding: 5px 8px;
   }
+
+  .brand-name {
+    font-size: 20px;
+  }
+
+  .sigil {
+    width: 38px;
+    height: 38px;
+    font-size: 22px;
+  }
 }
 
 .menu {
@@ -459,24 +481,50 @@ p {
   opacity: 1;
 }
 
-.cart-btn {
+.menu-cart,
+.mobile-menu__cart {
   position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ivory2);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  opacity: 0.86;
 }
 
-.cart-count {
-  position: absolute;
-  top: -6px;
-  right: -5px;
-  display: grid;
+.menu-cart:hover,
+.mobile-menu__cart:hover {
+  color: var(--gold);
+  opacity: 1;
+}
+
+.menu-cart__count {
+  display: inline-grid;
   place-items: center;
-  width: 20px;
+  min-width: 20px;
   height: 20px;
+  padding: 0 5px;
   border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 50%;
+  border-radius: 999px;
   background: var(--wine2);
   color: #fff;
   font-size: 11px;
   font-weight: 900;
+}
+
+.mobile-menu__cart {
+  width: 100%;
+  justify-content: space-between;
+  padding: 11px 12px;
+  border-radius: 13px;
+  background: rgba(255, 247, 234, 0.04);
+  text-align: left;
 }
 
 .burger,
@@ -1699,6 +1747,52 @@ main {
   font-weight: 900;
 }
 
+.floating-cart {
+  position: fixed;
+  left: 18px;
+  bottom: 18px;
+  z-index: 45;
+}
+
+.floating-cart__btn {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-width: 52px;
+  height: 52px;
+  padding: 0 14px;
+  border: 1px solid rgba(201, 164, 92, 0.3);
+  border-radius: 999px;
+  background: rgba(21, 17, 17, 0.88);
+  box-shadow: 0 14px 38px rgba(0, 0, 0, 0.36);
+  color: var(--gold2);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+}
+
+.floating-cart__icon {
+  line-height: 1;
+}
+
+.floating-cart__count {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  display: grid;
+  place-items: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  background: var(--wine2);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 900;
+}
+
 .detail-hero {
   grid-template-columns: 0.9fr 1.1fr;
   margin-bottom: 32px;
@@ -1807,7 +1901,8 @@ main {
     box-shadow: var(--shadow);
   }
 
-  .mobile-menu a {
+  .mobile-menu a,
+  .mobile-menu__cart {
     padding: 11px 12px;
     border-radius: 13px;
     background: rgba(255, 247, 234, 0.04);
@@ -1822,9 +1917,10 @@ main {
 
   .nav-inner {
     height: 70px;
+    gap: 10px;
   }
 
-  .nav-actions .btn:not(.cart-btn):not(.burger):not(.account-btn) {
+  .nav-actions .btn:not(.burger):not(.account-btn) {
     display: none;
   }
 
@@ -1919,8 +2015,24 @@ main {
     height: 46px;
   }
 
+  .floating-cart {
+    left: 12px;
+    bottom: 12px;
+  }
+
+  .floating-cart__btn {
+    min-width: 46px;
+    height: 46px;
+    padding: 0 12px;
+    font-size: 11px;
+  }
+
   .brand-sub {
     display: none;
+  }
+
+  .brand-name {
+    font-size: 22px;
   }
 }
 
@@ -2522,6 +2634,10 @@ main {
   }
 
   .floating-social {
+    z-index: 40;
+  }
+
+  .floating-cart {
     z-index: 40;
   }
 }

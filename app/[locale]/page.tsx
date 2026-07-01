@@ -10,7 +10,6 @@ import { getPublishedProducts, getPublishedServices } from "@/lib/catalog/reposi
 import type { Locale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/get-dictionary";
 import { localizeHref } from "@/lib/i18n/routing";
-import { reviews } from "@/lib/mock-data";
 import { getPublishedReviews } from "@/lib/reviews";
 import { getSiteSettings } from "@/lib/admin/settings";
 
@@ -47,7 +46,7 @@ export default async function HomePage({ params }: PageProps) {
   const [products, services, publishedReviews] = await Promise.all([
     getPublishedProducts(),
     getPublishedServices(locale),
-    getPublishedReviews()
+    getPublishedReviews(locale)
   ]);
 
   return (
@@ -117,7 +116,7 @@ export default async function HomePage({ params }: PageProps) {
             text={dict.home.reviewsText}
           />
           <div className="reviews">
-            {(publishedReviews.length > 0 ? publishedReviews : reviews).map((review) => (
+            {publishedReviews.map((review) => (
               <article key={review.id} className="review-card">
                 <span className="service">{review.service}</span>
                 <p>«{review.quote}»</p>

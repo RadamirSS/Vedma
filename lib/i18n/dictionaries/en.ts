@@ -464,7 +464,8 @@ export const en: Dictionary = {
         "Payment mark submitted. The administrator will review and update the status.",
       paymentMarkFailed: "Could not submit payment mark.",
       paymentMarkSent: "Mark submitted.",
-      profileUpdated: "Profile updated."
+      profileUpdated: "Profile updated.",
+      adminCustomerCabinetBlocked: "The customer account is not available for administrators."
     }
   },
   pages: {
@@ -505,31 +506,77 @@ export const en: Dictionary = {
         "The work combines Tarot, psychology, parapsychology, candle practices, transformational games, shamanic techniques and gentle human support.",
       paragraph2:
         "My goal is to help you see hidden causes, find support, understand your path and choose next steps.",
-      contact: "Contact"
+      contact: "Contact",
+      directions: [
+        "Tarot and spreads",
+        "Psychological consultations",
+        "Parapsychology",
+        "Candle magic",
+        "Amulets and talismans",
+        "Transformational games",
+        "Shamanic practices",
+        "Ancestral work"
+      ]
     },
     contacts: {
       eyebrow: "Contacts and booking",
       title: "How to reach us",
       text: "The contact page shows the main CTA and a calm, trust-building presentation without overload.",
       channelsTitle: "Contact channels",
+      telegram: "Telegram",
+      email: "Email",
       phone: "Phone",
       responseHours: "Response hours",
       workFormat: "Work format",
+      defaultResponseHours: "daily, 11:00–21:00",
+      defaultWorkFormat: "online worldwide",
       quickNavTitle: "Quick links",
       quickNavText:
-        "Main route: browse the catalog, choose a format, add to cart and open checkout.",
+        "Choose a service in the catalog, add to cart and place an order — or message directly on Telegram.",
       servicesCatalog: "Service catalog",
       orderForm: "Order form"
     },
     legal: {
       eyebrow: "Legal blocks",
       title: "18+ · privacy · terms",
-      text: "Current legal blocks are published on this page."
+      text: "Current legal blocks are published on this page.",
+      privacyTitle: "Privacy policy",
+      privacyText: "We collect name, phone, Telegram, email, delivery address and request comments.",
+      offerTitle: "Public offer",
+      offerText:
+        "Terms for products, services, payment, delivery, timelines and custom-order specifics.",
+      disclaimerText:
+        "Work is handled with care and confidentiality. Products and services are available to clients aged 18+."
     },
     reviews: {
       eyebrow: "Social proof",
       title: "Client stories",
-      text: "Real client stories with filters by service type and review cards."
+      text: "Real client stories with filters by service type and review cards.",
+      defaultService: "Client review",
+      defaultAuthor: "Client",
+      samples: [
+        {
+          id: "r1",
+          service: "Tarot and spreads",
+          quote:
+            "Bajena described the situation very accurately. After the reading it became clearer why patterns repeat and where to move next.",
+          author: "Client, name withheld"
+        },
+        {
+          id: "r2",
+          service: "Negative energy diagnostics",
+          quote:
+            "I received a gentle reading without pressure or scare tactics. I found support and very clear next steps.",
+          author: "Client, name withheld"
+        },
+        {
+          id: "r3",
+          service: "Protection and talismans",
+          quote:
+            "Beautiful work, detailed recommendations and very warm support at every stage.",
+          author: "Client, name withheld"
+        }
+      ]
     }
   },
   common: {

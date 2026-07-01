@@ -15,12 +15,17 @@ export default async function ContactsPage({ params }: PageProps) {
   const locale = localeParam as Locale;
   const dict = await getDictionary(locale);
   const settings = await getSiteSettings();
+  const responseHours =
+    locale === "en" ? dict.pages.contacts.defaultResponseHours : settings.contacts.responseHours;
+  const workFormat =
+    locale === "en" ? dict.pages.contacts.defaultWorkFormat : settings.contacts.workFormat;
+
   const contacts = [
-    { label: "Telegram", value: settings.contacts.telegram },
+    { label: dict.pages.contacts.telegram, value: settings.contacts.telegram },
     { label: dict.pages.contacts.phone, value: settings.contacts.phone },
-    { label: "Email", value: settings.contacts.email },
-    { label: dict.pages.contacts.responseHours, value: settings.contacts.responseHours },
-    { label: dict.pages.contacts.workFormat, value: settings.contacts.workFormat }
+    { label: dict.pages.contacts.email, value: settings.contacts.email },
+    { label: dict.pages.contacts.responseHours, value: responseHours },
+    { label: dict.pages.contacts.workFormat, value: workFormat }
   ].filter((item) => item.value);
 
   return (

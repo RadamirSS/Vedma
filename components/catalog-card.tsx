@@ -40,7 +40,9 @@ export function CatalogCard({
       <div className={`pic ${item.accent}${item.image ? " has-image" : ""}`}>
         <span className="badge">{categoryLabel}</span>
         {item.availability ? (
-          <span className={`stock ${item.availability.includes("Под") ? "order" : ""}`}>
+          <span
+            className={`stock ${item.availabilityStatus === "ON_REQUEST" ? "order" : ""}`}
+          >
             {item.availability}
           </span>
         ) : null}
