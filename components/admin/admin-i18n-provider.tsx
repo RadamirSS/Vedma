@@ -12,6 +12,8 @@ type AdminI18nContextValue = {
 
 const AdminI18nContext = createContext<AdminI18nContextValue | null>(null);
 
+export { AdminI18nContext };
+
 export function AdminI18nProvider({
   locale,
   dict,

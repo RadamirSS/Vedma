@@ -1,8 +1,9 @@
 "use client";
 
+import { useContext } from "react";
 import { useFormStatus } from "react-dom";
 
-import { useAdminI18n } from "@/components/admin/admin-i18n-provider";
+import { AdminI18nContext } from "@/components/admin/admin-i18n-provider";
 
 export function SubmitButton({
   children,
@@ -14,11 +15,12 @@ export function SubmitButton({
   pendingLabel?: string;
 }) {
   const { pending } = useFormStatus();
-  const { dict } = useAdminI18n();
+  const adminI18n = useContext(AdminI18nContext);
+  const fallbackPending = pendingLabel ?? adminI18n?.dict.common.pendingDefault ?? "...";
 
   return (
     <button className={className} type="submit" disabled={pending}>
-      {pending ? pendingLabel ?? dict.common.pendingDefault : children}
+      {pending ? fallbackPending : children}
     </button>
   );
 }

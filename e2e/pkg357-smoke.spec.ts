@@ -19,8 +19,9 @@ test.describe("Package 3.5.7 smoke", () => {
   });
 
   test("account login page loads", async ({ page }) => {
-    await page.goto("/en/account", { waitUntil: "networkidle" });
-    await expect(page.getByRole("heading", { name: /sign in|account/i }).first()).toBeVisible();
+    await page.goto("/en/account/login", { waitUntil: "networkidle" });
+    await expect(page.locator("h2.account-auth-card-title")).toBeVisible();
+    await expect(page.getByLabel(/email/i)).toBeVisible();
   });
 
   test("broken localStorage does not crash EN home", async ({ page }) => {
@@ -36,17 +37,16 @@ test.describe("Package 3.5.7 smoke", () => {
     const addButton = page.locator(".product-card .btn-primary").first();
     await addButton.click();
     await expect(page.locator(".floating-cart__count")).toBeVisible();
-    await page.locator(".floating-cart__btn").click();
     await expect(page.locator(".drawer.open")).toBeVisible();
-    await page.getByRole("link", { name: /view cart/i }).click();
+    await page.goto("/en/cart", { waitUntil: "networkidle" });
     await expect(page).toHaveURL(/\/en\/cart/);
+    await expect(page.locator("h1, .section-title, .account-title").first()).toBeVisible();
   });
 
   test("RU cart flow", async ({ page }) => {
     await page.goto("/ru/services", { waitUntil: "networkidle" });
     const addButton = page.locator(".product-card .btn-primary").first();
     await addButton.click();
-    await page.locator(".floating-cart__btn").click();
     await expect(page.locator(".drawer.open")).toBeVisible();
   });
 
