@@ -40,7 +40,7 @@ export function SiteShell({
       <main>{children}</main>
       <Footer settings={settings} locale={locale} dict={dict} />
       <CartDrawer locale={locale} dict={dict} />
-      <FloatingCartButton locale={locale} dict={dict} />
+      <FloatingCartButton dict={dict} />
       <div className="floating-social">
         <a href={settings.socialLinks.telegram} target="_blank" rel="noreferrer" title="Telegram">
           TG

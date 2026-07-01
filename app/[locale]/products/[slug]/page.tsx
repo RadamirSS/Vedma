@@ -28,7 +28,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { locale: localeParam, slug } = await params;
   const locale = localeParam as Locale;
   const dict = await getDictionary(locale);
-  const item = await getProductBySlug(slug);
+  const item = await getProductBySlug(slug, locale);
   if (!item) {
     return { title: dict.catalog.products };
   }
@@ -43,8 +43,8 @@ export default async function ProductDetailPage({ params }: PageProps) {
   const locale = localeParam as Locale;
   const dict = await getDictionary(locale);
   const [item, products] = await Promise.all([
-    getProductBySlug(slug),
-    getPublishedProducts()
+    getProductBySlug(slug, locale),
+    getPublishedProducts(locale)
   ]);
   if (!item) notFound();
 
@@ -56,7 +56,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
             <CatalogVisual item={item} variant="detail" />
           </div>
           <div className="detail-copy">
-            <span className="eyebrow">{getProductDisplayCategory(item)}</span>
+            <span className="eyebrow">{getProductDisplayCategory(item, locale)}</span>
             <h1 className="detail-title">{item.title}</h1>
             <p className="lead">{item.description}</p>
             <div className="detail-meta">

@@ -11,6 +11,7 @@ import {
   getCatalogDescription,
   normalizeCategoryLabel
 } from "@/lib/catalog/normalize";
+import { applyProductLocale } from "@/lib/catalog/product-localization";
 import { applyServiceLocale } from "@/lib/catalog/service-localization";
 import { prisma } from "@/lib/db/prisma";
 import type { Locale } from "@/lib/i18n/config";
@@ -81,7 +82,7 @@ function mapProductRecord(record: {
   sourcePlatform: string | null;
   sourceUrl: string | null;
   media: Array<{ path: string }>;
-}): CatalogItem {
+}, locale: Locale = "ru"): CatalogItem {
   const fallback = getFallbackProductBySlug(record.slug);
   const description = getCatalogDescription(record);
   const base = fallback
@@ -110,7 +111,8 @@ function mapProductRecord(record: {
       ? (record.gallery as string[])
       : record.media.map((entry) => entry.path);
 
-  return {
+  return applyProductLocale(
+    {
     id: record.sourceId ?? record.id,
     slug: record.slug,
     type: "product",
@@ -147,7 +149,9 @@ function mapProductRecord(record: {
     sourceId: record.sourceId ?? undefined,
     sourcePlatform: record.sourcePlatform ?? undefined,
     sourceUrl: record.sourceUrl ?? undefined
-  };
+  },
+    locale
+  );
 }
 
 function mapServiceRecord(
@@ -244,21 +248,21 @@ function mapServiceRecord(
   );
 }
 
-export async function getProducts() {
+export async function getProducts(locale: Locale = "ru") {
   return withFallback(
     async () => {
       const records = await prisma.product.findMany({
         orderBy: { createdAt: "asc" },
         include: { media: { select: { path: true } } }
       });
-      return records.map(mapProductRecord);
+      return records.map((record) => mapProductRecord(record, locale));
     },
-    () => getFallbackProducts(),
+    () => getFallbackProducts().map((item) => applyProductLocale(item, locale)),
     "getProducts"
   );
 }
 
-export async function getPublishedProducts() {
+export async function getPublishedProducts(locale: Locale = "ru") {
   return withFallback(
     async () => {
       const records = await prisma.product.findMany({
@@ -266,15 +270,15 @@ export async function getPublishedProducts() {
         orderBy: { createdAt: "asc" },
         include: { media: { select: { path: true } } }
       });
-      return records.map(mapProductRecord);
+      return records.map((record) => mapProductRecord(record, locale));
     },
-    () => getFallbackProducts(),
+    () => getFallbackProducts().map((item) => applyProductLocale(item, locale)),
     "getPublishedProducts"
   );
 }
 
-export async function getProductBySlug(slug: string) {
-  const products = await getPublishedProducts();
+export async function getProductBySlug(slug: string, locale: Locale = "ru") {
+  const products = await getPublishedProducts(locale);
   return products.find((product) => product.slug === slug) ?? null;
 }
 
@@ -312,8 +316,8 @@ export async function getServiceBySlug(slug: string, locale: Locale = "ru") {
   return services.find((service) => service.slug === slug) ?? null;
 }
 
-export async function getFeaturedProducts(limit = 6) {
-  const products = await getPublishedProducts();
+export async function getFeaturedProducts(limit = 6, locale: Locale = "ru") {
+  const products = await getPublishedProducts(locale);
   return products.filter((item) => item.image).slice(0, limit);
 }
 

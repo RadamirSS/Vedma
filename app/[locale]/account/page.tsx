@@ -3,7 +3,6 @@ import { redirect } from "next/navigation";
 
 import { AccountShell } from "@/components/account/account-shell";
 import { AdminNotice } from "@/components/admin/admin-notice";
-import { ORDER_STATUS_LABELS, PAYMENT_STATUS_LABELS } from "@/lib/admin/constants";
 import { formatAdminDate } from "@/lib/admin/format";
 import { getCurrentAdminSession, getCurrentCustomerSession } from "@/lib/auth/session";
 import { getSiteSettings } from "@/lib/admin/settings";
@@ -158,8 +157,8 @@ export default async function AccountPage({ params, searchParams }: PageProps) {
                   <p className="muted">{formatAdminDate(order.createdAt)}</p>
                 </div>
                 <div className="account-statuses">
-                  <span className="pill">{ORDER_STATUS_LABELS[order.status]}</span>
-                  <span className="pill">{PAYMENT_STATUS_LABELS[order.paymentStatus]}</span>
+                  <span className="pill">{dict.account.orderStatuses[order.status]}</span>
+                  <span className="pill">{dict.account.paymentStatuses[order.paymentStatus]}</span>
                 </div>
               </div>
               <div className="account-order-list">

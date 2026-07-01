@@ -78,8 +78,22 @@ export function Header({
             href={accountHref}
             aria-label={dict.header.account}
           >
-            <span className="account-btn__full">{dict.header.account}</span>
-            <span className="account-btn__short">{dict.header.accountShort}</span>
+            <svg
+              className="account-btn__icon"
+              viewBox="0 0 24 24"
+              width="18"
+              height="18"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.75"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <circle cx="12" cy="8" r="4" />
+              <path d="M5 20c0-4 3.5-6 7-6s7 2 7 6" />
+            </svg>
+            <span className="account-btn__label">{dict.header.account}</span>
           </Link>
           <button
             className="btn btn-ghost btn-small burger"

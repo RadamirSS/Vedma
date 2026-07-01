@@ -1,4 +1,5 @@
 import type { CatalogItem } from "@/lib/catalog-types";
+import type { Locale } from "@/lib/i18n/config";
 
 export const PRODUCT_CATEGORIES = [
   "Браслеты",
@@ -10,6 +11,17 @@ export const PRODUCT_CATEGORIES = [
   "Подарки",
   "Прочее"
 ] as const;
+
+export const PRODUCT_CATEGORY_LABELS_EN: Record<(typeof PRODUCT_CATEGORIES)[number], string> = {
+  Браслеты: "Bracelets",
+  Камни: "Stones",
+  "Алтарные товары": "Altar items",
+  Декор: "Decor",
+  Свечи: "Candles",
+  Обереги: "Amulets",
+  Подарки: "Gifts",
+  Прочее: "Other"
+};
 
 export type ProductDisplayCategory = (typeof PRODUCT_CATEGORIES)[number];
 
@@ -30,45 +42,63 @@ function normalize(text: string) {
   return text.toLowerCase().replace(/ё/g, "е");
 }
 
-export function getProductDisplayCategory(item: CatalogItem): ProductDisplayCategory {
+export function getProductDisplayCategory(
+  item: CatalogItem,
+  locale: Locale = "ru"
+): string {
   const text = normalize(`${item.title} ${item.slug} ${item.description}`);
 
+  let category: ProductDisplayCategory = "Прочее";
+
   if (text.includes("браслет")) {
-    return "Браслеты";
+    category = "Браслеты";
+  } else {
+    for (const rule of RULES) {
+      if (rule.category === "Браслеты") {
+        continue;
+      }
+      if (rule.keywords.some((keyword) => text.includes(keyword))) {
+        category = rule.category;
+        break;
+      }
+    }
   }
 
-  for (const rule of RULES) {
-    if (rule.category === "Браслеты") {
-      continue;
-    }
-    if (rule.keywords.some((keyword) => text.includes(keyword))) {
-      return rule.category;
-    }
+  if (locale === "en") {
+    return PRODUCT_CATEGORY_LABELS_EN[category];
   }
 
-  return "Прочее";
+  return category;
 }
 
-export function groupProductsByCategory(products: CatalogItem[]) {
-  const groups = new Map<ProductDisplayCategory, CatalogItem[]>();
+export function groupProductsByCategory(products: CatalogItem[], locale: Locale = "ru") {
+  const groups = new Map<string, CatalogItem[]>();
 
   for (const category of PRODUCT_CATEGORIES) {
-    groups.set(category, []);
+    const label = locale === "en" ? PRODUCT_CATEGORY_LABELS_EN[category] : category;
+    groups.set(label, []);
   }
 
   for (const product of products) {
-    const category = getProductDisplayCategory(product);
+    const category = getProductDisplayCategory(product, locale);
     groups.get(category)!.push(product);
   }
 
   return groups;
 }
 
-export function getCategoryCounts(products: CatalogItem[]) {
-  const groups = groupProductsByCategory(products);
-  return PRODUCT_CATEGORIES.map((category) => ({
-    category,
-    count: groups.get(category)!.length,
-    thumbnail: groups.get(category)!.find((item) => item.image)?.image
-  })).filter((entry) => entry.count > 0);
+export function getCategoryCounts(products: CatalogItem[], locale: Locale = "ru") {
+  const groups = groupProductsByCategory(products, locale);
+  const labels =
+    locale === "en"
+      ? PRODUCT_CATEGORIES.map((category) => PRODUCT_CATEGORY_LABELS_EN[category])
+      : [...PRODUCT_CATEGORIES];
+
+  return labels
+    .map((category) => ({
+      category,
+      count: groups.get(category)?.length ?? 0,
+      thumbnail: groups.get(category)?.find((item) => item.image)?.image
+    }))
+    .filter((entry) => entry.count > 0);
 }

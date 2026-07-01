@@ -24,8 +24,8 @@ export default async function ProductsPage({ params }: PageProps) {
   const { locale: localeParam } = await params;
   const locale = localeParam as Locale;
   const dict = await getDictionary(locale);
-  const products = await getPublishedProducts();
-  const categoryCounts = getCategoryCounts(products);
+  const products = await getPublishedProducts(locale);
+  const categoryCounts = getCategoryCounts(products, locale);
 
   return (
     <section className="section">

@@ -9,14 +9,14 @@ import {
   type ReactNode
 } from "react";
 import { usePathname } from "next/navigation";
+import {
+  safeReadCartFromStorage,
+  safeWriteCartToStorage,
+  sumCartQuantity,
+  type CartEntry
+} from "@/lib/commerce/cart-storage";
 import { getDictionarySync } from "@/lib/i18n/get-dictionary";
 import { getLocaleFromPathname, localizeHref } from "@/lib/i18n/routing";
-
-type CartEntry = {
-  type: "product" | "service";
-  slug: string;
-  qty: number;
-};
 
 type ResolvedCartItem = {
   catalogId: string | null;
@@ -56,7 +56,10 @@ type CartContextValue = {
 };
 
 const CartContext = createContext<CartContextValue | null>(null);
-const STORAGE_KEY = "bazhena-cart";
+
+function entryKey(entry: CartEntry) {
+  return `${entry.type}:${entry.slug}`;
+}
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname();
@@ -76,10 +79,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    const saved = window.localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      setItems(JSON.parse(saved) as CartEntry[]);
-    }
+    setItems(safeReadCartFromStorage());
   }, [isAdminRoute]);
 
   useEffect(() => {
@@ -87,7 +87,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+    safeWriteCartToStorage(items);
   }, [items, isAdminRoute]);
 
   useEffect(() => {
@@ -152,12 +152,20 @@ export function CartProvider({ children }: { children: ReactNode }) {
           return;
         }
 
-        setResolvedItems(
-          data.items.map((item) => ({
-            ...item,
-            detailHref: localizeHref(locale, item.detailHref)
-          }))
-        );
+        const localizedItems = data.items.map((item) => ({
+          ...item,
+          detailHref: localizeHref(locale, item.detailHref)
+        }));
+
+        setResolvedItems(localizedItems);
+
+        const resolvedKeys = new Set(localizedItems.map((item) => `${item.type}:${item.slug}`));
+        if (resolvedKeys.size < items.length) {
+          setItems((current) =>
+            current.filter((entry) => resolvedKeys.has(entryKey(entry)))
+          );
+        }
+
         setTotal(data.totals.totalAmount);
         setTotalRub(data.totals.totalAmountRub);
         setTotalUsd(data.totals.totalAmountUsd);
@@ -189,7 +197,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const cartUnavailable =
     items.length > 0 && resolvedItems.length === 0 && !isPending && !resolveError;
-  const count = resolvedItems.reduce((sum, item) => sum + item.quantity, 0);
+  const count = sumCartQuantity(items);
 
   const value: CartContextValue = {
     items,

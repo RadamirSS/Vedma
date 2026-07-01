@@ -2,7 +2,6 @@ import Link from "next/link";
 
 import { customerMarkOrderPaidFormAction } from "@/lib/actions/customer";
 import { SubmitButton } from "@/components/admin/submit-button";
-import { PAYMENT_STATUS_LABELS } from "@/lib/admin/constants";
 import type { Locale } from "@/lib/i18n/config";
 import type { Dictionary } from "@/lib/i18n/dictionaries/ru";
 import { localizeHref } from "@/lib/i18n/routing";
@@ -33,7 +32,7 @@ export function OrderPaymentBlock({
       <h3>{dict.account.paymentBlockTitle}</h3>
       <div className="summary-line">
         <span>{dict.account.orderStatus}</span>
-        <b>{PAYMENT_STATUS_LABELS[paymentStatus]}</b>
+        <b>{dict.account.paymentStatuses[paymentStatus]}</b>
       </div>
       <p className="muted stack-top">{dict.account.paymentSetupNote}</p>
       {isPending && !canMark ? (

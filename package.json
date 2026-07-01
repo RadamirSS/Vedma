@@ -19,7 +19,12 @@
     "db:verify:catalog": "tsx scripts/verify-catalog-db.ts",
     "db:mark-test-orders": "tsx scripts/mark-test-orders.ts",
     "vk:services:import:dry-run": "tsx scripts/vk-services/import_ready_services.ts --dry-run",
-    "vk:services:import:apply": "tsx scripts/vk-services/import_ready_services.ts --apply"
+    "vk:services:import:apply": "tsx scripts/vk-services/import_ready_services.ts --apply",
+    "qa:cart-storage": "tsx scripts/cart-storage-smoke.ts",
+    "qa:en-catalog": "tsx scripts/check-en-catalog-cyrillic.ts",
+    "qa:e2e:pkg357": "playwright test e2e/pkg357-smoke.spec.ts",
+    "catalog:build-en-products": "tsx scripts/build-product-en-overlay.ts",
+    "catalog:fix-en-services": "tsx scripts/fix-public-en-translations.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.11.0",
@@ -29,6 +34,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "3.3.1",
+    "@playwright/test": "^1.61.1",
     "@types/node": "22.15.30",
     "@types/react": "19.1.8",
     "@types/react-dom": "19.1.6",

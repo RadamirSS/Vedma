@@ -14,7 +14,7 @@ export async function POST(request: Request) {
   const entries = Array.isArray(body?.entries) ? body.entries : [];
 
   try {
-    const resolvedItems = await resolveCartEntries(entries);
+    const resolvedItems = await resolveCartEntries(entries, locale);
     const totals = getCartTotals(resolvedItems);
 
     return NextResponse.json({

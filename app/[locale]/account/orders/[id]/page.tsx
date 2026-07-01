@@ -5,7 +5,6 @@ import { AdminNotice } from "@/components/admin/admin-notice";
 import { OrderPaymentBlock } from "@/components/account/order-payment-block";
 import { requireCustomerSession } from "@/lib/auth/session";
 import { formatAdminDate } from "@/lib/admin/format";
-import { ORDER_STATUS_LABELS, PAYMENT_STATUS_LABELS } from "@/lib/admin/constants";
 import type { Locale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/get-dictionary";
 import { localizeHref } from "@/lib/i18n/routing";
@@ -93,11 +92,11 @@ export default async function AccountOrderDetailPage({ params, searchParams }: P
           </div>
           <div className="summary-line">
             <span>{dict.account.orderStatus}</span>
-            <b>{ORDER_STATUS_LABELS[order.status]}</b>
+            <b>{dict.account.orderStatuses[order.status]}</b>
           </div>
           <div className="summary-line">
             <span>{dict.account.paymentLabel}</span>
-            <b>{PAYMENT_STATUS_LABELS[order.paymentStatus]}</b>
+            <b>{dict.account.paymentStatuses[order.paymentStatus]}</b>
           </div>
         </aside>
       </div>

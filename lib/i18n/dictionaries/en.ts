@@ -438,6 +438,29 @@ export const en: Dictionary = {
     paymentMarkPending: "Submitting mark...",
     helpPrefix: "Need help? Message on Telegram or visit the",
     helpContactsLink: "contacts page",
+    orderStatuses: {
+      NEW: "New",
+      PENDING_CONFIRMATION: "Awaiting confirmation",
+      AWAITING_PAYMENT: "Awaiting payment",
+      PAID: "Paid",
+      IN_PROGRESS: "In progress",
+      READY_TO_SHIP: "Ready to ship",
+      SHIPPED: "Shipped",
+      COMPLETED: "Completed",
+      CANCELLED: "Cancelled",
+      REFUNDED: "Refunded"
+    },
+    paymentStatuses: {
+      NOT_ISSUED: "Not issued",
+      INVOICE_SENT: "Invoice sent",
+      PENDING: "Payment pending",
+      PAID: "Paid",
+      PARTIAL: "Partially paid",
+      FAILED: "Payment failed",
+      EXPIRED: "Expired",
+      REFUNDED: "Refunded",
+      CANCELLED: "Cancelled"
+    },
     saveProfileButton: "Save profile",
     emailHint: "Email is needed to confirm orders and future receipts/notifications.",
     messages: {

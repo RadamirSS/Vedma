@@ -436,6 +436,29 @@ export const ru = {
     paymentMarkPending: "Отправляем отметку...",
     helpPrefix: "Нужна помощь? Напишите в Telegram или на странице",
     helpContactsLink: "контактов",
+    orderStatuses: {
+      NEW: "Новый",
+      PENDING_CONFIRMATION: "Ожидает подтверждения",
+      AWAITING_PAYMENT: "Ожидает оплаты",
+      PAID: "Оплачен",
+      IN_PROGRESS: "В работе",
+      READY_TO_SHIP: "Готов к отправке",
+      SHIPPED: "Отправлен",
+      COMPLETED: "Завершен",
+      CANCELLED: "Отменен",
+      REFUNDED: "Возврат"
+    },
+    paymentStatuses: {
+      NOT_ISSUED: "Не выставлен",
+      INVOICE_SENT: "Реквизиты отправлены",
+      PENDING: "Ожидается платеж",
+      PAID: "Оплачен",
+      PARTIAL: "Частично оплачен",
+      FAILED: "Ошибка платежа",
+      EXPIRED: "Просрочен",
+      REFUNDED: "Возврат",
+      CANCELLED: "Отменен"
+    },
     saveProfileButton: "Сохранить профиль",
     emailHint: "Email нужен для подтверждения заказа и будущих чеков/уведомлений.",
     messages: {

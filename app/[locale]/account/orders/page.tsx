@@ -3,7 +3,6 @@ import Link from "next/link";
 import { AccountShell } from "@/components/account/account-shell";
 import { requireCustomerSession } from "@/lib/auth/session";
 import { formatAdminDate } from "@/lib/admin/format";
-import { ORDER_STATUS_LABELS, PAYMENT_STATUS_LABELS } from "@/lib/admin/constants";
 import type { Locale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/get-dictionary";
 import { localizeHref } from "@/lib/i18n/routing";
@@ -52,8 +51,8 @@ export default async function AccountOrdersPage({ params }: PageProps) {
                   <p className="muted">{formatAdminDate(order.createdAt)}</p>
                 </div>
                 <div className="account-statuses">
-                  <span className="pill">{ORDER_STATUS_LABELS[order.status]}</span>
-                  <span className="pill">{PAYMENT_STATUS_LABELS[order.paymentStatus]}</span>
+                  <span className="pill">{dict.account.orderStatuses[order.status]}</span>
+                  <span className="pill">{dict.account.paymentStatuses[order.paymentStatus]}</span>
                 </div>
               </div>
               <div className="account-order-list">

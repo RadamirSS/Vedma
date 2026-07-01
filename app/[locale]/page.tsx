@@ -44,7 +44,7 @@ export default async function HomePage({ params }: PageProps) {
   const settings = await getSiteSettings();
 
   const [products, services, publishedReviews] = await Promise.all([
-    getPublishedProducts(),
+    getPublishedProducts(locale),
     getPublishedServices(locale),
     getPublishedReviews(locale)
   ]);

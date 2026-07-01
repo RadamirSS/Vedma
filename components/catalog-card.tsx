@@ -15,7 +15,7 @@ import { formatCatalogItemPrice } from "@/lib/pricing/format-price";
 
 function getCategoryLabel(item: CatalogItem, locale: Locale) {
   if (item.type === "product") {
-    return getProductDisplayCategory(item);
+    return getProductDisplayCategory(item, locale);
   }
   return getServiceCategoryLabel(item.normalizedCategory ?? item.category, locale);
 }

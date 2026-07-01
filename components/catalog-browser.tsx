@@ -6,7 +6,7 @@ import { CatalogCard } from "@/components/catalog-card";
 import type { CatalogItem } from "@/lib/mock-data";
 import type { Locale } from "@/lib/i18n/config";
 import type { Dictionary } from "@/lib/i18n/dictionaries/ru";
-import { getProductDisplayCategory, PRODUCT_CATEGORIES } from "@/lib/product-categories";
+import { getProductDisplayCategory, PRODUCT_CATEGORIES, PRODUCT_CATEGORY_LABELS_EN } from "@/lib/product-categories";
 
 export function CatalogBrowser({
   items,
@@ -27,9 +27,13 @@ export function CatalogBrowser({
     if (!useDisplayCategories) {
       return [...new Set(items.map((item) => item.category))];
     }
-    const present = new Set(items.map((item) => getProductDisplayCategory(item)));
-    return PRODUCT_CATEGORIES.filter((category) => present.has(category));
-  }, [items, useDisplayCategories]);
+    const present = new Set(items.map((item) => getProductDisplayCategory(item, locale)));
+    const categoryList =
+      locale === "en"
+        ? PRODUCT_CATEGORIES.map((category) => PRODUCT_CATEGORY_LABELS_EN[category])
+        : [...PRODUCT_CATEGORIES];
+    return categoryList.filter((category) => present.has(category));
+  }, [items, locale, useDisplayCategories]);
 
   const [activeCategory, setActiveCategory] = useState<string>(filterAll);
   const [search, setSearch] = useState("");
@@ -38,14 +42,14 @@ export function CatalogBrowser({
     () =>
       items.filter((item) => {
         const itemCategory = useDisplayCategories
-          ? getProductDisplayCategory(item)
+          ? getProductDisplayCategory(item, locale)
           : item.category;
         const matchesCategory = activeCategory === filterAll || itemCategory === activeCategory;
         const value = `${item.title} ${item.description}`.toLowerCase();
         const matchesSearch = value.includes(search.toLowerCase());
         return matchesCategory && matchesSearch;
       }),
-    [activeCategory, filterAll, items, search, useDisplayCategories]
+    [activeCategory, filterAll, items, locale, search, useDisplayCategories]
   );
 
   return (

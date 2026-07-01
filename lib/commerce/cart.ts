@@ -4,6 +4,7 @@ import { getSiteSettings } from "@/lib/admin/settings";
 import { getPublishedProducts, getPublishedServices } from "@/lib/catalog/repository";
 import type { CatalogItem } from "@/lib/catalog-types";
 import { prisma } from "@/lib/db/prisma";
+import type { Locale } from "@/lib/i18n/config";
 
 export type CartEntry = {
   type: "product" | "service";
@@ -52,10 +53,10 @@ export async function getActiveCurrency() {
   return settings.currencies.primary === "USD" ? Currency.USD : Currency.RUB;
 }
 
-export async function getPublishedCatalogMap() {
+export async function getPublishedCatalogMap(locale: Locale = "ru") {
   const [products, services, productRecords, serviceRecords] = await Promise.all([
-    getPublishedProducts(),
-    getPublishedServices(),
+    getPublishedProducts(locale),
+    getPublishedServices(locale),
     process.env.DATABASE_URL
       ? prisma.product.findMany({
           where: { publicationStatus: "PUBLISHED" },
@@ -79,9 +80,9 @@ export async function getPublishedCatalogMap() {
   };
 }
 
-export async function resolveCartEntries(entries: CartEntry[]) {
+export async function resolveCartEntries(entries: CartEntry[], locale: Locale = "ru") {
   const currency = await getActiveCurrency();
-  const { products, services } = await getPublishedCatalogMap();
+  const { products, services } = await getPublishedCatalogMap(locale);
 
   const resolved: ResolvedCartItem[] = [];
 
