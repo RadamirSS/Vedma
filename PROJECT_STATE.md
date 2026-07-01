@@ -1,19 +1,20 @@
 # Project State
 
-Date: 2026-06-30
+Date: 2026-07-01
 Repository: `Vedma`
-Current branch: `cursor/package-3-5-3-vk-services-visual-i18n-qa`
-Main branch status: Package 3.5 deployed on https://bajena.it
+Current branch: `main`
+Main branch status: Package 3.5.3 deployed on https://bajena.it (2026-07-01)
 
-## Package 3.5.3 (in review)
+## Package 3.5.3 / 3.5.4 deploy (live)
 
-Branch: `cursor/package-3-5-3-vk-services-visual-i18n-qa`
-
-- Merged admin i18n (3.5.2) + VK detail data
-- VK import script for 25 ready services (30 not-ready excluded)
-- Service `translations` JSON for EN/RU public catalog
-- Public visual/i18n fixes (footer, headings, step numbers, featured services)
-- **Not merged to main. Not deployed.**
+- Merge commit: `12e807a2c42fac60bb425ae01110d61237193fd6`
+- Previous server commit: `7110266e1f5c4f5679aad1dd28cc127c3e8b1e9d`
+- Migration `20260630120000_package_3_5_3_service_translations`: applied
+- VK import: 25 services upserted (24 new + 1 merge into `diagnostika-negativa`)
+- Production catalog: 26 services total, 24 published, 2 draft (Walpurgis, Samhain)
+- `pnpm db:verify:catalog`: pass on server
+- `vedma.service`: active after restart
+- Status: **READY_FOR_EXTERNAL_REVIEW**
 
 See `docs/packages/package-3-5-3-vk-services-visual-i18n-qa.md`.
 

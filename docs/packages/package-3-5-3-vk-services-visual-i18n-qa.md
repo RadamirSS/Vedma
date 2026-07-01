@@ -1,9 +1,22 @@
 # Package 3.5.3 — VK Ready Services + Visual/i18n QA
 
-Date: 2026-06-30  
-Branch: `cursor/package-3-5-3-vk-services-visual-i18n-qa`  
+Date: 2026-07-01  
+Branch: `main` (merged from `cursor/package-3-5-3-vk-services-visual-i18n-qa`)  
 Base: `main`  
-**Not merged. Not deployed.**
+**Merged and deployed to https://bajena.it (Package 3.5.4, 2026-07-01).**
+
+## Deployment (Package 3.5.4)
+
+| Item | Value |
+|------|-------|
+| Merge commit | `12e807a2c42fac60bb425ae01110d61237193fd6` |
+| Previous server commit | `7110266e1f5c4f5679aad1dd28cc127c3e8b1e9d` |
+| Deployed commit | `12e807a2c42fac60bb425ae01110d61237193fd6` |
+| Migration | `20260630120000_package_3_5_3_service_translations` applied |
+| Import apply | 25 upserted (24 create + 1 update on first run) |
+| Idempotent re-run | 0 create, 25 update |
+| `pnpm db:verify:catalog` | pass on server |
+| Production status | **READY_FOR_EXTERNAL_REVIEW** |
 
 ## Merged inputs
 
@@ -50,18 +63,25 @@ Base: `main`
 
 | Check | Result |
 |-------|--------|
-| `pnpm lint` | Pass |
-| `pnpm build` | Pass (static params use file fallback without live DB) |
-| `pnpm vk:services:import:dry-run` | 25 planned (24 create, 1 update, 23 published, 2 draft) |
-| `pnpm vk:services:import:apply` | Requires valid `DATABASE_URL` on target server |
-| `pnpm db:verify:catalog` | Requires valid DB; expected 26 services after apply (`EXPECTED_SERVICES=26`) |
+| `pnpm lint` | Pass (pre-merge local) |
+| `pnpm build` | Pass (local + server) |
+| `pnpm vk:services:import:dry-run` | 25 planned (24 create, 1 update) pre-apply |
+| `pnpm vk:services:import:apply` | Applied on bajena.it 2026-07-01 |
+| `pnpm db:verify:catalog` | Pass on production DB |
+| Live HTTP `/en`, `/ru`, `/admin/login` | 200 |
+| Live services catalog | 24 published cards on `/en/services` |
+| DaData `/api/address/suggest` | suggestions OK |
+| `/uploads/admin/...` | 200 (known PNG) |
+| Full checkout E2E | Manual browser recommended (CLI blocked by Next cookies scope) |
+| ADMIN/MANAGER/DEMO permissions | Manual smoke recommended |
 
 ## Remaining limitations
 
 - Payments / Lava / email not connected
-- 30 VK services need owner clarification
-- Many service images are screenshots or placeholders — replace in admin media
-- Local DB credentials invalid in dev `.env`; server verification required before deploy
+- 30 VK services need owner clarification (`services.not-ready.json`)
+- Some service images are screenshots/placeholders — replace in admin media
+- Walpurgis + Samhain imported as **DRAFT** (seasonal)
+- Tier pricing on «Как пробить денежный потолок» needs owner confirmation
 
 ## Docs
 
