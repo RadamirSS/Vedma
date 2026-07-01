@@ -27,7 +27,7 @@ export default async function ServicesPage({ params }: PageProps) {
   const { locale: localeParam } = await params;
   const locale = localeParam as Locale;
   const dict = await getDictionary(locale);
-  const services = await getPublishedServices();
+  const services = await getPublishedServices(locale);
 
   return (
     <>

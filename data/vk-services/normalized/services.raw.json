@@ -1,0 +1,969 @@
+{
+  "parsedAt": "2026-06-30T21:30:28.056192+00:00",
+  "accessMethod": "public-playwright-with-partial-vk-challenge-and-raw-text-merge",
+  "sources": [
+    {
+      "id": "source-01",
+      "url": "https://vk.com/uslugi-226854094?screen=group&section_id=HUkaVBkFWVd2RwcDWVg2",
+      "status": "parsed",
+      "section": "Деловые услуги",
+      "album": null,
+      "cardsFound": 24,
+      "notes": "parsed from saved raw text"
+    },
+    {
+      "id": "source-02",
+      "url": "https://vk.com/uslugi-226854094?section_id=HUkaVBkFWVZxRwcDWVg2",
+      "status": "parsed",
+      "section": "Обучение",
+      "album": null,
+      "cardsFound": 27,
+      "notes": "parsed from saved raw text"
+    },
+    {
+      "id": "source-03",
+      "url": "https://vk.com/uslugi-226854094?display_albums=true&section=album_1",
+      "status": "partial",
+      "section": "Матрица Судьбы. Расчёт по Дате Рождения",
+      "album": "album_1",
+      "cardsFound": 11,
+      "notes": "manual fallback listing from earlier public probe"
+    },
+    {
+      "id": "source-04",
+      "url": "https://vk.com/uslugi-226854094?section=album_2",
+      "status": "parsed",
+      "section": "Консультация",
+      "album": "album_2",
+      "cardsFound": 4,
+      "notes": "parsed from saved raw text"
+    }
+  ],
+  "items": [
+    {
+      "title": "ОБРЯД СВАРОГА «КОВАНАЯ СУДЬБА»",
+      "priceRaw": "5 500 ₽",
+      "itemUrl": "https://vk.com/market/product/obryad-svaroga-kovanaya-sudba-226854094-13722618",
+      "sourceId": "source-01",
+      "sourceUrl": "https://vk.com/uslugi-226854094?screen=group&section_id=HUkaVBkFWVd2RwcDWVg2",
+      "sourceSection": "Деловые услуги",
+      "sourceAlbum": null,
+      "orderIndex": 1,
+      "appearances": [
+        {
+          "sourceId": "source-01",
+          "orderIndex": 1
+        }
+      ]
+    },
+    {
+      "title": "Защита Себека",
+      "priceRaw": "5 500 ₽",
+      "itemUrl": "https://vk.com/market/product/zaschita-sebeka-226854094-13689657",
+      "sourceId": "source-01",
+      "sourceUrl": "https://vk.com/uslugi-226854094?screen=group&section_id=HUkaVBkFWVd2RwcDWVg2",
+      "sourceSection": "Деловые услуги",
+      "sourceAlbum": null,
+      "orderIndex": 2,
+      "appearances": [
+        {
+          "sourceId": "source-01",
+          "orderIndex": 2
+        }
+      ]
+    },
+    {
+      "title": "Пробуждение и усиление Ведовской Силы",
+      "priceRaw": "6 900 ₽",
+      "itemUrl": "https://vk.com/market/product/probuzhdenie-i-usilenie-vedovskoy-sily-226854094-13687525",
+      "sourceId": "source-01",
+      "sourceUrl": "https://vk.com/uslugi-226854094?screen=group&section_id=HUkaVBkFWVd2RwcDWVg2",
+      "sourceSection": "Деловые услуги",
+      "sourceAlbum": null,
+      "orderIndex": 3,
+      "appearances": [
+        {
+          "sourceId": "source-01",
+          "orderIndex": 3
+        }
+      ]
+    },
+    {
+      "title": "Защита \"Ведьмин Круг\"",
+      "priceRaw": "6 900 ₽",
+      "itemUrl": "https://vk.com/market/product/zaschita-quotvedmin-krugquot-226854094-13685598",
+      "sourceId": "source-01",
+      "sourceUrl": "https://vk.com/uslugi-226854094?screen=group&section_id=HUkaVBkFWVd2RwcDWVg2",
+      "sourceSection": "Деловые услуги",
+      "sourceAlbum": null,
+      "orderIndex": 4,
+      "appearances": [
+        {
+          "sourceId": "source-01",
+          "orderIndex": 4
+        }
+      ]
+    },
+    {
+      "title": "КТО ИЛИ ЧТО ВАС ВДОХНОВЛЯЕТ? РАСЧЁТ ПО ДАТЕ РОЖДЕНИЯ",
+      "priceRaw": "от 550 ₽",
+      "itemUrl": "https://vk.com/market/product/kto-ili-chto-vas-vdokhnovlyaet-raschyot-po-date-rozhdeniya-226854094-13677093",
+      "sourceId": "source-01",
+      "sourceUrl": "https://vk.com/uslugi-226854094?screen=group&section_id=HUkaVBkFWVd2RwcDWVg2",
+      "sourceSection": "Деловые услуги",
+      "sourceAlbum": null,
+      "orderIndex": 5,
+      "appearances": [
+        {
+          "sourceId": "source-01",
+          "orderIndex": 5
+        },
+        {
+          "sourceId": "source-03",
+          "orderIndex": 1
+        }
+      ]
+    },
+    {
+      "title": "Распаковка Матрицы Судьбы",
+      "priceRaw": "7 500 ₽",
+      "itemUrl": "https://vk.com/market/product/raspakovka-matritsy-sudby-226854094-13629692",
+      "sourceId": "source-01",
+      "sourceUrl": "https://vk.com/uslugi-226854094?screen=group&section_id=HUkaVBkFWVd2RwcDWVg2",
+      "sourceSection": "Деловые услуги",
+      "sourceAlbum": null,
+      "orderIndex": 6,
+      "appearances": [
+        {
+          "sourceId": "source-01",
+          "orderIndex": 6
+        }
+      ]
+    },
+    {
+      "title": "Отдых по Дате Рождения",
+      "priceRaw": "от 550 ₽",
+      "itemUrl": "https://vk.com/market/product/otdykh-po-date-rozhdenia-226854094-13625102",
+      "sourceId": "source-01",
+      "sourceUrl": "https://vk.com/uslugi-226854094?screen=group&section_id=HUkaVBkFWVd2RwcDWVg2",
+      "sourceSection": "Деловые услуги",
+      "sourceAlbum": null,
+      "orderIndex": 7,
+      "appearances": [
+        {
+          "sourceId": "source-01",
+          "orderIndex": 7
+        },
+        {
+          "sourceId": "source-03",
+          "orderIndex": 2
+        }
+      ]
+    },
+    {
+      "title": "Освобождение эмоций",
+      "priceRaw": "5 000 ₽",
+      "itemUrl": "https://vk.com/market/product/osvobozhdenie-emotsy-226854094-13620100",
+      "sourceId": "source-01",
+      "sourceUrl": "https://vk.com/uslugi-226854094?screen=group&section_id=HUkaVBkFWVd2RwcDWVg2",
+      "sourceSection": "Деловые услуги",
+      "sourceAlbum": null,
+      "orderIndex": 8,
+      "appearances": [
+        {
+          "sourceId": "source-01",
+          "orderIndex": 8
+        }
+      ]
+    },
+    {
+      "title": "Никола Летний. Защита и благословение пути",
+      "priceRaw": "5 000 ₽",
+      "itemUrl": "https://vk.com/market/product/nikola-letniy-zaschita-i-blagoslovenie-puti-226854094-13620099",
+      "sourceId": "source-01",
+      "sourceUrl": "https://vk.com/uslugi-226854094?screen=group&section_id=HUkaVBkFWVd2RwcDWVg2",
+      "sourceSection": "Деловые услуги",
+      "sourceAlbum": null,
+      "orderIndex": 9,
+      "appearances": [
+        {
+          "sourceId": "source-01",
+          "orderIndex": 9
+        }
+      ]
+    },
+    {
+      "title": "Никола Зимний. Помощь и защита.",
+      "priceRaw": "5 000 ₽",
+      "itemUrl": "https://vk.com/market/product/nikola-zimniy-pomosch-i-zaschita-226854094-13620096",
+      "sourceId": "source-01",
+      "sourceUrl": "https://vk.com/uslugi-226854094?screen=group&section_id=HUkaVBkFWVd2RwcDWVg2",
+      "sourceSection": "Деловые услуги",
+      "sourceAlbum": null,
+      "orderIndex": 10,
+      "appearances": [
+        {
+          "sourceId": "source-01",
+          "orderIndex": 10
+        }
+      ]
+    },
+    {
+      "title": "Ошибки, блокирующие деньги",
+      "priceRaw": "от 550 ₽",
+      "itemUrl": "https://vk.com/market/product/oshibki-blokiruyuschie-dengi-226854094-13564303",
+      "sourceId": "source-01",
+      "sourceUrl": "https://vk.com/uslugi-226854094?screen=group&section_id=HUkaVBkFWVd2RwcDWVg2",
+      "sourceSection": "Деловые услуги",
+      "sourceAlbum": null,
+      "orderIndex": 11,
+      "appearances": [
+        {
+          "sourceId": "source-01",
+          "orderIndex": 11
+        },
+        {
+          "sourceId": "source-03",
+          "orderIndex": 3
+        }
+      ]
+    },
+    {
+      "title": "Усиление связи с Родом",
+      "priceRaw": "5 900 ₽",
+      "itemUrl": "https://vk.com/market/product/usilenie-svyazi-s-rodom-226854094-13542562",
+      "sourceId": "source-01",
+      "sourceUrl": "https://vk.com/uslugi-226854094?screen=group&section_id=HUkaVBkFWVd2RwcDWVg2",
+      "sourceSection": "Деловые услуги",
+      "sourceAlbum": null,
+      "orderIndex": 12,
+      "appearances": [
+        {
+          "sourceId": "source-01",
+          "orderIndex": 12
+        }
+      ]
+    },
+    {
+      "title": "Энергия Числа Судьбы + Кармические задачи",
+      "priceRaw": "от 550 ₽",
+      "itemUrl": "https://vk.com/market/product/energia-chisla-sudby-karmicheskie-zadachi-226854094-13539244",
+      "sourceId": "source-01",
+      "sourceUrl": "https://vk.com/uslugi-226854094?screen=group&section_id=HUkaVBkFWVd2RwcDWVg2",
+      "sourceSection": "Деловые услуги",
+      "sourceAlbum": null,
+      "orderIndex": 13,
+      "appearances": [
+        {
+          "sourceId": "source-01",
+          "orderIndex": 13
+        },
+        {
+          "sourceId": "source-03",
+          "orderIndex": 4
+        }
+      ]
+    },
+    {
+      "title": "Вход в финансовый поток",
+      "priceRaw": "от 550 ₽",
+      "itemUrl": "https://vk.com/market/product/vkhod-v-finansovy-potok-226854094-13501426",
+      "sourceId": "source-01",
+      "sourceUrl": "https://vk.com/uslugi-226854094?screen=group&section_id=HUkaVBkFWVd2RwcDWVg2",
+      "sourceSection": "Деловые услуги",
+      "sourceAlbum": null,
+      "orderIndex": 14,
+      "appearances": [
+        {
+          "sourceId": "source-01",
+          "orderIndex": 14
+        },
+        {
+          "sourceId": "source-03",
+          "orderIndex": 5
+        }
+      ]
+    },
+    {
+      "title": "Детские деньги",
+      "priceRaw": "от 550 ₽",
+      "itemUrl": "https://vk.com/market/product/detskie-dengi-226854094-13480355",
+      "sourceId": "source-01",
+      "sourceUrl": "https://vk.com/uslugi-226854094?screen=group&section_id=HUkaVBkFWVd2RwcDWVg2",
+      "sourceSection": "Деловые услуги",
+      "sourceAlbum": null,
+      "orderIndex": 15,
+      "appearances": [
+        {
+          "sourceId": "source-01",
+          "orderIndex": 15
+        },
+        {
+          "sourceId": "source-03",
+          "orderIndex": 6
+        }
+      ]
+    },
+    {
+      "title": "Расчёт таланта по Дате рождения",
+      "priceRaw": "от 550 ₽",
+      "itemUrl": "https://vk.com/market/product/raschyot-talanta-po-date-rozhdenia-226854094-13456939",
+      "sourceId": "source-01",
+      "sourceUrl": "https://vk.com/uslugi-226854094?screen=group&section_id=HUkaVBkFWVd2RwcDWVg2",
+      "sourceSection": "Деловые услуги",
+      "sourceAlbum": null,
+      "orderIndex": 16,
+      "appearances": [
+        {
+          "sourceId": "source-01",
+          "orderIndex": 16
+        },
+        {
+          "sourceId": "source-03",
+          "orderIndex": 7
+        }
+      ]
+    },
+    {
+      "title": "Как пробить денежный потолок?",
+      "priceRaw": "3 500–7 550 ₽",
+      "itemUrl": "https://vk.com/market/product/kak-probit-denezhny-potolok-226854094-13449947",
+      "sourceId": "source-01",
+      "sourceUrl": "https://vk.com/uslugi-226854094?screen=group&section_id=HUkaVBkFWVd2RwcDWVg2",
+      "sourceSection": "Деловые услуги",
+      "sourceAlbum": null,
+      "orderIndex": 17,
+      "appearances": [
+        {
+          "sourceId": "source-01",
+          "orderIndex": 17
+        },
+        {
+          "sourceId": "source-03",
+          "orderIndex": 8
+        }
+      ]
+    },
+    {
+      "title": "Расчёт энергий определяющий проблемы в деньгах и отношениях",
+      "priceRaw": "1 500 ₽",
+      "itemUrl": "https://vk.com/market/product/raschyot-energiy-opredelyayuschiy-problemy-v-dengakh-i-otnosheniakh-226854094-13449872",
+      "sourceId": "source-01",
+      "sourceUrl": "https://vk.com/uslugi-226854094?screen=group&section_id=HUkaVBkFWVd2RwcDWVg2",
+      "sourceSection": "Деловые услуги",
+      "sourceAlbum": null,
+      "orderIndex": 18,
+      "appearances": [
+        {
+          "sourceId": "source-01",
+          "orderIndex": 18
+        },
+        {
+          "sourceId": "source-03",
+          "orderIndex": 9
+        }
+      ]
+    },
+    {
+      "title": "Расчёт Суперсилы",
+      "priceRaw": "от 550 ₽",
+      "itemUrl": "https://vk.com/market/product/raschyot-supersily-226854094-13449297",
+      "sourceId": "source-01",
+      "sourceUrl": "https://vk.com/uslugi-226854094?screen=group&section_id=HUkaVBkFWVd2RwcDWVg2",
+      "sourceSection": "Деловые услуги",
+      "sourceAlbum": null,
+      "orderIndex": 19,
+      "appearances": [
+        {
+          "sourceId": "source-01",
+          "orderIndex": 19
+        },
+        {
+          "sourceId": "source-03",
+          "orderIndex": 10
+        }
+      ]
+    },
+    {
+      "title": "Матрица Судьбы на 2026 год",
+      "priceRaw": "550–5 500 ₽",
+      "itemUrl": "https://vk.com/market/product/matritsa-sudby-na-2026-god-226854094-12848997",
+      "sourceId": "source-01",
+      "sourceUrl": "https://vk.com/uslugi-226854094?screen=group&section_id=HUkaVBkFWVd2RwcDWVg2",
+      "sourceSection": "Деловые услуги",
+      "sourceAlbum": null,
+      "orderIndex": 20,
+      "appearances": [
+        {
+          "sourceId": "source-01",
+          "orderIndex": 20
+        }
+      ]
+    },
+    {
+      "title": "Где мои деньги в 2026 году?",
+      "priceRaw": "от 550 ₽",
+      "itemUrl": "https://vk.com/market/product/gde-moi-dengi-v-2026-godu-226854094-12792804",
+      "sourceId": "source-01",
+      "sourceUrl": "https://vk.com/uslugi-226854094?screen=group&section_id=HUkaVBkFWVd2RwcDWVg2",
+      "sourceSection": "Деловые услуги",
+      "sourceAlbum": null,
+      "orderIndex": 21,
+      "appearances": [
+        {
+          "sourceId": "source-01",
+          "orderIndex": 21
+        },
+        {
+          "sourceId": "source-03",
+          "orderIndex": 11
+        }
+      ]
+    },
+    {
+      "title": "Перековка Судьбы",
+      "priceRaw": "25 000 ₽",
+      "itemUrl": "https://vk.com/market/product/perekovka-sudby-226854094-12778227",
+      "sourceId": "source-01",
+      "sourceUrl": "https://vk.com/uslugi-226854094?screen=group&section_id=HUkaVBkFWVd2RwcDWVg2",
+      "sourceSection": "Деловые услуги",
+      "sourceAlbum": null,
+      "orderIndex": 22,
+      "appearances": [
+        {
+          "sourceId": "source-01",
+          "orderIndex": 22
+        }
+      ]
+    },
+    {
+      "title": "Комплекс ритуалов «Мой дом – моя крепость»",
+      "priceRaw": "25 000 ₽",
+      "itemUrl": "https://vk.com/market/product/komplex-ritualov-moy-dom-moya-krepost-226854094-12778208",
+      "sourceId": "source-01",
+      "sourceUrl": "https://vk.com/uslugi-226854094?screen=group&section_id=HUkaVBkFWVd2RwcDWVg2",
+      "sourceSection": "Деловые услуги",
+      "sourceAlbum": null,
+      "orderIndex": 23,
+      "appearances": [
+        {
+          "sourceId": "source-01",
+          "orderIndex": 23
+        }
+      ]
+    },
+    {
+      "title": "Усиление денежного канала через Число Судьбы + Медитация \"Выравнивание денежных трат\"",
+      "priceRaw": "8 555 ₽",
+      "itemUrl": "https://vk.com/market/product/usilenie-denezhnogo-kanala-cherez-chislo-sudby-meditatsia-quotvyravnivanie-denezhnykh-tratquot-226854094-12745881",
+      "sourceId": "source-01",
+      "sourceUrl": "https://vk.com/uslugi-226854094?screen=group&section_id=HUkaVBkFWVd2RwcDWVg2",
+      "sourceSection": "Деловые услуги",
+      "sourceAlbum": null,
+      "orderIndex": 24,
+      "appearances": [
+        {
+          "sourceId": "source-01",
+          "orderIndex": 24
+        }
+      ]
+    },
+    {
+      "title": "МАРАФОН «ПЛАНЕТАРНЫЙ ЧЕЛОВЕК» 🌌 ПРОБУЖДЕНИЕ И НАПОЛНЕНИЕ СИЛОЙ ПЛАНЕТ",
+      "priceRaw": "7 500 ₽",
+      "itemUrl": "https://vk.com/market/product/marafon-planetarnyj-chelovek-127756-probuzhdenie-i-napolnenie-siloj-planet-226854094-13721979",
+      "sourceId": "source-02",
+      "sourceUrl": "https://vk.com/uslugi-226854094?section_id=HUkaVBkFWVZxRwcDWVg2",
+      "sourceSection": "Обучение",
+      "sourceAlbum": null,
+      "orderIndex": 1,
+      "appearances": [
+        {
+          "sourceId": "source-02",
+          "orderIndex": 1
+        }
+      ]
+    },
+    {
+      "title": "Купало-Ночь великого Солнца",
+      "priceRaw": "2 500 ₽",
+      "itemUrl": "https://vk.com/market/product/kupalo-noch-velikogo-solntsa-226854094-13625258",
+      "sourceId": "source-02",
+      "sourceUrl": "https://vk.com/uslugi-226854094?section_id=HUkaVBkFWVZxRwcDWVg2",
+      "sourceSection": "Обучение",
+      "sourceAlbum": null,
+      "orderIndex": 2,
+      "appearances": [
+        {
+          "sourceId": "source-02",
+          "orderIndex": 2
+        }
+      ]
+    },
+    {
+      "title": "Сила женских волос",
+      "priceRaw": "3 500 ₽",
+      "itemUrl": "https://vk.com/market/product/sila-zhenskikh-volos-226854094-13625188",
+      "sourceId": "source-02",
+      "sourceUrl": "https://vk.com/uslugi-226854094?section_id=HUkaVBkFWVZxRwcDWVg2",
+      "sourceSection": "Обучение",
+      "sourceAlbum": null,
+      "orderIndex": 3,
+      "appearances": [
+        {
+          "sourceId": "source-02",
+          "orderIndex": 3
+        }
+      ]
+    },
+    {
+      "title": "\"9 Врат Силы\" - Магический марафон",
+      "priceRaw": "5 500 ₽",
+      "itemUrl": "https://vk.com/market/product/quot9-vrat-silyquot-magicheskiy-marafon-226854094-13449469",
+      "sourceId": "source-02",
+      "sourceUrl": "https://vk.com/uslugi-226854094?section_id=HUkaVBkFWVZxRwcDWVg2",
+      "sourceSection": "Обучение",
+      "sourceAlbum": null,
+      "orderIndex": 4,
+      "appearances": [
+        {
+          "sourceId": "source-02",
+          "orderIndex": 4
+        }
+      ]
+    },
+    {
+      "title": "Вальпургиева Ночь - Время Огня, Силы и Перехода",
+      "priceRaw": "2 500 ₽",
+      "itemUrl": "https://vk.com/market/product/valpurgieva-noch-vremya-ognya-sily-i-perekhoda-226854094-13449468",
+      "sourceId": "source-02",
+      "sourceUrl": "https://vk.com/uslugi-226854094?section_id=HUkaVBkFWVZxRwcDWVg2",
+      "sourceSection": "Обучение",
+      "sourceAlbum": null,
+      "orderIndex": 5,
+      "appearances": [
+        {
+          "sourceId": "source-02",
+          "orderIndex": 5
+        }
+      ]
+    },
+    {
+      "title": "Денежный марафон \"Восстановление и усиление денежного потока\"",
+      "priceRaw": "5 500 ₽",
+      "itemUrl": "https://vk.com/market/product/denezhny-marafon-quotvosstanovlenie-i-usilenie-denezhnogo-potokaquot-226854094-13449467",
+      "sourceId": "source-02",
+      "sourceUrl": "https://vk.com/uslugi-226854094?section_id=HUkaVBkFWVZxRwcDWVg2",
+      "sourceSection": "Обучение",
+      "sourceAlbum": null,
+      "orderIndex": 6,
+      "appearances": [
+        {
+          "sourceId": "source-02",
+          "orderIndex": 6
+        }
+      ]
+    },
+    {
+      "title": "7 дней воплощения Силы Живы. Марафон \"Стань носителем Жизни\"",
+      "priceRaw": "2 500 ₽",
+      "itemUrl": "https://vk.com/market/product/7-dney-voploschenia-sily-zhivy-marafon-quotstan-nositelem-zhizniquot-226854094-13449465",
+      "sourceId": "source-02",
+      "sourceUrl": "https://vk.com/uslugi-226854094?section_id=HUkaVBkFWVZxRwcDWVg2",
+      "sourceSection": "Обучение",
+      "sourceAlbum": null,
+      "orderIndex": 7,
+      "appearances": [
+        {
+          "sourceId": "source-02",
+          "orderIndex": 7
+        }
+      ]
+    },
+    {
+      "title": "ВСТРЕЧА «НАПОЛНЕНИЕ ЖИВОЙ»",
+      "priceRaw": "1 500 ₽",
+      "itemUrl": "https://vk.com/market/product/vstrecha-napolnenie-zhivoj-226854094-13449464",
+      "sourceId": "source-02",
+      "sourceUrl": "https://vk.com/uslugi-226854094?section_id=HUkaVBkFWVZxRwcDWVg2",
+      "sourceSection": "Обучение",
+      "sourceAlbum": null,
+      "orderIndex": 8,
+      "appearances": [
+        {
+          "sourceId": "source-02",
+          "orderIndex": 8
+        }
+      ]
+    },
+    {
+      "title": "Встреча с Пиковой Дамой",
+      "priceRaw": "2 500 ₽",
+      "itemUrl": "https://vk.com/market/product/vstrecha-s-pikovoy-damoy-226854094-13449463",
+      "sourceId": "source-02",
+      "sourceUrl": "https://vk.com/uslugi-226854094?section_id=HUkaVBkFWVZxRwcDWVg2",
+      "sourceSection": "Обучение",
+      "sourceAlbum": null,
+      "orderIndex": 9,
+      "appearances": [
+        {
+          "sourceId": "source-02",
+          "orderIndex": 9
+        }
+      ]
+    },
+    {
+      "title": "ВСТРЕЧА «МУДРОСТЬ ЯГИ»",
+      "priceRaw": "2 500 ₽",
+      "itemUrl": "https://vk.com/market/product/vstrecha-mudrost-yagi-226854094-13449462",
+      "sourceId": "source-02",
+      "sourceUrl": "https://vk.com/uslugi-226854094?section_id=HUkaVBkFWVZxRwcDWVg2",
+      "sourceSection": "Обучение",
+      "sourceAlbum": null,
+      "orderIndex": 10,
+      "appearances": [
+        {
+          "sourceId": "source-02",
+          "orderIndex": 10
+        }
+      ]
+    },
+    {
+      "title": "Марафон+встреча \"Масленичная неделя\"",
+      "priceRaw": "1 500 ₽",
+      "itemUrl": "https://vk.com/market/product/marafonvstrecha-quotmaslenichnaya-nedelyaquot-226854094-13449461",
+      "sourceId": "source-02",
+      "sourceUrl": "https://vk.com/uslugi-226854094?section_id=HUkaVBkFWVZxRwcDWVg2",
+      "sourceSection": "Обучение",
+      "sourceAlbum": null,
+      "orderIndex": 11,
+      "appearances": [
+        {
+          "sourceId": "source-02",
+          "orderIndex": 11
+        }
+      ]
+    },
+    {
+      "title": "Громница. (изготовление свечей)",
+      "priceRaw": "1 500 ₽",
+      "itemUrl": "https://vk.com/market/product/gromnitsa-izgotovlenie-svechey-226854094-13449459",
+      "sourceId": "source-02",
+      "sourceUrl": "https://vk.com/uslugi-226854094?section_id=HUkaVBkFWVZxRwcDWVg2",
+      "sourceSection": "Обучение",
+      "sourceAlbum": null,
+      "orderIndex": 12,
+      "appearances": [
+        {
+          "sourceId": "source-02",
+          "orderIndex": 12
+        }
+      ]
+    },
+    {
+      "title": "Пробуждение Огня и Живы. Имболк/Громница",
+      "priceRaw": "1 500 ₽",
+      "itemUrl": "https://vk.com/market/product/probuzhdenie-ognya-i-zhivy-imbolkgromnitsa-226854094-13449456",
+      "sourceId": "source-02",
+      "sourceUrl": "https://vk.com/uslugi-226854094?section_id=HUkaVBkFWVZxRwcDWVg2",
+      "sourceSection": "Обучение",
+      "sourceAlbum": null,
+      "orderIndex": 13,
+      "appearances": [
+        {
+          "sourceId": "source-02",
+          "orderIndex": 13
+        }
+      ]
+    },
+    {
+      "title": "Зимнее Солнцестояние",
+      "priceRaw": "2 500 ₽",
+      "itemUrl": "https://vk.com/market/product/zimnee-solntsestoyanie-226854094-13449445",
+      "sourceId": "source-02",
+      "sourceUrl": "https://vk.com/uslugi-226854094?section_id=HUkaVBkFWVZxRwcDWVg2",
+      "sourceSection": "Обучение",
+      "sourceAlbum": null,
+      "orderIndex": 14,
+      "appearances": [
+        {
+          "sourceId": "source-02",
+          "orderIndex": 14
+        }
+      ]
+    },
+    {
+      "title": "ПРОБУЖДЕНИЕ ОГНЯ. ВСТУПЛЕНИЕ В СИЛУ. Весеннее Равноденствие",
+      "priceRaw": "2 500 ₽",
+      "itemUrl": "https://vk.com/market/product/probuzhdenie-ognya-vstuplenie-v-silu-vesennee-ravnodenstvie-226854094-13449442",
+      "sourceId": "source-02",
+      "sourceUrl": "https://vk.com/uslugi-226854094?section_id=HUkaVBkFWVZxRwcDWVg2",
+      "sourceSection": "Обучение",
+      "sourceAlbum": null,
+      "orderIndex": 15,
+      "appearances": [
+        {
+          "sourceId": "source-02",
+          "orderIndex": 15
+        }
+      ]
+    },
+    {
+      "title": "Самайн",
+      "priceRaw": "1 500 ₽",
+      "itemUrl": "https://vk.com/market/product/samayn-226854094-13449439",
+      "sourceId": "source-02",
+      "sourceUrl": "https://vk.com/uslugi-226854094?section_id=HUkaVBkFWVZxRwcDWVg2",
+      "sourceSection": "Обучение",
+      "sourceAlbum": null,
+      "orderIndex": 16,
+      "appearances": [
+        {
+          "sourceId": "source-02",
+          "orderIndex": 16
+        }
+      ]
+    },
+    {
+      "title": "Осеннее Равноденствие",
+      "priceRaw": "1 500 ₽",
+      "itemUrl": "https://vk.com/market/product/osennee-ravnodenstvie-226854094-13449414",
+      "sourceId": "source-02",
+      "sourceUrl": "https://vk.com/uslugi-226854094?section_id=HUkaVBkFWVZxRwcDWVg2",
+      "sourceSection": "Обучение",
+      "sourceAlbum": null,
+      "orderIndex": 17,
+      "appearances": [
+        {
+          "sourceId": "source-02",
+          "orderIndex": 17
+        }
+      ]
+    },
+    {
+      "title": "Чествуем Домового",
+      "priceRaw": "1 500 ₽",
+      "itemUrl": "https://vk.com/market/product/chestvuem-domovogo-226854094-13449412",
+      "sourceId": "source-02",
+      "sourceUrl": "https://vk.com/uslugi-226854094?section_id=HUkaVBkFWVZxRwcDWVg2",
+      "sourceSection": "Обучение",
+      "sourceAlbum": null,
+      "orderIndex": 18,
+      "appearances": [
+        {
+          "sourceId": "source-02",
+          "orderIndex": 18
+        }
+      ]
+    },
+    {
+      "title": "Медовый Спас",
+      "priceRaw": "2 500 ₽",
+      "itemUrl": "https://vk.com/market/product/medovy-spas-226854094-13449402",
+      "sourceId": "source-02",
+      "sourceUrl": "https://vk.com/uslugi-226854094?section_id=HUkaVBkFWVZxRwcDWVg2",
+      "sourceSection": "Обучение",
+      "sourceAlbum": null,
+      "orderIndex": 19,
+      "appearances": [
+        {
+          "sourceId": "source-02",
+          "orderIndex": 19
+        }
+      ]
+    },
+    {
+      "title": "Хлебный/Ореховый Спас",
+      "priceRaw": "2 500 ₽",
+      "itemUrl": "https://vk.com/market/product/khlebnyorekhovy-spas-226854094-13449390",
+      "sourceId": "source-02",
+      "sourceUrl": "https://vk.com/uslugi-226854094?section_id=HUkaVBkFWVZxRwcDWVg2",
+      "sourceSection": "Обучение",
+      "sourceAlbum": null,
+      "orderIndex": 20,
+      "appearances": [
+        {
+          "sourceId": "source-02",
+          "orderIndex": 20
+        }
+      ]
+    },
+    {
+      "title": "Яблочный Спас",
+      "priceRaw": "2 500 ₽",
+      "itemUrl": "https://vk.com/market/product/yablochny-spas-226854094-13449389",
+      "sourceId": "source-02",
+      "sourceUrl": "https://vk.com/uslugi-226854094?section_id=HUkaVBkFWVZxRwcDWVg2",
+      "sourceSection": "Обучение",
+      "sourceAlbum": null,
+      "orderIndex": 21,
+      "appearances": [
+        {
+          "sourceId": "source-02",
+          "orderIndex": 21
+        }
+      ]
+    },
+    {
+      "title": "Лугнасад",
+      "priceRaw": "1 500 ₽",
+      "itemUrl": "https://vk.com/market/product/lugnasad-226854094-13449387",
+      "sourceId": "source-02",
+      "sourceUrl": "https://vk.com/uslugi-226854094?section_id=HUkaVBkFWVZxRwcDWVg2",
+      "sourceSection": "Обучение",
+      "sourceAlbum": null,
+      "orderIndex": 22,
+      "appearances": [
+        {
+          "sourceId": "source-02",
+          "orderIndex": 22
+        }
+      ]
+    },
+    {
+      "title": "Купало",
+      "priceRaw": "1 500 ₽",
+      "itemUrl": "https://vk.com/market/product/kupalo-226854094-13449378",
+      "sourceId": "source-02",
+      "sourceUrl": "https://vk.com/uslugi-226854094?section_id=HUkaVBkFWVZxRwcDWVg2",
+      "sourceSection": "Обучение",
+      "sourceAlbum": null,
+      "orderIndex": 23,
+      "appearances": [
+        {
+          "sourceId": "source-02",
+          "orderIndex": 23
+        }
+      ]
+    },
+    {
+      "title": "Сила Рода",
+      "priceRaw": "1 900 ₽",
+      "itemUrl": "https://vk.com/market/product/sila-roda-226854094-13449368",
+      "sourceId": "source-02",
+      "sourceUrl": "https://vk.com/uslugi-226854094?section_id=HUkaVBkFWVZxRwcDWVg2",
+      "sourceSection": "Обучение",
+      "sourceAlbum": null,
+      "orderIndex": 24,
+      "appearances": [
+        {
+          "sourceId": "source-02",
+          "orderIndex": 24
+        }
+      ]
+    },
+    {
+      "title": "Весенние Деды. Почитание Предков",
+      "priceRaw": "1 500 ₽",
+      "itemUrl": "https://vk.com/market/product/vesennie-dedy-pochitanie-predkov-226854094-13449360",
+      "sourceId": "source-02",
+      "sourceUrl": "https://vk.com/uslugi-226854094?section_id=HUkaVBkFWVZxRwcDWVg2",
+      "sourceSection": "Обучение",
+      "sourceAlbum": null,
+      "orderIndex": 25,
+      "appearances": [
+        {
+          "sourceId": "source-02",
+          "orderIndex": 25
+        }
+      ]
+    },
+    {
+      "title": "Культ Плодородия",
+      "priceRaw": "1 500 ₽",
+      "itemUrl": "https://vk.com/market/product/kult-plodorodia-226854094-13449322",
+      "sourceId": "source-02",
+      "sourceUrl": "https://vk.com/uslugi-226854094?section_id=HUkaVBkFWVZxRwcDWVg2",
+      "sourceSection": "Обучение",
+      "sourceAlbum": null,
+      "orderIndex": 26,
+      "appearances": [
+        {
+          "sourceId": "source-02",
+          "orderIndex": 26
+        }
+      ]
+    },
+    {
+      "title": "Весеннее Равноденствие",
+      "priceRaw": "1 500 ₽",
+      "itemUrl": "https://vk.com/market/product/vesennee-ravnodenstvie-226854094-13449317",
+      "sourceId": "source-02",
+      "sourceUrl": "https://vk.com/uslugi-226854094?section_id=HUkaVBkFWVZxRwcDWVg2",
+      "sourceSection": "Обучение",
+      "sourceAlbum": null,
+      "orderIndex": 27,
+      "appearances": [
+        {
+          "sourceId": "source-02",
+          "orderIndex": 27
+        }
+      ]
+    },
+    {
+      "title": "Определение (диагностика) негатива",
+      "priceRaw": "3 500 ₽",
+      "itemUrl": "https://vk.com/market/product/opredelenie-diagnostika-negativa-226854094-10099588",
+      "sourceId": "source-04",
+      "sourceUrl": "https://vk.com/uslugi-226854094?section=album_2",
+      "sourceSection": "Консультация",
+      "sourceAlbum": "album_2",
+      "orderIndex": 1,
+      "appearances": [
+        {
+          "sourceId": "source-04",
+          "orderIndex": 1
+        }
+      ]
+    },
+    {
+      "title": "Ответ на один вопрос",
+      "priceRaw": "500 ₽",
+      "itemUrl": "https://vk.com/market/product/otvet-na-odin-vopros-226854094-10043177",
+      "sourceId": "source-04",
+      "sourceUrl": "https://vk.com/uslugi-226854094?section=album_2",
+      "sourceSection": "Консультация",
+      "sourceAlbum": "album_2",
+      "orderIndex": 2,
+      "appearances": [
+        {
+          "sourceId": "source-04",
+          "orderIndex": 2
+        }
+      ]
+    },
+    {
+      "title": "Консультация",
+      "priceRaw": "7 500 ₽",
+      "itemUrl": "https://vk.com/market/product/konsultatsia-226854094-9833939",
+      "sourceId": "source-04",
+      "sourceUrl": "https://vk.com/uslugi-226854094?section=album_2",
+      "sourceSection": "Консультация",
+      "sourceAlbum": "album_2",
+      "orderIndex": 3,
+      "appearances": [
+        {
+          "sourceId": "source-04",
+          "orderIndex": 3
+        }
+      ]
+    },
+    {
+      "title": "Разбор ситуации на метафорических картах",
+      "priceRaw": "9 500 ₽",
+      "itemUrl": "https://vk.com/market/product/razbor-situatsii-na-metaforicheskikh-kartakh-226854094-10041234",
+      "sourceId": "source-04",
+      "sourceUrl": "https://vk.com/uslugi-226854094?section=album_2",
+      "sourceSection": "Консультация",
+      "sourceAlbum": "album_2",
+      "orderIndex": 4,
+      "appearances": [
+        {
+          "sourceId": "source-04",
+          "orderIndex": 4
+        }
+      ]
+    }
+  ],
+  "mediaManifest": []
+}

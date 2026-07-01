@@ -2,22 +2,29 @@ import Link from "next/link";
 
 import { AdminNotice } from "@/components/admin/admin-notice";
 import { CommerceScopeTabs } from "@/components/admin/commerce-scope-tabs";
-import {
-  commerceScopeTabs,
-  orderListWhere,
-  resolveCommerceScope
-} from "@/lib/admin/commerce-filters";
-import { ORDER_STATUS_LABELS, PAYMENT_STATUS_LABELS } from "@/lib/admin/constants";
+import { orderListWhere, resolveCommerceScope } from "@/lib/admin/commerce-filters";
 import { formatAdminDate, parseSearchParam } from "@/lib/admin/format";
 import { requireAdminSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db/prisma";
 import { formatPrice } from "@/lib/utils";
+import { getAdminLocaleFromCookies } from "@/lib/i18n/admin/detect-locale";
+import {
+  getCommerceScopeTabs,
+  getOrderStatusLabels,
+  getPaymentStatusLabels
+} from "@/lib/i18n/admin/constants";
+import { getAdminDictionary } from "@/lib/i18n/admin/get-admin-dictionary";
 
 export default async function AdminOrdersPage({
   searchParams
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  const locale = await getAdminLocaleFromCookies();
+  const dict = await getAdminDictionary(locale);
+  const t = dict.orders;
+  const orderStatusLabels = getOrderStatusLabels(dict);
+  const paymentStatusLabels = getPaymentStatusLabels(dict);
   const params = await searchParams;
   const session = await requireAdminSession("/admin/orders");
   const q = parseSearchParam(params.q);
@@ -50,9 +57,9 @@ export default async function AdminOrdersPage({
     <div className="admin-page">
       <div className="admin-header">
         <div className="admin-title">
-          <span className="eyebrow">Заказы</span>
-          <h1>Commerce backlog</h1>
-          <p>Новые корзины, ручные статусы оплаты и состав заказа в одной таблице.</p>
+          <span className="eyebrow">{t.eyebrow}</span>
+          <h1>{t.title}</h1>
+          <p>{t.description}</p>
         </div>
       </div>
 
@@ -61,18 +68,18 @@ export default async function AdminOrdersPage({
       <CommerceScopeTabs
         basePath="/admin/orders"
         currentScope={currentScope}
-        tabs={commerceScopeTabs(session.user.role)}
+        tabs={session.user.role === "ADMIN" ? getCommerceScopeTabs(dict) : []}
         query={q}
       />
 
       <div className="admin-toolbar">
         <form>
           {scopeParam ? <input type="hidden" name="scope" value={scopeParam} /> : null}
-          <input className="admin-input" name="q" placeholder="Номер, email или имя клиента" defaultValue={q} />
+          <input className="admin-input" name="q" placeholder={dict.filters.searchOrder} defaultValue={q} />
           <div />
           <div />
           <button className="btn btn-ghost" type="submit">
-            Поиск
+            {dict.common.search}
           </button>
         </form>
       </div>
@@ -81,12 +88,12 @@ export default async function AdminOrdersPage({
         <table>
           <thead>
             <tr>
-              <th>Заказ</th>
-              <th>Клиент</th>
-              <th>Позиции</th>
-              <th>Сумма</th>
-              <th>Статусы</th>
-              <th>Создан</th>
+              <th>{t.table.order}</th>
+              <th>{t.table.client}</th>
+              <th>{t.table.items}</th>
+              <th>{t.table.total}</th>
+              <th>{t.table.statuses}</th>
+              <th>{t.table.created}</th>
               <th />
             </tr>
           </thead>
@@ -95,25 +102,25 @@ export default async function AdminOrdersPage({
               <tr key={order.id}>
                 <td>
                   <strong>{order.orderNumber}</strong>
-                  {order.isTest ? <span className="admin-badge admin-badge-test">Тест</span> : null}
-                  <div className="muted">{order.customerEmail ?? "—"}</div>
+                  {order.isTest ? <span className="admin-badge admin-badge-test">{dict.common.test}</span> : null}
+                  <div className="muted">{order.customerEmail ?? dict.common.emDash}</div>
                 </td>
                 <td>
-                  <strong>{order.customerName ?? order.customer.name ?? "Без имени"}</strong>
-                  <div className="muted">{order.customerPhone ?? order.customer.phone ?? "—"}</div>
+                  <strong>{order.customerName ?? order.customer.name ?? dict.common.noName}</strong>
+                  <div className="muted">{order.customerPhone ?? order.customer.phone ?? dict.common.emDash}</div>
                 </td>
                 <td>{order.items.length}</td>
                 <td>{formatPrice(order.totalAmount)}</td>
                 <td>
                   <div className="admin-side-list">
-                    <span className="admin-badge">{ORDER_STATUS_LABELS[order.status]}</span>
-                    <span className="admin-badge">{PAYMENT_STATUS_LABELS[order.paymentStatus]}</span>
+                    <span className="admin-badge">{orderStatusLabels[order.status]}</span>
+                    <span className="admin-badge">{paymentStatusLabels[order.paymentStatus]}</span>
                   </div>
                 </td>
-                <td>{formatAdminDate(order.createdAt)}</td>
+                <td>{formatAdminDate(order.createdAt, locale)}</td>
                 <td>
                   <Link className="btn btn-ghost btn-small" href={`/admin/orders/${order.id}`}>
-                    Открыть
+                    {dict.common.open}
                   </Link>
                 </td>
               </tr>

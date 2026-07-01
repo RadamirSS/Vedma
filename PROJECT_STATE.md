@@ -2,8 +2,20 @@
 
 Date: 2026-06-30
 Repository: `Vedma`
-Current branch: `main`
+Current branch: `cursor/package-3-5-3-vk-services-visual-i18n-qa`
 Main branch status: Package 3.5 deployed on https://bajena.it
+
+## Package 3.5.3 (in review)
+
+Branch: `cursor/package-3-5-3-vk-services-visual-i18n-qa`
+
+- Merged admin i18n (3.5.2) + VK detail data
+- VK import script for 25 ready services (30 not-ready excluded)
+- Service `translations` JSON for EN/RU public catalog
+- Public visual/i18n fixes (footer, headings, step numbers, featured services)
+- **Not merged to main. Not deployed.**
+
+See `docs/packages/package-3-5-3-vk-services-visual-i18n-qa.md`.
 
 ## Instruction Sources
 
@@ -56,6 +68,7 @@ Untracked local files such as `.env`, `.tmp/`, screenshots, uploaded admin asset
   - `20260627120000_package_2_admin_auth`
   - `20260628153000_package_3_commerce_intake`
   - `20260629120000_package_3_4_test_order_flags`
+  - `20260630120000_package_3_5_3_service_translations`
 
 ## Package Status
 
@@ -212,12 +225,33 @@ Live smoke (2026-06-30):
 
 Limitations:
 
-- admin remains Russian at `/admin`
+- ~~admin remains Russian at `/admin`~~ → addressed in Package 3.5.2 (branch `cursor/package-3-5-2-admin-i18n`, not yet merged)
 - catalog DB content still Russian on EN pages (UI chrome translated)
 - payments/email unchanged
 - full browser checkout E2E for PKG35 test emails not automated in deploy script (manual browser recommended)
 
 See [docs/packages/package-3-5-mobile-i18n-polish.md](docs/packages/package-3-5-mobile-i18n-polish.md).
+
+### Package 3.5.2
+
+Status: `READY_FOR_REVIEW` on branch `cursor/package-3-5-2-admin-i18n` (not merged/deployed)
+
+Implemented:
+
+- independent admin i18n via `bajena_admin_locale` cookie (path `/admin`)
+- typed dictionaries in `lib/i18n/admin/dictionaries/{ru,en}.ts`
+- EN/RU switcher on login page and admin sidebar
+- localized admin shell nav, forms, tables, filters, flash messages
+- category dropdown labels translated in EN (DB values unchanged)
+- `html lang` syncs to admin locale on `/admin/*`
+
+Verification (2026-06-30, branch):
+
+- `pnpm lint`: passed
+- `pnpm build`: passed (with `ALLOW_STATIC_CATALOG_FALLBACK=true` — local DB credentials unavailable)
+- `pnpm db:verify:catalog`: skipped locally (DB auth failure; run on server before deploy)
+
+See [docs/packages/package-3-5-2-admin-i18n.md](docs/packages/package-3-5-2-admin-i18n.md) and [docs/audit/package-3-5-2-admin-i18n-audit.md](docs/audit/package-3-5-2-admin-i18n-audit.md).
 
 ## DB And Fallback Behavior
 

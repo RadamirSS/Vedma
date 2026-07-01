@@ -2,6 +2,7 @@ import { mkdir, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 import { prisma } from "@/lib/db/prisma";
+import type { AdminDictionary } from "@/lib/i18n/admin/dictionaries/ru";
 
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
 const IMAGE_MIME_ERROR = "Допустимы только JPG, PNG и WEBP до 10 МБ.";
@@ -19,7 +20,9 @@ const mimeByExtension: Record<string, "image/jpeg" | "image/png" | "image/webp">
 
 export type StoredImageMime = "image/jpeg" | "image/png" | "image/webp";
 
-export function getImageMimeType(file: File): StoredImageMime {
+type MediaErrors = AdminDictionary["mediaErrors"];
+
+export function getImageMimeType(file: File, mediaErrors?: MediaErrors): StoredImageMime {
   if (allowedTypes.has(file.type)) {
     return file.type as StoredImageMime;
   }
@@ -32,24 +35,54 @@ export function getImageMimeType(file: File): StoredImageMime {
     }
   }
 
-  throw new Error(IMAGE_MIME_ERROR);
+  throw new Error(mediaErrors?.imageMime ?? IMAGE_MIME_ERROR);
 }
 
-export function formatMediaStorageError(error: unknown): string {
+export function formatMediaStorageError(
+  error: unknown,
+  mediaErrors?: MediaErrors
+): string {
+  const storageWrite = mediaErrors?.storageWrite ?? STORAGE_WRITE_ERROR;
+  const imageMime = mediaErrors?.imageMime ?? IMAGE_MIME_ERROR;
+  const maxSize = mediaErrors?.maxSize ?? "Размер изображения не должен превышать 10 МБ.";
+  const notFound = mediaErrors?.notFound ?? "Файл не найден.";
+  const unlinkFirst =
+    mediaErrors?.unlinkFirst ?? "Сначала отвяжите изображение от товара или услуги.";
+
   if (!(error instanceof Error)) {
-    return STORAGE_WRITE_ERROR;
+    return storageWrite;
   }
 
   const message = error.message;
-  if (message === IMAGE_MIME_ERROR || message.includes("10 МБ")) {
-    return message;
+  if (
+    message === imageMime ||
+    message === IMAGE_MIME_ERROR ||
+    message.includes("10 МБ") ||
+    message.includes("10 MB")
+  ) {
+    return imageMime;
+  }
+
+  if (message === maxSize || message === "Размер изображения не должен превышать 10 МБ.") {
+    return maxSize;
+  }
+
+  if (message === notFound || message === "Файл не найден.") {
+    return notFound;
+  }
+
+  if (
+    message === unlinkFirst ||
+    message === "Сначала отвяжите изображение от товара или услуги."
+  ) {
+    return unlinkFirst;
   }
 
   if (/EACCES|EPERM|EROFS|ENOENT|ENOSPC/i.test(message)) {
-    return STORAGE_WRITE_ERROR;
+    return storageWrite;
   }
 
-  return message || STORAGE_WRITE_ERROR;
+  return message || storageWrite;
 }
 
 function safeFilename(name: string) {
@@ -84,11 +117,12 @@ async function safeUnlinkAdminFile(publicPath: string) {
   }
 }
 
-export async function storeUploadedFile(file: File) {
-  const mimeType = getImageMimeType(file);
+export async function storeUploadedFile(file: File, mediaErrors?: MediaErrors) {
+  const mimeType = getImageMimeType(file, mediaErrors);
+  const maxSize = mediaErrors?.maxSize ?? "Размер изображения не должен превышать 10 МБ.";
 
   if (file.size > MAX_IMAGE_SIZE) {
-    throw new Error("Размер изображения не должен превышать 10 МБ.");
+    throw new Error(maxSize);
   }
 
   const now = new Date();
@@ -111,12 +145,16 @@ export async function storeUploadedFile(file: File) {
       size: file.size
     };
   } catch (error) {
-    throw new Error(formatMediaStorageError(error));
+    throw new Error(formatMediaStorageError(error, mediaErrors));
   }
 }
 
-export async function replaceStoredFile(existingPath: string, file: File) {
-  const stored = await storeUploadedFile(file);
+export async function replaceStoredFile(
+  existingPath: string,
+  file: File,
+  mediaErrors?: MediaErrors
+) {
+  const stored = await storeUploadedFile(file, mediaErrors);
   await safeUnlinkAdminFile(existingPath);
 
   return {
@@ -127,17 +165,21 @@ export async function replaceStoredFile(existingPath: string, file: File) {
   };
 }
 
-export async function deleteMediaFileIfUnlinked(id: string) {
+export async function deleteMediaFileIfUnlinked(id: string, mediaErrors?: MediaErrors) {
+  const notFound = mediaErrors?.notFound ?? "Файл не найден.";
+  const unlinkFirst =
+    mediaErrors?.unlinkFirst ?? "Сначала отвяжите изображение от товара или услуги.";
+
   const media = await prisma.media.findUnique({
     where: { id }
   });
 
   if (!media) {
-    throw new Error("Файл не найден.");
+    throw new Error(notFound);
   }
 
   if (media.productId || media.serviceId) {
-    throw new Error("Сначала отвяжите изображение от товара или услуги.");
+    throw new Error(unlinkFirst);
   }
 
   await prisma.media.delete({ where: { id } });

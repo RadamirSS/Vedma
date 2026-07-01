@@ -10,13 +10,14 @@ import type { Dictionary } from "@/lib/i18n/dictionaries/ru";
 import { localizeHref } from "@/lib/i18n/routing";
 import { buildTelegramLeadUrl } from "@/lib/i18n/telegram-lead";
 import { getProductDisplayCategory } from "@/lib/product-categories";
+import { getServiceCategoryLabel } from "@/lib/i18n/service-categories";
 import { formatPrice } from "@/lib/utils";
 
-function getCategoryLabel(item: CatalogItem, dict: Dictionary) {
+function getCategoryLabel(item: CatalogItem, locale: Locale) {
   if (item.type === "product") {
     return getProductDisplayCategory(item);
   }
-  return dict.catalog.services;
+  return getServiceCategoryLabel(item.normalizedCategory ?? item.category, locale);
 }
 
 export function CatalogCard({
@@ -32,7 +33,7 @@ export function CatalogCard({
     locale,
     item.type === "service" ? `/services/${item.slug}` : `/products/${item.slug}`
   );
-  const categoryLabel = getCategoryLabel(item, dict);
+  const categoryLabel = getCategoryLabel(item, locale);
 
   return (
     <article className="product-card">
@@ -56,8 +57,8 @@ export function CatalogCard({
           <div className="price-row">
             <div className="price">
               {item.type === "service"
-                ? formatPrice(item.price, dict.catalog.fromPrice)
-                : formatPrice(item.price)}
+                ? formatPrice(item.price, dict.catalog.fromPrice, locale)
+                : formatPrice(item.price, undefined, locale)}
             </div>
           </div>
           <div className="card-actions">

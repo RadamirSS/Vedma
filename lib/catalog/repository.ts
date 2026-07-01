@@ -11,7 +11,9 @@ import {
   getCatalogDescription,
   normalizeCategoryLabel
 } from "@/lib/catalog/normalize";
+import { applyServiceLocale } from "@/lib/catalog/service-localization";
 import { prisma } from "@/lib/db/prisma";
+import type { Locale } from "@/lib/i18n/config";
 
 const FALLBACK_ALLOWED =
   !process.env.DATABASE_URL || process.env.ALLOW_STATIC_CATALOG_FALLBACK === "true";
@@ -143,7 +145,8 @@ function mapProductRecord(record: {
   };
 }
 
-function mapServiceRecord(record: {
+function mapServiceRecord(
+  record: {
   id: string;
   sourceId: string | null;
   slug: string;
@@ -162,8 +165,11 @@ function mapServiceRecord(record: {
   needsReview: boolean;
   sourcePlatform: string | null;
   sourceUrl: string | null;
+  translations?: Prisma.JsonValue | null;
   media: Array<{ path: string }>;
-}): CatalogItem {
+  },
+  locale: Locale = "ru"
+): CatalogItem {
   const fallback = getFallbackServiceBySlug(record.slug);
   const description = getCatalogDescription(record);
   const base = fallback
@@ -192,7 +198,8 @@ function mapServiceRecord(record: {
       ? (record.gallery as string[])
       : record.media.map((entry) => entry.path);
 
-  return {
+  return applyServiceLocale(
+    {
     id: record.sourceId ?? record.id,
     slug: record.slug,
     type: "service",
@@ -222,7 +229,10 @@ function mapServiceRecord(record: {
     sourceId: record.sourceId ?? undefined,
     sourcePlatform: record.sourcePlatform ?? undefined,
     sourceUrl: record.sourceUrl ?? undefined
-  };
+    },
+    locale,
+    record.translations
+  );
 }
 
 export async function getProducts() {
@@ -259,21 +269,21 @@ export async function getProductBySlug(slug: string) {
   return products.find((product) => product.slug === slug) ?? null;
 }
 
-export async function getServices() {
+export async function getServices(locale: Locale = "ru") {
   return withFallback(
     async () => {
       const records = await prisma.service.findMany({
         orderBy: { createdAt: "asc" },
         include: { media: { select: { path: true } } }
       });
-      return records.map(mapServiceRecord);
+      return records.map((record) => mapServiceRecord(record, locale));
     },
     () => getFallbackServices(),
     "getServices"
   );
 }
 
-export async function getPublishedServices() {
+export async function getPublishedServices(locale: Locale = "ru") {
   return withFallback(
     async () => {
       const records = await prisma.service.findMany({
@@ -281,15 +291,15 @@ export async function getPublishedServices() {
         orderBy: { createdAt: "asc" },
         include: { media: { select: { path: true } } }
       });
-      return records.map(mapServiceRecord);
+      return records.map((record) => mapServiceRecord(record, locale));
     },
     () => getFallbackServices(),
     "getPublishedServices"
   );
 }
 
-export async function getServiceBySlug(slug: string) {
-  const services = await getPublishedServices();
+export async function getServiceBySlug(slug: string, locale: Locale = "ru") {
+  const services = await getPublishedServices(locale);
   return services.find((service) => service.slug === slug) ?? null;
 }
 
@@ -298,8 +308,8 @@ export async function getFeaturedProducts(limit = 6) {
   return products.filter((item) => item.image).slice(0, limit);
 }
 
-export async function getFeaturedServices(limit = 3) {
-  const services = await getPublishedServices();
+export async function getFeaturedServices(limit = 3, locale: Locale = "ru") {
+  const services = await getPublishedServices(locale);
   return services.filter((item) => item.image).slice(0, limit);
 }
 

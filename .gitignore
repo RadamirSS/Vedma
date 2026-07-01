@@ -14,3 +14,8 @@ playwright/.auth/
 **/*cookies*
 imports/vk/raw/.browser-state/
 private/
+
+__pycache__/
+*.pyc
+.tmp/
+tsconfig.tsbuildinfo

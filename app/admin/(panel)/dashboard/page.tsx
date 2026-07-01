@@ -6,12 +6,17 @@ import {
   paymentListWhere,
   requestListWhere
 } from "@/lib/admin/commerce-filters";
+import { formatAdminDate } from "@/lib/admin/format";
 import { requireAdminSession } from "@/lib/auth/session";
 import { isReadOnlyAdminRole } from "@/lib/auth/session";
 import { prisma } from "@/lib/db/prisma";
-import { formatAdminDate } from "@/lib/admin/format";
+import { getAdminLocaleFromCookies } from "@/lib/i18n/admin/detect-locale";
+import { getAdminDictionary } from "@/lib/i18n/admin/get-admin-dictionary";
 
 export default async function AdminDashboardPage() {
+  const locale = await getAdminLocaleFromCookies();
+  const dict = await getAdminDictionary(locale);
+  const t = dict.dashboard;
   const session = await requireAdminSession("/admin/dashboard");
   const isReadOnly = isReadOnlyAdminRole(session.user.role);
   const orderWhere = orderListWhere(session.user.role);
@@ -38,17 +43,17 @@ export default async function AdminDashboardPage() {
     <div className="admin-page">
       <div className="admin-header">
         <div className="admin-title">
-          <span className="eyebrow">Панель управления</span>
-          <h1>Production CMS</h1>
-          <p>Каталог, медиа, отзывы, настройки и пользователи управляются из живой базы данных.</p>
+          <span className="eyebrow">{t.eyebrow}</span>
+          <h1>{t.title}</h1>
+          <p>{t.description}</p>
         </div>
         {!isReadOnly ? (
           <div className="admin-actions-row">
             <Link className="btn btn-primary" href="/admin/products/new">
-              Добавить товар
+              {t.addProduct}
             </Link>
             <Link className="btn btn-ghost" href="/admin/services/new">
-              Добавить услугу
+              {t.addService}
             </Link>
           </div>
         ) : null}
@@ -58,12 +63,12 @@ export default async function AdminDashboardPage() {
 
       <section className="admin-stats">
         {[
-          ["Товары", products],
-          ["Услуги", services],
-          ["Медиа", media],
-          ["Заказы", orders],
-          ["Заявки", requests],
-          ["Платежи", payments]
+          [t.stats.products, products],
+          [t.stats.services, services],
+          [t.stats.media, media],
+          [t.stats.orders, orders],
+          [t.stats.requests, requests],
+          [t.stats.payments, payments]
         ].map(([label, value]) => (
           <article key={label} className="admin-stat">
             <span>{label}</span>
@@ -75,30 +80,30 @@ export default async function AdminDashboardPage() {
       <section className="admin-detail-grid">
         <article>
           <div className="admin-section-head">
-            <h2>Быстрые действия</h2>
-            <p>Переход к основным рабочим разделам каталога.</p>
+            <h2>{t.quickActions.title}</h2>
+            <p>{t.quickActions.description}</p>
           </div>
           <div className="admin-grid">
             {!isReadOnly ? (
               <Link className="admin-card" href="/admin/products/new">
-                <h3>Новый товар</h3>
-                <p>Добавить карточку товара и сразу опубликовать или сохранить как черновик.</p>
+                <h3>{t.quickActions.newProduct.title}</h3>
+                <p>{t.quickActions.newProduct.description}</p>
               </Link>
             ) : null}
             {!isReadOnly ? (
               <Link className="admin-card" href="/admin/services/new">
-                <h3>Новая услуга</h3>
-                <p>Создать новый формат работы, цену и SEO-данные.</p>
+                <h3>{t.quickActions.newService.title}</h3>
+                <p>{t.quickActions.newService.description}</p>
               </Link>
             ) : null}
             <Link className="admin-card" href="/admin/media">
-              <h3>Медиа</h3>
-              <p>Загрузить, переиспользовать или заменить изображения.</p>
+              <h3>{t.quickActions.media.title}</h3>
+              <p>{t.quickActions.media.description}</p>
             </Link>
             {session.user.role === "ADMIN" ? (
               <Link className="admin-card" href="/admin/settings">
-                <h3>Настройки</h3>
-                <p>Обновить контакты, SEO и юридические тексты сайта.</p>
+                <h3>{t.quickActions.settings.title}</h3>
+                <p>{t.quickActions.settings.description}</p>
               </Link>
             ) : null}
           </div>
@@ -106,14 +111,14 @@ export default async function AdminDashboardPage() {
 
         <aside>
           <div className="admin-section-head">
-            <h2>Последние обновления</h2>
-            <p>Свежие изменения в товарах и услугах.</p>
+            <h2>{t.recentUpdates.title}</h2>
+            <p>{t.recentUpdates.description}</p>
           </div>
           <div className="admin-side-list">
             {recentUpdates.map((item) => (
               <div key={item.id} className="admin-card">
                 <strong>{item.title}</strong>
-                <span>{formatAdminDate(item.updatedAt)}</span>
+                <span>{formatAdminDate(item.updatedAt, locale)}</span>
               </div>
             ))}
           </div>

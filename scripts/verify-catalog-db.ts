@@ -6,7 +6,7 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 const EXPECTED_PRODUCTS = 71;
-const EXPECTED_SERVICES = 2;
+const EXPECTED_SERVICES = Number(process.env.EXPECTED_SERVICES ?? 26);
 const repoRoot = process.cwd();
 const docsDir = path.join(repoRoot, "docs", "migration");
 const reportPath = path.join(docsDir, "package-1-verification-report.md");

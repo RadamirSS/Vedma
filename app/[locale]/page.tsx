@@ -46,7 +46,7 @@ export default async function HomePage({ params }: PageProps) {
 
   const [products, services, publishedReviews] = await Promise.all([
     getPublishedProducts(),
-    getPublishedServices(),
+    getPublishedServices(locale),
     getPublishedReviews()
   ]);
 
@@ -59,7 +59,7 @@ export default async function HomePage({ params }: PageProps) {
         eyebrow={dict.home.featuredServicesEyebrow}
         title={dict.home.featuredServicesTitle}
         text={dict.home.featuredServicesText}
-        items={pickFeaturedItems(services, 3)}
+        items={pickFeaturedItems(services, 8)}
         viewAllHref={localizeHref(locale, "/services")}
         viewAllLabel={dict.home.allServices}
         locale={locale}
@@ -100,9 +100,8 @@ export default async function HomePage({ params }: PageProps) {
             text={dict.home.processText}
           />
           <div className="steps">
-            {dict.home.processSteps.map((step, index) => (
+            {dict.home.processSteps.map((step) => (
               <article key={step} className="step-card">
-                <span className="step-number">{index + 1}</span>
                 <h3>{step}</h3>
               </article>
             ))}

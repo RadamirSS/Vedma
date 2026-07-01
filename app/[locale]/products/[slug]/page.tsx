@@ -6,10 +6,9 @@ import { AddToCartButton } from "@/components/commerce/add-to-cart-button";
 import { CatalogCard } from "@/components/catalog-card";
 import { CatalogVisual } from "@/components/catalog-visual";
 import { SoftTrustNotice } from "@/components/soft-trust-notice";
-import {
-  getProductBySlug,
-  getPublishedProducts
-} from "@/lib/catalog/repository";
+import { products as staticProducts } from "@/lib/catalog-data";
+import { getFallbackProducts } from "@/lib/catalog/fallback";
+import { getProductBySlug, getPublishedProducts } from "@/lib/catalog/repository";
 import { locales, type Locale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/get-dictionary";
 import { localizeHref } from "@/lib/i18n/routing";
@@ -21,7 +20,7 @@ type PageProps = {
 };
 
 export async function generateStaticParams() {
-  const products = await getPublishedProducts();
+  const products = getFallbackProducts().length > 0 ? getFallbackProducts() : staticProducts;
   return locales.flatMap((locale) => products.map((item) => ({ locale, slug: item.slug })));
 }
 

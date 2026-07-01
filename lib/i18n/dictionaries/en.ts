@@ -32,7 +32,8 @@ export const en: Dictionary = {
     privacy: "Privacy policy",
     offer: "Terms of service",
     telegram: "Telegram",
-    cart: "Cart"
+    cart: "Cart",
+    copyright: "© Bajena / Magic of Life"
   },
   home: {
     heroEyebrow: "Personal brand",
@@ -50,7 +51,7 @@ export const en: Dictionary = {
     trustAge: "18+",
     trustIndividual: "Personal approach",
     directionsEyebrow: "Directions",
-    directionsTitle: "What Bajena works with",
+    directionsTitle: "Life areas I support",
     directionsText:
       "Choose a direction for your request — from Tarot and insight work to ancestral practices and transformation.",
     allDirections: "All directions and services",
@@ -70,7 +71,7 @@ export const en: Dictionary = {
     processTitle: "How we work together",
     processText: "From first contact to result — a clear and gentle path.",
     reviewsEyebrow: "Social proof",
-    reviewsTitle: "Client reviews",
+    reviewsTitle: "Client stories",
     reviewsText: "Real stories from people who sought support and clarity.",
     ctaEyebrow: "Start now",
     ctaTitle: "Ready to choose a service or ask a question?",
@@ -150,7 +151,7 @@ export const en: Dictionary = {
     products: "Shop",
     addToCart: "Add to cart",
     inCart: "In cart",
-    viewDetails: "View details",
+    viewDetails: "Learn more",
     priceOnRequest: "Price on request",
     checkout: "Checkout",
     serviceRequest: "Service request",
@@ -480,11 +481,11 @@ export const en: Dictionary = {
       metaDescription:
         "Tarot, insight work, protection, relationships, money, ancestral practices, transformation and consultations with Bajena. Book online.",
       directionsEyebrow: "Work directions",
-      directionsTitle: "What Bajena works with",
+      directionsTitle: "Life areas I support",
       directionsText:
         "Choose a direction for your request — from Tarot and insight work to ancestral practices and transformation.",
       catalogEyebrow: "Service catalog",
-      catalogTitle: "Available services",
+      catalogTitle: "Services and practices",
       catalogText:
         "Specific formats with price and description. Other directions are available by appointment via Telegram.",
       leadCtaTitle: "Didn't find the right format?",
@@ -527,7 +528,7 @@ export const en: Dictionary = {
     },
     reviews: {
       eyebrow: "Social proof",
-      title: "Client reviews",
+      title: "Client stories",
       text: "Real client stories with filters by service type and review cards."
     }
   },
