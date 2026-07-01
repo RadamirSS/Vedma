@@ -30,6 +30,7 @@ type ResolvedCartItem = {
   currency: "RUB" | "USD";
   priceRub: number | null;
   priceUsd: number | null;
+  priceIsFrom?: boolean;
   detailHref: string;
   sourceId?: string;
 };

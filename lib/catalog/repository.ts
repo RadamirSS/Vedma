@@ -14,6 +14,7 @@ import {
 import { applyServiceLocale } from "@/lib/catalog/service-localization";
 import { prisma } from "@/lib/db/prisma";
 import type { Locale } from "@/lib/i18n/config";
+import { derivePriceIsFrom } from "@/lib/pricing/detect-from-price";
 
 const FALLBACK_ALLOWED =
   !process.env.DATABASE_URL || process.env.ALLOW_STATIC_CATALOG_FALLBACK === "true";
@@ -127,6 +128,10 @@ function mapProductRecord(record: {
     priceRub: record.priceRub,
     priceUsd: record.priceUsd,
     priceLabel: record.priceLabel ?? createPriceLabel({ price: record.priceRub ?? 0, type: "product" }),
+    priceIsFrom: derivePriceIsFrom(
+      record.priceLabel ?? createPriceLabel({ price: record.priceRub ?? 0, type: "product" }),
+      record.slug
+    ),
     badge: base.badge,
     availability: availabilityLabel(record.availabilityStatus),
     availabilityStatus: record.availabilityStatus,
@@ -217,6 +222,10 @@ function mapServiceRecord(
     priceRub: record.priceRub,
     priceUsd: record.priceUsd,
     priceLabel: record.priceLabel ?? createPriceLabel({ price: record.priceRub ?? 0, type: "service" }),
+    priceIsFrom: derivePriceIsFrom(
+      record.priceLabel ?? createPriceLabel({ price: record.priceRub ?? 0, type: "service" }),
+      record.slug
+    ),
     badge: base.badge,
     publicationStatus: record.publicationStatus,
     icon: base.icon,

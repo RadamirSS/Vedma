@@ -10,6 +10,7 @@ import {
   inferSourcePlatform,
   normalizeCategoryLabel
 } from "@/lib/catalog/normalize";
+import { derivePriceIsFrom } from "@/lib/pricing/detect-from-price";
 
 function normalizeStaticItem(item: CatalogItem): CatalogItem {
   const presentation = buildCatalogItemBase(item);
@@ -24,6 +25,7 @@ function normalizeStaticItem(item: CatalogItem): CatalogItem {
     fullDescription: item.details.join("\n"),
     priceRub: item.price,
     priceLabel: createPriceLabel(item),
+    priceIsFrom: derivePriceIsFrom(createPriceLabel(item), item.slug),
     availabilityStatus:
       item.type === "product" ? deriveAvailabilityStatus(item) : undefined,
     availability:

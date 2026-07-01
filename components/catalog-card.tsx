@@ -11,7 +11,7 @@ import { localizeHref } from "@/lib/i18n/routing";
 import { buildTelegramLeadUrl } from "@/lib/i18n/telegram-lead";
 import { getProductDisplayCategory } from "@/lib/product-categories";
 import { getServiceCategoryLabel } from "@/lib/i18n/service-categories";
-import { formatPrice } from "@/lib/utils";
+import { formatCatalogItemPrice } from "@/lib/pricing/format-price";
 
 function getCategoryLabel(item: CatalogItem, locale: Locale) {
   if (item.type === "product") {
@@ -56,9 +56,7 @@ export function CatalogCard({
         <div className="card-footer">
           <div className="price-row">
             <div className="price">
-              {item.type === "service"
-                ? formatPrice(item.price, dict.catalog.fromPrice, locale)
-                : formatPrice(item.price, undefined, locale)}
+              {formatCatalogItemPrice(item, locale, dict.catalog.priceOnRequest)}
             </div>
           </div>
           <div className="card-actions">

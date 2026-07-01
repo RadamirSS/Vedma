@@ -13,6 +13,7 @@ export type CatalogItem = {
   priceRub?: number | null;
   priceUsd?: number | null;
   priceLabel?: string | null;
+  priceIsFrom?: boolean;
   badge: string;
   availability?: string;
   availabilityStatus?: "IN_STOCK" | "ON_REQUEST" | "OUT_OF_STOCK" | "UNKNOWN";

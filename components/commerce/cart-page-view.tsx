@@ -6,12 +6,12 @@ import { useCart } from "@/components/cart-context";
 import type { Locale } from "@/lib/i18n/config";
 import type { Dictionary } from "@/lib/i18n/dictionaries/ru";
 import { localizeHref } from "@/lib/i18n/routing";
-import { formatPrice } from "@/lib/utils";
+import { formatCartItemUnitPrice, formatCartLineTotal, formatOrderAmountRub } from "@/lib/pricing/format-price";
 
 export function CartPageView({ locale, dict }: { locale: Locale; dict: Dictionary }) {
   const {
     resolvedItems,
-    total,
+    totalRub,
     isPending,
     changeQty,
     clearCart,
@@ -79,7 +79,7 @@ export function CartPageView({ locale, dict }: { locale: Locale; dict: Dictionar
                 <b>{item.title}</b>
                 <span className="muted">
                   {item.type === "product" ? dict.cart.productType : dict.cart.serviceType} ·{" "}
-                  {formatPrice(item.unitAmount)}
+                  {formatCartItemUnitPrice(item, locale, dict.catalog.priceOnRequest)}
                 </span>
               </div>
               <div className="qty">
@@ -102,7 +102,9 @@ export function CartPageView({ locale, dict }: { locale: Locale; dict: Dictionar
                   +
                 </button>
               </div>
-              <div className="cart-line-total">{formatPrice(item.unitAmount * item.quantity)}</div>
+              <div className="cart-line-total">
+                {formatCartLineTotal(item, locale, dict.catalog.priceOnRequest)}
+              </div>
             </div>
           ))}
         </div>
@@ -111,7 +113,7 @@ export function CartPageView({ locale, dict }: { locale: Locale; dict: Dictionar
         <h3>{dict.cart.total}</h3>
         <div className="summary-line summary-total">
           <span>{dict.cart.orderTotal}</span>
-          <b>{isPending ? "..." : formatPrice(total)}</b>
+          <b>{isPending ? "..." : formatOrderAmountRub(totalRub, locale, dict.catalog.priceOnRequest)}</b>
         </div>
         <div className="stack-top">
           <Link className="btn btn-primary btn-wide" href={localizeHref(locale, "/checkout")}>
