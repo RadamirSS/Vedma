@@ -2,7 +2,6 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 import { SectionHeading } from "@/components/section-heading";
-import { aboutDirections, benefits } from "@/lib/mock-data";
 import { getSiteSettings } from "@/lib/admin/settings";
 import type { Locale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/get-dictionary";
@@ -50,14 +49,14 @@ export default async function AboutPage({ params }: PageProps) {
             <p>{dict.pages.about.paragraph1}</p>
             <p>{dict.pages.about.paragraph2}</p>
             <div className="directions">
-              {aboutDirections.map((direction) => (
+              {dict.pages.about.directions.map((direction) => (
                 <div key={direction} className="direction">
                   {direction}
                 </div>
               ))}
             </div>
             <div className="benefits-grid compact-grid">
-              {benefits.slice(0, 3).map((benefit) => (
+              {dict.home.benefits.slice(0, 3).map((benefit) => (
                 <article key={benefit} className="benefit-card benefit-card--text">
                   <p>{benefit}</p>
                 </article>

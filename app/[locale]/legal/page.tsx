@@ -12,10 +12,20 @@ export default async function LegalPage({ params }: PageProps) {
   const locale = localeParam as Locale;
   const dict = await getDictionary(locale);
   const settings = await getSiteSettings();
-  const legalCards = [
-    { title: settings.legalPages.privacyTitle, text: settings.legalPages.privacyText },
-    { title: settings.legalPages.offerTitle, text: settings.legalPages.offerText }
-  ];
+
+  const legalCards =
+    locale === "en"
+      ? [
+          { title: dict.pages.legal.privacyTitle, text: dict.pages.legal.privacyText },
+          { title: dict.pages.legal.offerTitle, text: dict.pages.legal.offerText }
+        ]
+      : [
+          { title: settings.legalPages.privacyTitle, text: settings.legalPages.privacyText },
+          { title: settings.legalPages.offerTitle, text: settings.legalPages.offerText }
+        ];
+
+  const disclaimerText =
+    locale === "en" ? dict.pages.legal.disclaimerText : settings.legalPages.disclaimerText;
 
   return (
     <section className="section">
@@ -33,7 +43,7 @@ export default async function LegalPage({ params }: PageProps) {
             </article>
           ))}
         </div>
-        <p className="muted stack-top">{settings.legalPages.disclaimerText}</p>
+        <p className="muted stack-top">{disclaimerText}</p>
       </div>
     </section>
   );

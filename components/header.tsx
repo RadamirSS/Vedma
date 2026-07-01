@@ -34,6 +34,11 @@ export function Header({
   const accountHref = localizeHref(locale, "/account");
   const homeHref = localizeHref(locale, "/");
 
+  function handleOpenCart() {
+    openCart();
+    setIsMenuOpen(false);
+  }
+
   return (
     <header className="nav">
       <div className="container nav-inner">
@@ -48,7 +53,7 @@ export function Header({
           ) : (
             <span className="sigil">Б</span>
           )}
-          <span>
+          <span className="brand-text">
             <span className="brand-name">{dict.header.brandName}</span>
             <span className="brand-sub">{dict.header.brandSub}</span>
           </span>
@@ -60,6 +65,10 @@ export function Header({
               {link.label}
             </Link>
           ))}
+          <button className="menu-cart" type="button" onClick={openCart}>
+            {dict.header.cart}
+            {count > 0 ? <span className="menu-cart__count">{count}</span> : null}
+          </button>
         </nav>
 
         <div className="nav-actions">
@@ -72,14 +81,11 @@ export function Header({
             <span className="account-btn__full">{dict.header.account}</span>
             <span className="account-btn__short">{dict.header.accountShort}</span>
           </Link>
-          <button className="btn btn-primary btn-small cart-btn" type="button" onClick={openCart}>
-            {dict.header.cart}
-            <span className="cart-count">{count}</span>
-          </button>
           <button
             className="btn btn-ghost btn-small burger"
             type="button"
             onClick={() => setIsMenuOpen((value) => !value)}
+            aria-expanded={isMenuOpen}
           >
             {dict.header.menu}
           </button>
@@ -92,6 +98,10 @@ export function Header({
             {link.label}
           </Link>
         ))}
+        <button className="mobile-menu__cart" type="button" onClick={handleOpenCart}>
+          {dict.header.cart}
+          {count > 0 ? <span className="menu-cart__count">{count}</span> : null}
+        </button>
         <Link href={accountHref} onClick={() => setIsMenuOpen(false)}>
           {dict.header.account}
         </Link>

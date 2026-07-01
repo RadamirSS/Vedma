@@ -1,9 +1,13 @@
 import { cache } from "react";
 
+import type { Locale } from "@/lib/i18n/config";
+import { getDictionarySync } from "@/lib/i18n/get-dictionary";
 import { prisma } from "@/lib/db/prisma";
-import { reviews as fallbackReviews } from "@/lib/mock-data";
 
-export const getPublishedReviews = cache(async () => {
+export const getPublishedReviews = cache(async (locale: Locale = "ru") => {
+  const dict = getDictionarySync(locale);
+  const fallbackReviews = dict.pages.reviews.samples;
+
   if (!process.env.DATABASE_URL) {
     return fallbackReviews;
   }
@@ -20,9 +24,9 @@ export const getPublishedReviews = cache(async () => {
 
     return reviews.map((review) => ({
       id: review.id,
-      service: review.title ?? "Отзыв клиента",
+      service: review.title ?? dict.pages.reviews.defaultService,
       quote: review.text,
-      author: review.authorName ?? "Клиент"
+      author: review.authorName ?? dict.pages.reviews.defaultAuthor
     }));
   } catch {
     return fallbackReviews;

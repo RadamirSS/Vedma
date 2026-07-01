@@ -11,7 +11,7 @@ export default async function ReviewsPage({ params }: PageProps) {
   const { locale: localeParam } = await params;
   const locale = localeParam as Locale;
   const dict = await getDictionary(locale);
-  const reviews = await getPublishedReviews();
+  const reviews = await getPublishedReviews(locale);
 
   return (
     <section className="section">

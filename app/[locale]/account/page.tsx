@@ -27,7 +27,9 @@ export default async function AccountPage({ params, searchParams }: PageProps) {
   const success = typeof routeParams.success === "string" ? routeParams.success : undefined;
   const adminSession = await getCurrentAdminSession();
   if (adminSession) {
-    redirect("/admin/dashboard?error=Кабинет+клиента+недоступен+для+администратора.");
+    redirect(
+      `/admin/dashboard?error=${encodeURIComponent(dict.account.messages.adminCustomerCabinetBlocked)}`
+    );
   }
 
   const session = await getCurrentCustomerSession();

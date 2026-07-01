@@ -4,6 +4,7 @@ import { ReactNode } from "react";
 import { usePathname } from "next/navigation";
 
 import { CartDrawer } from "@/components/cart-drawer";
+import { FloatingCartButton } from "@/components/floating-cart-button";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
 import type { SiteSettingsShape } from "@/lib/admin/settings";
@@ -39,6 +40,7 @@ export function SiteShell({
       <main>{children}</main>
       <Footer settings={settings} locale={locale} dict={dict} />
       <CartDrawer locale={locale} dict={dict} />
+      <FloatingCartButton locale={locale} dict={dict} />
       <div className="floating-social">
         <a href={settings.socialLinks.telegram} target="_blank" rel="noreferrer" title="Telegram">
           TG
