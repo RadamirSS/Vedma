@@ -71,7 +71,7 @@ export function Footer({
         </div>
       </div>
       <div className="container footer-bottom">
-        <p>{settings.footer.copyright}</p>
+        <p>{locale === "en" ? dict.footer.copyright : settings.footer.copyright}</p>
         <p>
           <Link href={localizeHref(locale, "/legal")}>{dict.footer.privacy}</Link> · {dict.footer.offer}
         </p>

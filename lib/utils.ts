@@ -23,7 +23,15 @@ export function formatCatalogLabel(text: string, maxLength = 32) {
   return `${translated.slice(0, maxLength - 1).trimEnd()}…`;
 }
 
-export function formatPrice(price: number, prefix?: string) {
-  const value = new Intl.NumberFormat("ru-RU").format(price);
-  return prefix ? `${prefix} ${value} ₽` : `${value} ₽`;
+export function formatPrice(price: number, prefix?: string, locale: "en" | "ru" = "ru") {
+  const formatted =
+    locale === "en"
+      ? new Intl.NumberFormat("en-US").format(price)
+      : new Intl.NumberFormat("ru-RU").format(price);
+
+  if (locale === "en") {
+    return prefix ? `${prefix} ₽${formatted}` : `₽${formatted}`;
+  }
+
+  return prefix ? `${prefix} ${formatted} ₽` : `${formatted} ₽`;
 }

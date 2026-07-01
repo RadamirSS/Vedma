@@ -17,7 +17,9 @@
     "db:studio": "prisma studio",
     "db:import:catalog": "tsx scripts/import-catalog-to-db.ts",
     "db:verify:catalog": "tsx scripts/verify-catalog-db.ts",
-    "db:mark-test-orders": "tsx scripts/mark-test-orders.ts"
+    "db:mark-test-orders": "tsx scripts/mark-test-orders.ts",
+    "vk:services:import:dry-run": "tsx scripts/vk-services/import_ready_services.ts --dry-run",
+    "vk:services:import:apply": "tsx scripts/vk-services/import_ready_services.ts --apply"
   },
   "dependencies": {
     "@prisma/client": "^6.11.0",

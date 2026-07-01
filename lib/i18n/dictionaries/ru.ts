@@ -30,7 +30,8 @@ export const ru = {
     privacy: "Политика конфиденциальности",
     offer: "Публичная оферта",
     telegram: "Telegram",
-    cart: "Корзина"
+    cart: "Корзина",
+    copyright: "© Бажена / Магия Жизни"
   },
   home: {
     heroEyebrow: "Личный бренд",

@@ -182,6 +182,7 @@ model Service {
   tags               Json?
   seoTitle           String?
   seoDescription     String?
+  translations       Json?
   needsReview        Boolean           @default(false)
   publicationStatus  PublicationStatus @default(DRAFT)
   media              Media[]
