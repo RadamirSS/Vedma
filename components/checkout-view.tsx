@@ -12,7 +12,7 @@ import { useCart } from "@/components/cart-context";
 import type { Locale } from "@/lib/i18n/config";
 import type { Dictionary } from "@/lib/i18n/dictionaries/ru";
 import { localizeHref } from "@/lib/i18n/routing";
-import { formatPrice } from "@/lib/utils";
+import { formatCartLineTotal, formatOrderAmountRub } from "@/lib/pricing/format-price";
 
 const initialState: CheckoutActionState = {
   success: false,
@@ -70,7 +70,7 @@ export function CheckoutView({
   const {
     items,
     resolvedItems,
-    total,
+    totalRub,
     deliveryRequired,
     clearCart,
     isPending,
@@ -419,12 +419,12 @@ export function CheckoutView({
                 <span>
                   {item.title} × {item.quantity}
                 </span>
-                <b>{formatPrice(item.unitAmount * item.quantity)}</b>
+                <b>{formatCartLineTotal(item, locale, dict.catalog.priceOnRequest)}</b>
               </div>
             ))}
             <div className="summary-line summary-total">
               <span>{t.total}</span>
-              <b>{isPending ? "..." : formatPrice(total)}</b>
+              <b>{isPending ? "..." : formatOrderAmountRub(totalRub, locale, dict.catalog.priceOnRequest)}</b>
             </div>
             {deliveryRequired ? (
               <p className="muted checkout-delivery-note">{t.deliveryRequired}</p>

@@ -118,7 +118,7 @@ export function createPriceLabel(item: Pick<CatalogItem, "price" | "type">) {
   if (!item.price) {
     return null;
   }
-  return item.type === "service" ? `от ${item.price} ₽` : `${item.price} ₽`;
+  return `${new Intl.NumberFormat("ru-RU").format(item.price)} ₽`;
 }
 
 export function buildGallery(image?: string) {

@@ -6,7 +6,8 @@ import { useCart } from "@/components/cart-context";
 import type { Locale } from "@/lib/i18n/config";
 import type { Dictionary } from "@/lib/i18n/dictionaries/ru";
 import { localizeHref } from "@/lib/i18n/routing";
-import { formatCatalogLabel, formatPrice } from "@/lib/utils";
+import { formatCartItemUnitPrice, formatOrderAmountRub } from "@/lib/pricing/format-price";
+import { formatCatalogLabel } from "@/lib/utils";
 
 export function CartDrawer({
   locale,
@@ -17,7 +18,7 @@ export function CartDrawer({
 }) {
   const {
     resolvedItems,
-    total,
+    totalRub,
     isOpen,
     closeCart,
     changeQty,
@@ -73,7 +74,7 @@ export function CartDrawer({
                     <b>{item.title}</b>
                     <span>
                       {formatCatalogLabel(item.type === "product" ? dict.catalog.products : dict.catalog.services)} ·{" "}
-                      {formatPrice(item.unitAmount)}
+                      {formatCartItemUnitPrice(item, locale, dict.catalog.priceOnRequest)}
                     </span>
                     <div className="qty">
                       <button
@@ -111,7 +112,7 @@ export function CartDrawer({
         <div className="drawer-foot">
           <div className="total">
             <span>{t.total}</span>
-            <b>{isPending ? "..." : formatPrice(total)}</b>
+            <b>{isPending ? "..." : formatOrderAmountRub(totalRub, locale, dict.catalog.priceOnRequest)}</b>
           </div>
           <Link className="btn btn-primary" href={localizeHref(locale, "/cart")} onClick={closeCart}>
             {t.viewCart}

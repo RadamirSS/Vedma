@@ -23,6 +23,7 @@ export type ResolvedCartItem = {
   currency: Currency;
   priceRub: number | null;
   priceUsd: number | null;
+  priceIsFrom?: boolean;
   detailHref: string;
   sourceId?: string;
 };
@@ -106,6 +107,7 @@ export async function resolveCartEntries(entries: CartEntry[]) {
       currency,
       priceRub: item.priceRub ?? null,
       priceUsd: item.priceUsd ?? null,
+      priceIsFrom: item.priceIsFrom,
       detailHref: item.type === "product" ? `/products/${item.slug}` : `/services/${item.slug}`,
       sourceId: item.sourceId
     });

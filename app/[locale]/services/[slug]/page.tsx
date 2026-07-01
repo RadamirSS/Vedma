@@ -17,7 +17,7 @@ import { resolveTargetSlug, type VkImportCandidatesFile } from "@/lib/vk-service
 import { locales, type Locale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/get-dictionary";
 import { localizeHref } from "@/lib/i18n/routing";
-import { formatPrice } from "@/lib/utils";
+import { formatCatalogItemPrice } from "@/lib/pricing/format-price";
 
 type PageProps = {
   params: Promise<{ locale: string; slug: string }>;
@@ -78,7 +78,7 @@ export default async function ServiceDetailPage({ params }: PageProps) {
             <div className="detail-meta">
               <span className="pill">{item.subtitle}</span>
               <span className="pill">
-                {formatPrice(item.price, dict.catalog.fromPrice, locale)}
+                {formatCatalogItemPrice(item, locale, dict.catalog.priceOnRequest)}
               </span>
             </div>
             <div className="hero-actions">

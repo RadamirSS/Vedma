@@ -7,7 +7,7 @@ import { ORDER_STATUS_LABELS, PAYMENT_STATUS_LABELS } from "@/lib/admin/constant
 import type { Locale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/get-dictionary";
 import { localizeHref } from "@/lib/i18n/routing";
-import { formatPrice } from "@/lib/utils";
+import { formatOrderAmountRub } from "@/lib/pricing/format-price";
 import { prisma } from "@/lib/db/prisma";
 
 type PageProps = {
@@ -62,13 +62,13 @@ export default async function AccountOrdersPage({ params }: PageProps) {
                     <span>
                       {item.titleSnapshot} × {item.quantity}
                     </span>
-                    <b>{formatPrice(item.priceSnapshot * item.quantity)}</b>
+                    <b>{formatOrderAmountRub(item.priceSnapshot * item.quantity, locale, dict.catalog.priceOnRequest)}</b>
                   </div>
                 ))}
               </div>
               <div className="summary-line summary-total">
                 <span>{dict.cart.total}</span>
-                <b>{formatPrice(order.totalAmount)}</b>
+                <b>{formatOrderAmountRub(order.totalAmount, locale, dict.catalog.priceOnRequest)}</b>
               </div>
               <div className="account-card-foot">
                 <span className="muted">
