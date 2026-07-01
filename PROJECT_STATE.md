@@ -3,7 +3,20 @@
 Date: 2026-07-01
 Repository: `Vedma`
 Current branch: `main`
-Main branch status: Package 3.5.5 deployed on https://bajena.it (2026-07-01)
+Main branch status: Package 3.5.6 deployed on https://bajena.it (2026-07-01)
+
+## Package 3.5.6 deploy (live)
+
+- Fix commit: `ed077df`
+- Merge commit: `163b5c129aa7016eaec8fb3bef04fc9b95521e37`
+- Previous server commit: `8ed298578f3ae31e8f49baf29534c38fd7806d2e`
+- Header: cart removed from top bar; floating cart bottom-left; cart in desktop/mobile menu
+- i18n: about/contacts/legal/reviews localized for EN; full audit doc
+- `pnpm db:verify:catalog`: pass on server
+- `vedma.service`: active after restart
+- Status: **READY_FOR_EXTERNAL_REVIEW**
+
+See `docs/packages/package-3-5-6-final-header-cart-i18n-closeout.md`.
 
 ## Package 3.5.5 deploy (live)
 
