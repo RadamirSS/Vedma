@@ -3,7 +3,20 @@
 Date: 2026-07-01
 Repository: `Vedma`
 Current branch: `main`
-Main branch status: Package 3.5.3 deployed on https://bajena.it (2026-07-01)
+Main branch status: Package 3.5.5 deployed on https://bajena.it (2026-07-01)
+
+## Package 3.5.5 deploy (live)
+
+- Pricing fix commit: `74d1bb5`
+- Merge commit: `12dc050d2905dec83ef897aa42ba02093ede7cab`
+- Previous server commit: `12e807a2c42fac60bb425ae01110d61237193fd6`
+- EN locale: USD display (`lib/pricing/format-price.ts`), rate fallback 90 (env `RUB_PER_USD` not set on server)
+- RU locale: RUB display; exact vs `от`/`from` fixed via `priceIsFrom`
+- `pnpm db:verify:catalog`: pass on server
+- `vedma.service`: active after restart
+- Status: **READY_FOR_EXTERNAL_REVIEW** (browser admin/mobile smoke partially deferred)
+
+See `docs/packages/package-3-5-5-final-qa-usd-deploy.md`.
 
 ## Package 3.5.3 / 3.5.4 deploy (live)
 

@@ -59,6 +59,12 @@ Base: `main`
 - Homepage: 8 featured service cards
 - Service category labels localized on EN cards
 
+## Package 3.5.5 follow-up (pricing / USD)
+
+- EN public prices display USD; RU display RUB
+- Exact-price services no longer show `from`/`от` by default
+- See `docs/packages/package-3-5-5-final-qa-usd-deploy.md`
+
 ## Verification
 
 | Check | Result |
