@@ -165,6 +165,12 @@ export const ru = {
     filterAll: "Все",
     filters: "Фильтры",
     category: "Категория",
+    availability: {
+      IN_STOCK: "В наличии",
+      ON_REQUEST: "Под заказ",
+      OUT_OF_STOCK: "Нет в наличии",
+      UNKNOWN: "Не указано"
+    },
     goToCheckout: "Перейти к оформлению",
     beforeOrder: "Перед заказом",
     descriptionSection: "Описание и подача",

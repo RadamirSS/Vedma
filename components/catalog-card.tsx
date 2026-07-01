@@ -20,6 +20,18 @@ function getCategoryLabel(item: CatalogItem, locale: Locale) {
   return getServiceCategoryLabel(item.normalizedCategory ?? item.category, locale);
 }
 
+function getAvailabilityLabel(item: CatalogItem, locale: Locale, dict: Dictionary) {
+  if (!item.availabilityStatus) {
+    return item.availability;
+  }
+
+  if (locale === "en") {
+    return dict.catalog.availability[item.availabilityStatus] ?? item.availability;
+  }
+
+  return item.availability;
+}
+
 export function CatalogCard({
   item,
   locale,
@@ -34,16 +46,17 @@ export function CatalogCard({
     item.type === "service" ? `/services/${item.slug}` : `/products/${item.slug}`
   );
   const categoryLabel = getCategoryLabel(item, locale);
+  const availabilityLabel = getAvailabilityLabel(item, locale, dict);
 
   return (
     <article className="product-card">
       <div className={`pic ${item.accent}${item.image ? " has-image" : ""}`}>
         <span className="badge">{categoryLabel}</span>
-        {item.availability ? (
+        {availabilityLabel ? (
           <span
             className={`stock ${item.availabilityStatus === "ON_REQUEST" ? "order" : ""}`}
           >
-            {item.availability}
+            {availabilityLabel}
           </span>
         ) : null}
         <CatalogVisual item={item} />

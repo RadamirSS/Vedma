@@ -166,6 +166,12 @@ export const en: Dictionary = {
     filterAll: "All",
     filters: "Filters",
     category: "Category",
+    availability: {
+      IN_STOCK: "In stock",
+      ON_REQUEST: "Made to order",
+      OUT_OF_STOCK: "Out of stock",
+      UNKNOWN: "Availability unknown"
+    },
     goToCheckout: "Go to checkout",
     beforeOrder: "Before ordering",
     descriptionSection: "Description",
