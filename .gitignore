@@ -17,3 +17,5 @@ private/
 
 __pycache__/
 *.pyc
+.tmp/
+tsconfig.tsbuildinfo
