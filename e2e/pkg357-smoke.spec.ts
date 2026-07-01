@@ -20,7 +20,7 @@ test.describe("Package 3.5.7 smoke", () => {
 
   test("account login page loads", async ({ page }) => {
     await page.goto("/en/account/login", { waitUntil: "networkidle" });
-    await expect(page.locator("h2.account-auth-card-title")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Sign in to account" })).toBeVisible();
     await expect(page.getByLabel(/email/i)).toBeVisible();
   });
 
